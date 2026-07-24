@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ Thống Luyện Thi TOEIC Nội Bộ</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        /* Thanh Header */
+        header {
+            background-color: #0037f4; /* Màu xanh TOEIC đặc trưng */
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 28px;
+            letter-spacing: 1px;
+        }
+
+        header p {
+            margin: 5px 0 0 0;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        /* Container chứa nội dung */
+        .container {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        /* Từng cụm năm (2026, 2024, 2023) */
+        .year-section {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 40px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+        }
+
+        .year-section h2 {
+            margin-top: 0;
+            color: #1a1a1a;
+            border-bottom: 2px solid #e1e4e8;
+            padding-bottom: 10px;
+            margin-bottom: 25px;
+            font-size: 22px;
+            display: flex;
+            align-items: center;
+        }
+
+        .year-section h2::before {
+            content: '📚';
+            margin-right: 10px;
+        }
+
+        /* Lưới chứa các nút Test */
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        /* Nút bấm chọn đề */
+        .test-card {
+            background-color: #ffffff;
+            border: 2px solid #e1e4e8;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            text-decoration: none;
+            color: #333;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .test-card:hover {
+            border-color: #0037f4;
+            background-color: #f5f7ff;
+            color: #0037f4;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 55, 244, 0.1);
+        }
+
+        .test-number {
+            display: block;
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .test-tag {
+            display: block;
+            font-size: 12px;
+            color: #666;
+            font-weight: 400;
+        }
+        
+        .test-card:hover .test-tag {
+            color: #0037f4;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>HỆ THỐNG LUYỆN THI TOEIC</h1>
+        <p>Luyện thi trực tuyến với âm thanh & chấm điểm tự động</p>
+    </header>
+
+    <div class="container">
+
+        <!-- KHO ĐỀ ETS 2026 -->
+        <div class="year-section">
+            <h2>Bộ Đề ETS 2026</h2>
+            <div class="test-grid">
+                <!-- Chú ý thuộc tính href: Nó sẽ gọi file thi.html và truyền tên file Data vào -->
+                <a href="thi.html?file=ETS 2026 Test 1.txt" class="test-card">
+                    <span class="test-number">Test 1</span>
+                    <span class="test-tag">ETS 2026</span>
+                </a>
+                <a href="thi.html?file=ETS 2026 Test 2.txt" class="test-card">
+                    <span class="test-number">Test 2</span><span class="test-tag">ETS 2026</span>
+                </a>
+                <a href="thi.html?file=ETS 2026 Test 3.txt" class="test-card">
+                    <span class="test-number">Test 3</span><span class="test-tag">ETS 2026</span>
+                </a>
+                <a href="thi.html?file=ETS 2026 Test 4.txt" class="test-card">
+                    <span class="test-number">Test 4</span><span class="test-tag">ETS 2026</span>
+                </a>
+                <a href="thi.html?file=ETS 2026 Test 5.txt" class="test-card">
+                    <span class="test-number">Test 5</span><span class="test-tag">ETS 2026</span>
+                </a>
+                <a href="thi.html?file=ETS 2026 Test 6.txt" class="test-card">
+                    <span class="test-number">Test 6</span><span class="test-tag">ETS 2026</span>
+                </a>
+                <a href="thi.html?file=ETS 2026 Test 7.txt" class="test-card">
+                    <span class="test-number">Test 7</span><span class="test-tag">ETS 2026</span>
+                </a>
+                <a href="thi.html?file=ETS 2026 Test 8.txt" class="test-card">
+                    <span class="test-number">Test 8</span><span class="test-tag">ETS 2026</span>
+                </a>
+                <a href="thi.html?file=ETS 2026 Test 9.txt" class="test-card">
+                    <span class="test-number">Test 9</span><span class="test-tag">ETS 2026</span>
+                </a>
+                <a href="thi.html?file=ETS 2026 Test 10.txt" class="test-card">
+                    <span class="test-number">Test 10</span><span class="test-tag">ETS 2026</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- KHO ĐỀ ETS 2024 -->
+        <div class="year-section">
+            <h2>Bộ Đề ETS 2024</h2>
+            <div class="test-grid">
+                <a href="thi.html?file=ETS 2024 Test 1.txt" class="test-card">
+                    <span class="test-number">Test 1</span><span class="test-tag">ETS 2024</span>
+                </a>
+                <a href="thi.html?file=ETS 2024 Test 2.txt" class="test-card">
+                    <span class="test-number">Test 2</span><span class="test-tag">ETS 2024</span>
+                </a>
+                <a href="thi.html?file=ETS 2024 Test 3.txt" class="test-card">
+                    <span class="test-number">Test 3</span><span class="test-tag">ETS 2024</span>
+                </a>
+                <a href="thi.html?file=ETS 2024 Test 4.txt" class="test-card">
+                    <span class="test-number">Test 4</span><span class="test-tag">ETS 2024</span>
+                </a>
+                <a href="thi.html?file=ETS 2024 Test 5.txt" class="test-card">
+                    <span class="test-number">Test 5</span><span class="test-tag">ETS 2024</span>
+                </a>
+                <a href="thi.html?file=ETS 2024 Test 6.txt" class="test-card">
+                    <span class="test-number">Test 6</span><span class="test-tag">ETS 2024</span>
+                </a>
+                <a href="thi.html?file=ETS 2024 Test 7.txt" class="test-card">
+                    <span class="test-number">Test 7</span><span class="test-tag">ETS 2024</span>
+                </a>
+                <a href="thi.html?file=ETS 2024 Test 8.txt" class="test-card">
+                    <span class="test-number">Test 8</span><span class="test-tag">ETS 2024</span>
+                </a>
+                <a href="thi.html?file=ETS 2024 Test 9.txt" class="test-card">
+                    <span class="test-number">Test 9</span><span class="test-tag">ETS 2024</span>
+                </a>
+                <a href="thi.html?file=ETS 2024 Test 10.txt" class="test-card">
+                    <span class="test-number">Test 10</span><span class="test-tag">ETS 2024</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- KHO ĐỀ ETS 2023 -->
+        <div class="year-section">
+            <h2>Bộ Đề ETS 2023</h2>
+            <div class="test-grid">
+                <a href="thi.html?file=ETS 2023 Test 1.txt" class="test-card">
+                    <span class="test-number">Test 1</span><span class="test-tag">ETS 2023</span>
+                </a>
+                <a href="thi.html?file=ETS 2023 Test 2.txt" class="test-card">
+                    <span class="test-number">Test 2</span><span class="test-tag">ETS 2023</span>
+                </a>
+                <a href="thi.html?file=ETS 2023 Test 3.txt" class="test-card">
+                    <span class="test-number">Test 3</span><span class="test-tag">ETS 2023</span>
+                </a>
+                <a href="thi.html?file=ETS 2023 Test 4.txt" class="test-card">
+                    <span class="test-number">Test 4</span><span class="test-tag">ETS 2023</span>
+                </a>
+                <a href="thi.html?file=ETS 2023 Test 5.txt" class="test-card">
+                    <span class="test-number">Test 5</span><span class="test-tag">ETS 2023</span>
+                </a>
+                <a href="thi.html?file=ETS 2023 Test 6.txt" class="test-card">
+                    <span class="test-number">Test 6</span><span class="test-tag">ETS 2023</span>
+                </a>
+                <a href="thi.html?file=ETS 2023 Test 7.txt" class="test-card">
+                    <span class="test-number">Test 7</span><span class="test-tag">ETS 2023</span>
+                </a>
+                <a href="thi.html?file=ETS 2023 Test 8.txt" class="test-card">
+                    <span class="test-number">Test 8</span><span class="test-tag">ETS 2023</span>
+                </a>
+                <a href="thi.html?file=ETS 2023 Test 9.txt" class="test-card">
+                    <span class="test-number">Test 9</span><span class="test-tag">ETS 2023</span>
+                </a>
+                <a href="thi.html?file=ETS 2023 Test 10.txt" class="test-card">
+                    <span class="test-number">Test 10</span><span class="test-tag">ETS 2023</span>
+                </a>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>

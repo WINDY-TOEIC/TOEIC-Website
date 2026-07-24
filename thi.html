@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Làm Bài Thi TOEIC</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f4f6f9; margin: 0; color: #333; }
+        
+        /* Header cố định */
+        header { background-color: #0037f4; color: white; padding: 15px 20px; position: sticky; top: 0; z-index: 100; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        header h1 { margin: 0; font-size: 20px; }
+        .back-btn { color: white; text-decoration: none; font-weight: bold; background: rgba(255,255,255,0.2); padding: 8px 15px; border-radius: 5px; }
+        
+        /* Bố cục chính */
+        .container { max-width: 900px; margin: 30px auto; padding: 0 20px; }
+        #loading { text-align: center; font-size: 20px; color: #666; margin-top: 50px; font-weight: bold;}
+        
+        /* Khung từng cụm câu hỏi */
+        .question-group { background: white; border-radius: 10px; padding: 25px; margin-bottom: 30px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .passage-content { margin-bottom: 20px; overflow-x: auto; }
+        .passage-content img { max-width: 100%; height: auto; border-radius: 8px; }
+        audio { width: 100%; margin-bottom: 20px; outline: none; border-radius: 30px;}
+        
+        /* Câu hỏi con & Đáp án */
+        .sub-question { margin-bottom: 25px; border-top: 1px dashed #eee; padding-top: 15px; }
+        .q-title { font-weight: 600; font-size: 17px; margin-bottom: 15px; }
+        .options { display: flex; flex-direction: column; gap: 10px; }
+        
+        .option-label { display: flex; align-items: center; padding: 12px 15px; border: 2px solid #e1e4e8; border-radius: 8px; cursor: pointer; transition: 0.2s; background: #fff; }
+        .option-label:hover { border-color: #0037f4; background: #f8f9fa; }
+        .option-label input { margin-right: 10px; transform: scale(1.2); accent-color: #0037f4; }
+        
+        /* Style khi chấm điểm */
+        .correct { background-color: #d4edda !important; border-color: #28a745 !important; color: #155724; font-weight: bold; }
+        .wrong { background-color: #f8d7da !important; border-color: #dc3545 !important; color: #721c24; }
+        
+        /* Nút nộp bài & Kết quả */
+        .submit-btn { background: #ff9800; color: white; font-size: 18px; font-weight: bold; padding: 15px; border: none; border-radius: 8px; cursor: pointer; width: 100%; box-shadow: 0 4px 6px rgba(0,0,0,0.1); transition: 0.3s; margin-bottom: 50px; }
+        .submit-btn:hover { background: #f57c00; transform: translateY(-2px); }
+        #result-box { background: #e3f2fd; color: #0d47a1; padding: 20px; border-radius: 8px; text-align: center; margin-bottom: 30px; border: 2px solid #2196f3; font-size: 24px; font-weight: bold;}
+        .hidden { display: none !important; }
+
+        /* Khung giải thích & Lời dịch */
+        .explanation { background: #fdfdfd; border-left: 4px solid #0037f4; padding: 15px; margin-top: 15px; font-size: 15px; color: #444; border-radius: 0 8px 8px 0; }
+        .explanation h4 { margin-top: 0; color: #0037f4; margin-bottom: 10px;}
+        .explanation p { margin: 5px 0;}
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="index.html" class="back-btn">← Quay lại</a>
+        <h1 id="test-title">Đang tải đề thi...</h1>
+        <div style="width: 80px;"></div> <!-- Cân bằng layout -->
+    </header>
+
+    <div class="container">
+        <div id="loading">⏳ Hệ thống đang lấy dữ liệu đề thi, vui lòng đợi...</div>
+        <div id="result-box" class="hidden"></div>
+        <div id="test-content"></div>
+    </div>
+
+    <script>
+        // 1. Lấy tên file từ đường link (VD: thi.html?file=ETS 2026 Test 1.txt)
+        const urlParams = new URLSearchParams(window.location.search);
+        const fileName = urlParams.get('file');
+        let testData = null; // Biến lưu toàn bộ dữ liệu JSON
+
+        if (!fileName) {
+            document.getElementById('loading').innerText = "❌ Lỗi: Không tìm thấy tên đề thi!";
+        } else {
+            document.getElementById('test-title').innerText = fileName.replace(".txt", "").replace(".json", "");
+            
+            // 2. Tự động đọc file từ thư mục Data
+            fetch('Data/' + encodeURIComponent(fileName))
+            .then(response => response.json())
+            .then(json => {
+                // Lấy mảng câu hỏi từ cấu trúc JSON của Zenlish
+                testData = json.data.data.questions;
+                renderTest(testData);
+            })
+            .catch(error => {
+                document.getElementById('loading').innerHTML = "❌ Lỗi không tải được dữ liệu.<br>Lưu ý: Bạn phải đưa lên GitHub Pages hoặc chạy qua Localhost (Live Server) thì trình duyệt mới cho phép đọc file txt/json.";
+                console.error(error);
+            });
+        }
+
+        // 3. Hàm vẽ giao diện câu hỏi từ JSON
+        function renderTest(questions) {
+            let html = '';
+            
+            questions.forEach((q) => {
+                html += `<div class="question-group">`;
+                
+                // Trình phát Audio nếu có
+                if (q.audio_url && q.audio_url !== "false" && q.audio_url !== "") {
+                    html += `<audio controls controlsList="nodownload"><source src="${q.audio_url}" type="audio/mpeg"></audio>`;
+                }
+
+                // Hình ảnh / Đoạn văn (Giải mã ký tự HTML mà Python lưu)
+                if (q.content && q.content !== "") {
+                    let decodedContent = q.content.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"');
+                    html += `<div class="passage-content">${decodedContent}</div>`;
+                }
+
+                // Lặp qua các câu hỏi con (A B C D)
+                q.sub_questions.forEach(sq => {
+                    html += `<div class="sub-question">`;
+                    html += `<div class="q-title">${sq.title}</div>`;
+                    html += `<div class="options">`;
+                    
+                    sq.choices.forEach(c => {
+                        let isCorrect = c.choice_right_answer ? "true" : "false";
+                        html += `
+                        <label class="option-label" id="label-${sq.index}-${c.choice}">
+                            <input type="radio" name="q-${sq.index}" value="${c.choice}" data-correct="${isCorrect}">
+                            <span style="font-weight:bold; margin-right:5px;">${c.choice}.</span> ${c.choice_answer || ""}
+                        </label>`;
+                    });
+                    
+                    html += `</div>`; // Đóng div options
+
+                    // Khung Giải thích & Lời dịch (Ẩn đi, chỉ hiện khi chấm điểm)
+                    if(sq.explanation) {
+                        html += `<div class="explanation hidden" id="exp-${sq.index}">
+                                    <h4>Dịch nghĩa & Giải thích:</h4>
+                                    <div>${sq.explanation}</div>
+                                 </div>`;
+                    }
+                    html += `</div>`; // Đóng div sub-question
+                });
+
+                html += `</div>`; // Đóng div question-group
+            });
+
+            html += `<button class="submit-btn" onclick="chamDiem()">💯 NỘP BÀI & XEM KẾT QUẢ</button>`;
+
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('test-content').innerHTML = html;
+        }
+
+        // 4. Hàm Chấm Điểm
+        function chamDiem() {
+            let totalCorrect = 0;
+            let totalQuestions = 0;
+
+            testData.forEach(q => {
+                q.sub_questions.forEach(sq => {
+                    totalQuestions++;
+                    // Lấy đáp án học viên đã chọn
+                    let selectedInput = document.querySelector(`input[name="q-${sq.index}"]:checked`);
+                    
+                    // Duyệt lại 4 đáp án để tô màu xanh/đỏ
+                    sq.choices.forEach(c => {
+                        let label = document.getElementById(`label-${sq.index}-${c.choice}`);
+                        let input = document.querySelector(`input[name="q-${sq.index}"][value="${c.choice}"]`);
+                        
+                        input.disabled = true; // Khóa không cho chọn lại
+
+                        if (c.choice_right_answer) {
+                            label.classList.add('correct'); // Đáp án đúng -> Xanh
+                        } else if (selectedInput && selectedInput.value === c.choice) {
+                            label.classList.add('wrong'); // Chọn sai -> Đỏ
+                        }
+                    });
+
+                    // Tính điểm
+                    if (selectedInput && selectedInput.dataset.correct === "true") {
+                        totalCorrect++;
+                    }
+
+                    // Hiện khung giải thích
+                    let expBox = document.getElementById(`exp-${sq.index}`);
+                    if(expBox) expBox.classList.remove('hidden');
+                });
+            });
+
+            // Hiển thị khung kết quả
+            let resultBox = document.getElementById('result-box');
+            resultBox.classList.remove('hidden');
+            resultBox.innerHTML = `🎉 BẠN ĐÃ TRẢ LỜI ĐÚNG: ${totalCorrect} / ${totalQuestions} CÂU`;
+            
+            // Cuộn lên đầu trang để xem điểm
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
