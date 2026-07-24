@@ -3,8 +3,8 @@
     "data": {
         "message": "Bài kiểm tra của bạn đã được xử lý. Hãy chụp lại màn hình kết quả vì nó sẽ chỉ hiển thị 1 lần. Kết quả:",
         "data": {
-            "right_answer": 0,
-            "listening_right_answer": 0,
+            "right_answer": 1,
+            "listening_right_answer": 1,
             "reading_right_answer": 0,
             "show_correct_answer": "",
             "passing_grade": "",
@@ -14,7 +14,7 @@
                     "sub_questions": [
                         {
                             "title": "1.",
-                            "answer": 0,
+                            "answer": 3,
                             "explanation": "<p>1.<br />(A) He’s digging in a garden.<br />(B) He’s stacking wooden pallets.<br />(C) He’s emptying soil from a pot.<br /><span><strong> (D) He’s examining some plants. </strong></span></p><p>1.<br />(A) Anh ấy đang đào đất trong vườn.<br />(B) Anh ấy đang xếp các tấm kệ kê hàng gỗ.<br />(C) Anh ấy đang đổ đất ra khỏi chậu.<br /><span><strong> (D) Anh ấy đang kiểm tra một số loại cây. </strong></span></p>",
                             "term_name": "Part 1",
                             "index": 1,
@@ -43,13 +43,13 @@
                             ],
                             "status": "complete",
                             "grouped": false,
-                            "check_answer": ""
+                            "check_answer": "correct"
                         }
                     ],
                     "title": "ETS 2024 TEST 7. Part 1.1",
-                    "content": "&lt;img src=&quot;./Media/images/zenlish-1-7.jpg&quot; style=&quot;max-width:100%&quot; /&gt;",
+                    "content": "&lt;img class=&quot;aligncenter size-full wp-image-64870&quot; src=&quot;./Media/ets 2024 test 7/images/zenlish-1-7.jpg&quot; alt=&quot;&quot; width=&quot;641&quot; height=&quot;470&quot; /&gt;",
                     "is_grouped": false,
-                    "audio_url": "./Media/audio/zenlish-test-07-01.mp3",
+                    "audio_url": "./Media/ets 2024 test 7/audio/zenlish-test-07-01.mp3",
                     "type": "listening"
                 },
                 {
@@ -89,9 +89,9 @@
                         }
                     ],
                     "title": "ETS 2024 TEST 7. Part 1.2",
-                    "content": "&lt;img src=&quot;./Media/images/zenlish-2-7.jpg&quot; style=&quot;max-width:100%&quot; /&gt;",
+                    "content": "&lt;img class=&quot;aligncenter size-full wp-image-64871&quot; src=&quot;./Media/ets 2024 test 7/images/zenlish-2-7.jpg&quot; alt=&quot;&quot; width=&quot;644&quot; height=&quot;471&quot; /&gt;",
                     "is_grouped": false,
-                    "audio_url": "./Media/audio/zenlish-test-07-02.mp3",
+                    "audio_url": "./Media/ets 2024 test 7/audio/zenlish-test-07-02.mp3",
                     "type": "listening"
                 },
                 {
@@ -131,9 +131,9 @@
                         }
                     ],
                     "title": "ETS 2024 TEST 7. Part 1.3",
-                    "content": "&lt;img src=&quot;./Media/images/zenlish-3-7.jpg&quot; style=&quot;max-width:100%&quot; /&gt;",
+                    "content": "&lt;img class=&quot;aligncenter wp-image-64872&quot; src=&quot;./Media/ets 2024 test 7/images/zenlish-3-7.jpg&quot; alt=&quot;&quot; width=&quot;254&quot; height=&quot;355&quot; /&gt;",
                     "is_grouped": false,
-                    "audio_url": "./Media/audio/zenlish-test-07-03.mp3",
+                    "audio_url": "./Media/ets 2024 test 7/audio/zenlish-test-07-03.mp3",
                     "type": "listening"
                 },
                 {
@@ -173,9 +173,9 @@
                         }
                     ],
                     "title": "ETS 2024 TEST 7. Part 1.4",
-                    "content": "&lt;img src=&quot;./Media/images/zenlish-4-7.jpg&quot; style=&quot;max-width:100%&quot; /&gt;",
+                    "content": "&lt;img class=&quot;aligncenter size-full wp-image-64873&quot; src=&quot;./Media/ets 2024 test 7/images/zenlish-4-7.jpg&quot; alt=&quot;&quot; width=&quot;648&quot; height=&quot;473&quot; /&gt;",
                     "is_grouped": false,
-                    "audio_url": "./Media/audio/zenlish-test-07-04.mp3",
+                    "audio_url": "./Media/ets 2024 test 7/audio/zenlish-test-07-04.mp3",
                     "type": "listening"
                 },
                 {
@@ -215,9 +215,9 @@
                         }
                     ],
                     "title": "ETS 2024 TEST 7. Part 1.5",
-                    "content": "&lt;img src=&quot;./Media/images/zenlish-5-7.jpg&quot; style=&quot;max-width:100%&quot; /&gt;",
+                    "content": "&lt;img class=&quot;aligncenter size-full wp-image-64874&quot; src=&quot;./Media/ets 2024 test 7/images/zenlish-5-7.jpg&quot; alt=&quot;&quot; width=&quot;415&quot; height=&quot;601&quot; /&gt;",
                     "is_grouped": false,
-                    "audio_url": "./Media/audio/zenlish-test-07-05.mp3",
+                    "audio_url": "./Media/ets 2024 test 7/audio/zenlish-test-07-05.mp3",
                     "type": "listening"
                 },
                 {
@@ -257,9 +257,9 @@
                         }
                     ],
                     "title": "ETS 2024 TEST 7. Part 1.6",
-                    "content": "&lt;img src=&quot;./Media/images/zenlish-6-7.jpg&quot; style=&quot;max-width:100%&quot; /&gt;",
+                    "content": "&lt;img class=&quot;aligncenter size-full wp-image-64875&quot; src=&quot;./Media/ets 2024 test 7/images/zenlish-6-7.jpg&quot; alt=&quot;&quot; width=&quot;644&quot; height=&quot;449&quot; /&gt;",
                     "is_grouped": false,
-                    "audio_url": "./Media/audio/zenlish-test-07-06.mp3",
+                    "audio_url": "./Media/ets 2024 test 7/audio/zenlish-test-07-06.mp3",
                     "type": "listening"
                 },
                 {
@@ -296,7 +296,7 @@
                     "title": "ETS 2024 TEST 7. Part 2.7",
                     "content": "",
                     "is_grouped": false,
-                    "audio_url": "./Media/audio/zenlish-test-07-07.mp3",
+                    "audio_url": "./Media/ets 2024 test 7/audio/zenlish-test-07-07.mp3",
                     "type": "listening"
                 },
                 {
@@ -333,7 +333,7 @@
                     "title": "ETS 2024 TEST 7. Part 2.8",
                     "content": "",
                     "is_grouped": false,
-                    "audio_url": "./Media/audio/zenlish-test-07-08.mp3",
+                    "audio_url": "./Media/ets 2024 test 7/audio/zenlish-test-07-08.mp3",
                     "type": "listening"
                 },
                 {
@@ -370,7 +370,7 @@
                     "title": "ETS 2024 TEST 7. Part 2.9",
                     "content": "",
                     "is_grouped": false,
-                    "audio_url": "./Media/audio/zenlish-test-07-09.mp3",
+                    "audio_url": "./Media/ets 2024 test 7/audio/zenlish-test-07-09.mp3",
                     "type": "listening"
                 },
                 {
@@ -407,7 +407,7 @@
                     "title": "ETS 2024 TEST 7. Part 2.10",
                     "content": "",
                     "is_grouped": false,
-                    "audio_url": "./Media/audio/zenlish-test-07-10.mp3",
+                    "audio_url": "./Media/ets 2024 test 7/audio/zenlish-test-07-10.mp3",
                     "type": "listening"
                 },
                 {
@@ -444,7 +444,7 @@
                     "title": "ETS 2024 TEST 7. Part 2.11",
                     "content": "",
                     "is_grouped": false,
-                    "audio_url": "./Media/audio/zenlish-test-07-11.mp3",
+                    "audio_url": "./Media/ets 2024 test 7/audio/zenlish-test-07-11.mp3",
                     "type": "listening"
                 },
                 {
@@ -481,7 +481,7 @@
                     "title": "ETS 2024 TEST 7. Part 2.12",
                     "content": "",
                     "is_grouped": false,
-                    "audio_url": "./Media/audio/zenlish-test-07-12.mp3",
+                    "audio_url": "./Media/ets 2024 test 7/audio/zenlish-test-07-12.mp3",
                     "type": "listening"
                 },
                 {
@@ -518,7 +518,7 @@
                     "title": "ETS 2024 TEST 7. Part 2.13",
                     "content": "",
                     "is_grouped": false,
-                    "audio_url": "./Media/audio/zenlish-test-07-13.mp3",
+                    "audio_url": "./Media/ets 2024 test 7/audio/zenlish-test-07-13.mp3",
                     "type": "listening"
                 },
                 {
@@ -555,7 +555,7 @@
                     "title": "ETS 2024 TEST 7. Part 2.14",
                     "content": "",
                     "is_grouped": false,
-                    "audio_url": "./Media/audio/zenlish-test-07-14.mp3",
+                    "audio_url": "./Media/ets 2024 test 7/audio/zenlish-test-07-14.mp3",
                     "type": "listening"
                 },
                 {
@@ -592,7 +592,7 @@
                     "title": "ETS 2024 TEST 7. Part 2.15",
                     "content": "",
                     "is_grouped": false,
-                    "audio_url": "./Media/audio/zenlish-test-07-15.mp3",
+                    "audio_url": "./Media/ets 2024 test 7/audio/zenlish-test-07-15.mp3",
                     "type": "listening"
                 },
                 {
@@ -629,7 +629,7 @@
                     "title": "ETS 2024 TEST 7. Part 2.16",
                     "content": "",
                     "is_grouped": false,
-                    "audio_url": "./Media/audio/zenlish-test-07-16.mp3",
+                    "audio_url": "./Media/ets 2024 test 7/audio/zenlish-test-07-16.mp3",
                     "type": "listening"
                 },
                 {
@@ -666,7 +666,7 @@
                     "title": "ETS 2024 TEST 7. Part 2.17",
                     "content": "",
                     "is_grouped": false,
-                    "audio_url": "./Media/audio/zenlish-test-07-17.mp3",
+                    "audio_url": "./Media/ets 2024 test 7/audio/zenlish-test-07-17.mp3",
                     "type": "listening"
                 },
                 {
@@ -703,7 +703,7 @@
                     "title": "ETS 2024 TEST 7. Part 2.18",
                     "content": "",
                     "is_grouped": false,
-                    "audio_url": "./Media/audio/zenlish-test-07-18.mp3",
+                    "audio_url": "./Media/ets 2024 test 7/audio/zenlish-test-07-18.mp3",
                     "type": "listening"
                 },
                 {
@@ -740,7 +740,7 @@
                     "title": "ETS 2024 TEST 7. Part 2.19",
                     "content": "",
                     "is_grouped": false,
-                    "audio_url": "./Media/audio/zenlish-test-07-19.mp3",
+                    "audio_url": "./Media/ets 2024 test 7/audio/zenlish-test-07-19.mp3",
                     "type": "listening"
                 },
                 {
@@ -777,7 +777,7 @@
                     "title": "ETS 2024 TEST 7. Part 2.20",
                     "content": "",
                     "is_grouped": false,
-                    "audio_url": "./Media/audio/zenlish-test-07-20.mp3",
+                    "audio_url": "./Media/ets 2024 test 7/audio/zenlish-test-07-20.mp3",
                     "type": "listening"
                 },
                 {
@@ -814,7 +814,7 @@
                     "title": "ETS 2024 TEST 7. Part 2.21",
                     "content": "",
                     "is_grouped": false,
-                    "audio_url": "./Media/audio/zenlish-test-07-21.mp3",
+                    "audio_url": "./Media/ets 2024 test 7/audio/zenlish-test-07-21.mp3",
                     "type": "listening"
                 },
                 {
@@ -851,7 +851,7 @@
                     "title": "ETS 2024 TEST 7. Part 2.22",
                     "content": "",
                     "is_grouped": false,
-                    "audio_url": "./Media/audio/zenlish-test-07-22.mp3",
+                    "audio_url": "./Media/ets 2024 test 7/audio/zenlish-test-07-22.mp3",
                     "type": "listening"
                 },
                 {
@@ -888,7 +888,7 @@
                     "title": "ETS 2024 TEST 7. Part 2.23",
                     "content": "",
                     "is_grouped": false,
-                    "audio_url": "./Media/audio/zenlish-test-07-23.mp3",
+                    "audio_url": "./Media/ets 2024 test 7/audio/zenlish-test-07-23.mp3",
                     "type": "listening"
                 },
                 {
@@ -925,7 +925,7 @@
                     "title": "ETS 2024 TEST 7. Part 2.24",
                     "content": "",
                     "is_grouped": false,
-                    "audio_url": "./Media/audio/zenlish-test-07-24.mp3",
+                    "audio_url": "./Media/ets 2024 test 7/audio/zenlish-test-07-24.mp3",
                     "type": "listening"
                 },
                 {
@@ -962,7 +962,7 @@
                     "title": "ETS 2024 TEST 7. Part 2.25",
                     "content": "",
                     "is_grouped": false,
-                    "audio_url": "./Media/audio/zenlish-test-07-25.mp3",
+                    "audio_url": "./Media/ets 2024 test 7/audio/zenlish-test-07-25.mp3",
                     "type": "listening"
                 },
                 {
@@ -999,7 +999,7 @@
                     "title": "ETS 2024 TEST 7. Part 2.26",
                     "content": "",
                     "is_grouped": false,
-                    "audio_url": "./Media/audio/zenlish-test-07-26.mp3",
+                    "audio_url": "./Media/ets 2024 test 7/audio/zenlish-test-07-26.mp3",
                     "type": "listening"
                 },
                 {
@@ -1036,7 +1036,7 @@
                     "title": "ETS 2024 TEST 7. Part 2.27",
                     "content": "",
                     "is_grouped": false,
-                    "audio_url": "./Media/audio/zenlish-test-07-27.mp3",
+                    "audio_url": "./Media/ets 2024 test 7/audio/zenlish-test-07-27.mp3",
                     "type": "listening"
                 },
                 {
@@ -1073,7 +1073,7 @@
                     "title": "ETS 2024 TEST 7. Part 2.28",
                     "content": "",
                     "is_grouped": false,
-                    "audio_url": "./Media/audio/zenlish-test-07-28.mp3",
+                    "audio_url": "./Media/ets 2024 test 7/audio/zenlish-test-07-28.mp3",
                     "type": "listening"
                 },
                 {
@@ -1110,7 +1110,7 @@
                     "title": "ETS 2024 TEST 7. Part 2.29",
                     "content": "",
                     "is_grouped": false,
-                    "audio_url": "./Media/audio/zenlish-test-07-29.mp3",
+                    "audio_url": "./Media/ets 2024 test 7/audio/zenlish-test-07-29.mp3",
                     "type": "listening"
                 },
                 {
@@ -1147,7 +1147,7 @@
                     "title": "ETS 2024 TEST 7. Part 2.30",
                     "content": "",
                     "is_grouped": false,
-                    "audio_url": "./Media/audio/zenlish-test-07-30.mp3",
+                    "audio_url": "./Media/ets 2024 test 7/audio/zenlish-test-07-30.mp3",
                     "type": "listening"
                 },
                 {
@@ -1184,7 +1184,7 @@
                     "title": "ETS 2024 TEST 7. Part 2.31",
                     "content": "",
                     "is_grouped": false,
-                    "audio_url": "./Media/audio/zenlish-test-07-31.mp3",
+                    "audio_url": "./Media/ets 2024 test 7/audio/zenlish-test-07-31.mp3",
                     "type": "listening"
                 },
                 {
@@ -1290,7 +1290,7 @@
                     "title": "ETS 2024 TEST 7. Part 3.32-34",
                     "content": "",
                     "is_grouped": true,
-                    "audio_url": "./Media/audio/zenlish-test-07-32-34.mp3",
+                    "audio_url": "./Media/ets 2024 test 7/audio/zenlish-test-07-32-34.mp3",
                     "type": "listening"
                 },
                 {
@@ -1396,7 +1396,7 @@
                     "title": "ETS 2024 TEST 7. Part 3.35-37",
                     "content": "",
                     "is_grouped": true,
-                    "audio_url": "./Media/audio/zenlish-test-07-35-37.mp3",
+                    "audio_url": "./Media/ets 2024 test 7/audio/zenlish-test-07-35-37.mp3",
                     "type": "listening"
                 },
                 {
@@ -1502,7 +1502,7 @@
                     "title": "ETS 2024 TEST 7. Part 3.38-40",
                     "content": "",
                     "is_grouped": true,
-                    "audio_url": "./Media/audio/zenlish-test-07-38-40.mp3",
+                    "audio_url": "./Media/ets 2024 test 7/audio/zenlish-test-07-38-40.mp3",
                     "type": "listening"
                 },
                 {
@@ -1608,7 +1608,7 @@
                     "title": "ETS 2024 TEST 7. Part 3.41-43",
                     "content": "",
                     "is_grouped": true,
-                    "audio_url": "./Media/audio/zenlish-test-07-41-43.mp3",
+                    "audio_url": "./Media/ets 2024 test 7/audio/zenlish-test-07-41-43.mp3",
                     "type": "listening"
                 },
                 {
@@ -1714,7 +1714,7 @@
                     "title": "ETS 2024 TEST 7. Part 3.44-46",
                     "content": "",
                     "is_grouped": true,
-                    "audio_url": "./Media/audio/zenlish-test-07-44-46.mp3",
+                    "audio_url": "./Media/ets 2024 test 7/audio/zenlish-test-07-44-46.mp3",
                     "type": "listening"
                 },
                 {
@@ -1820,7 +1820,7 @@
                     "title": "ETS 2024 TEST 7. Part 3.47-49",
                     "content": "",
                     "is_grouped": true,
-                    "audio_url": "./Media/audio/zenlish-test-07-47-49.mp3",
+                    "audio_url": "./Media/ets 2024 test 7/audio/zenlish-test-07-47-49.mp3",
                     "type": "listening"
                 },
                 {
@@ -1926,7 +1926,7 @@
                     "title": "ETS 2024 TEST 7. Part 3.50-52",
                     "content": "",
                     "is_grouped": true,
-                    "audio_url": "./Media/audio/zenlish-test-07-50-52.mp3",
+                    "audio_url": "./Media/ets 2024 test 7/audio/zenlish-test-07-50-52.mp3",
                     "type": "listening"
                 },
                 {
@@ -2032,7 +2032,7 @@
                     "title": "ETS 2024 TEST 7. Part 3.53-55",
                     "content": "",
                     "is_grouped": true,
-                    "audio_url": "./Media/audio/zenlish-test-07-53-55.mp3",
+                    "audio_url": "./Media/ets 2024 test 7/audio/zenlish-test-07-53-55.mp3",
                     "type": "listening"
                 },
                 {
@@ -2138,7 +2138,7 @@
                     "title": "ETS 2024 TEST 7. Part 3.56-58",
                     "content": "",
                     "is_grouped": true,
-                    "audio_url": "./Media/audio/zenlish-test-07-56-58.mp3",
+                    "audio_url": "./Media/ets 2024 test 7/audio/zenlish-test-07-56-58.mp3",
                     "type": "listening"
                 },
                 {
@@ -2244,7 +2244,7 @@
                     "title": "ETS 2024 TEST 7. Part 3.59-61",
                     "content": "",
                     "is_grouped": true,
-                    "audio_url": "./Media/audio/zenlish-test-07-59-61.mp3",
+                    "audio_url": "./Media/ets 2024 test 7/audio/zenlish-test-07-59-61.mp3",
                     "type": "listening"
                 },
                 {
@@ -2348,9 +2348,9 @@
                         }
                     ],
                     "title": "ETS 2024 TEST 7. Part 3.62-64",
-                    "content": "&lt;img src=&quot;./Media/images/zenlish-62-64-7.jpg&quot; style=&quot;max-width:100%&quot; /&gt;",
+                    "content": "&lt;img class=&quot;aligncenter size-full wp-image-64876&quot; src=&quot;./Media/ets 2024 test 7/images/zenlish-62-64-7.jpg&quot; alt=&quot;&quot; width=&quot;357&quot; height=&quot;193&quot; /&gt;",
                     "is_grouped": true,
-                    "audio_url": "./Media/audio/zenlish-test-07-62-64.mp3",
+                    "audio_url": "./Media/ets 2024 test 7/audio/zenlish-test-07-62-64.mp3",
                     "type": "listening"
                 },
                 {
@@ -2454,9 +2454,9 @@
                         }
                     ],
                     "title": "ETS 2024 TEST 7. Part 3.65-67",
-                    "content": "&lt;img src=&quot;./Media/images/zenlish-65-67-7.jpg&quot; style=&quot;max-width:100%&quot; /&gt;",
+                    "content": "&lt;img class=&quot;aligncenter size-full wp-image-64877&quot; src=&quot;./Media/ets 2024 test 7/images/zenlish-65-67-7.jpg&quot; alt=&quot;&quot; width=&quot;451&quot; height=&quot;173&quot; /&gt;",
                     "is_grouped": true,
-                    "audio_url": "./Media/audio/zenlish-test-07-65-67.mp3",
+                    "audio_url": "./Media/ets 2024 test 7/audio/zenlish-test-07-65-67.mp3",
                     "type": "listening"
                 },
                 {
@@ -2560,9 +2560,9 @@
                         }
                     ],
                     "title": "ETS 2024 TEST 7. Part 3.68-70",
-                    "content": "&lt;img src=&quot;./Media/images/zenlish-68-70-7.jpg&quot; style=&quot;max-width:100%&quot; /&gt;",
+                    "content": "&lt;img class=&quot;aligncenter size-full wp-image-64878&quot; src=&quot;./Media/ets 2024 test 7/images/zenlish-68-70-7.jpg&quot; alt=&quot;&quot; width=&quot;394&quot; height=&quot;299&quot; /&gt;",
                     "is_grouped": true,
-                    "audio_url": "./Media/audio/zenlish-test-07-68-70.mp3",
+                    "audio_url": "./Media/ets 2024 test 7/audio/zenlish-test-07-68-70.mp3",
                     "type": "listening"
                 },
                 {
@@ -2668,7 +2668,7 @@
                     "title": "ETS 2024 TEST 7. Part 4.71-73",
                     "content": "",
                     "is_grouped": true,
-                    "audio_url": "./Media/audio/zenlish-test-07-71-73.mp3",
+                    "audio_url": "./Media/ets 2024 test 7/audio/zenlish-test-07-71-73.mp3",
                     "type": "listening"
                 },
                 {
@@ -2774,7 +2774,7 @@
                     "title": "ETS 2024 TEST 7. Part 4.74-76",
                     "content": "",
                     "is_grouped": true,
-                    "audio_url": "./Media/audio/zenlish-test-07-74-76.mp3",
+                    "audio_url": "./Media/ets 2024 test 7/audio/zenlish-test-07-74-76.mp3",
                     "type": "listening"
                 },
                 {
@@ -2880,7 +2880,7 @@
                     "title": "ETS 2024 TEST 7. Part 4.77-79",
                     "content": "",
                     "is_grouped": true,
-                    "audio_url": "./Media/audio/zenlish-test-07-77-79.mp3",
+                    "audio_url": "./Media/ets 2024 test 7/audio/zenlish-test-07-77-79.mp3",
                     "type": "listening"
                 },
                 {
@@ -2986,7 +2986,7 @@
                     "title": "ETS 2024 TEST 7. Part 4.80-82",
                     "content": "",
                     "is_grouped": true,
-                    "audio_url": "./Media/audio/zenlish-test-07-80-82.mp3",
+                    "audio_url": "./Media/ets 2024 test 7/audio/zenlish-test-07-80-82.mp3",
                     "type": "listening"
                 },
                 {
@@ -3092,7 +3092,7 @@
                     "title": "ETS 2024 TEST 7. Part 4.83-85",
                     "content": "",
                     "is_grouped": true,
-                    "audio_url": "./Media/audio/zenlish-test-07-83-85.mp3",
+                    "audio_url": "./Media/ets 2024 test 7/audio/zenlish-test-07-83-85.mp3",
                     "type": "listening"
                 },
                 {
@@ -3198,7 +3198,7 @@
                     "title": "ETS 2024 TEST 7. Part 4.86-88",
                     "content": "",
                     "is_grouped": true,
-                    "audio_url": "./Media/audio/zenlish-test-07-86-88.mp3",
+                    "audio_url": "./Media/ets 2024 test 7/audio/zenlish-test-07-86-88.mp3",
                     "type": "listening"
                 },
                 {
@@ -3304,7 +3304,7 @@
                     "title": "ETS 2024 TEST 7. Part 4.89-91",
                     "content": "",
                     "is_grouped": true,
-                    "audio_url": "./Media/audio/zenlish-test-07-89-91.mp3",
+                    "audio_url": "./Media/ets 2024 test 7/audio/zenlish-test-07-89-91.mp3",
                     "type": "listening"
                 },
                 {
@@ -3410,7 +3410,7 @@
                     "title": "ETS 2024 TEST 7. Part 4.92-94",
                     "content": "",
                     "is_grouped": true,
-                    "audio_url": "./Media/audio/zenlish-test-07-92-94.mp3",
+                    "audio_url": "./Media/ets 2024 test 7/audio/zenlish-test-07-92-94.mp3",
                     "type": "listening"
                 },
                 {
@@ -3514,9 +3514,9 @@
                         }
                     ],
                     "title": "ETS 2024 TEST 7. Part 4.95-97",
-                    "content": "&lt;img src=&quot;./Media/images/zenlish-95-97-7.jpg&quot; style=&quot;max-width:100%&quot; /&gt;",
+                    "content": "&lt;img class=&quot;aligncenter size-full wp-image-64879&quot; src=&quot;./Media/ets 2024 test 7/images/zenlish-95-97-7.jpg&quot; alt=&quot;&quot; width=&quot;391&quot; height=&quot;166&quot; /&gt;",
                     "is_grouped": true,
-                    "audio_url": "./Media/audio/zenlish-test-07-95-97.mp3",
+                    "audio_url": "./Media/ets 2024 test 7/audio/zenlish-test-07-95-97.mp3",
                     "type": "listening"
                 },
                 {
@@ -3620,9 +3620,9 @@
                         }
                     ],
                     "title": "ETS 2024 TEST 7. Part 4.98-100",
-                    "content": "&lt;img src=&quot;./Media/images/zenlish-98-100-7.jpg&quot; style=&quot;max-width:100%&quot; /&gt;",
+                    "content": "&lt;img class=&quot;aligncenter size-full wp-image-64880&quot; src=&quot;./Media/ets 2024 test 7/images/zenlish-98-100-7.jpg&quot; alt=&quot;&quot; width=&quot;426&quot; height=&quot;285&quot; /&gt;",
                     "is_grouped": true,
-                    "audio_url": "./Media/audio/zenlish-test-07-98-100.mp3",
+                    "audio_url": "./Media/ets 2024 test 7/audio/zenlish-test-07-98-100.mp3",
                     "type": "listening"
                 },
                 {
@@ -5018,7 +5018,7 @@
                         }
                     ],
                     "title": "ETS 2024 TEST 7. Part 6.131-134",
-                    "content": "&lt;img src=&quot;./Media/images/zenlish-31-34-5.jpg&quot; style=&quot;max-width:100%&quot; /&gt;",
+                    "content": "&lt;img class=&quot;aligncenter size-full wp-image-65121&quot; src=&quot;./Media/ets 2024 test 7/images/zenlish-31-34-5.jpg&quot; alt=&quot;&quot; width=&quot;806&quot; height=&quot;661&quot; /&gt;",
                     "is_grouped": true,
                     "audio_url": false,
                     "type": "reading"
@@ -5156,7 +5156,7 @@
                         }
                     ],
                     "title": "ETS 2024 TEST 7. Part 6.135-138",
-                    "content": "&lt;img src=&quot;./Media/images/zenlish-35-38-5.jpg&quot; style=&quot;max-width:100%&quot; /&gt;",
+                    "content": "&lt;img class=&quot;aligncenter size-full wp-image-65122&quot; src=&quot;./Media/ets 2024 test 7/images/zenlish-35-38-5.jpg&quot; alt=&quot;&quot; width=&quot;816&quot; height=&quot;317&quot; /&gt;",
                     "is_grouped": true,
                     "audio_url": false,
                     "type": "reading"
@@ -5294,7 +5294,7 @@
                         }
                     ],
                     "title": "ETS 2024 TEST 7. Part 6.139-142",
-                    "content": "&lt;img src=&quot;./Media/images/zenlish-39-42-5.jpg&quot; style=&quot;max-width:100%&quot; /&gt;",
+                    "content": "&lt;img class=&quot;aligncenter size-full wp-image-65123&quot; src=&quot;./Media/ets 2024 test 7/images/zenlish-39-42-5.jpg&quot; alt=&quot;&quot; width=&quot;799&quot; height=&quot;566&quot; /&gt;",
                     "is_grouped": true,
                     "audio_url": false,
                     "type": "reading"
@@ -5432,7 +5432,7 @@
                         }
                     ],
                     "title": "ETS 2024 TEST 7. Part 6.143-146",
-                    "content": "&lt;img src=&quot;./Media/images/zenlish-43-46-5.jpg&quot; style=&quot;max-width:100%&quot; /&gt;",
+                    "content": "&lt;img class=&quot;aligncenter size-full wp-image-65124&quot; src=&quot;./Media/ets 2024 test 7/images/zenlish-43-46-5.jpg&quot; alt=&quot;&quot; width=&quot;796&quot; height=&quot;444&quot; /&gt;",
                     "is_grouped": true,
                     "audio_url": false,
                     "type": "reading"
@@ -5506,7 +5506,7 @@
                         }
                     ],
                     "title": "ETS 2024 TEST 7. Part 7.147-148",
-                    "content": "&lt;img src=&quot;./Media/images/zenlish-47-48-5.jpg&quot; style=&quot;max-width:100%&quot; /&gt;",
+                    "content": "&lt;img class=&quot;aligncenter size-full wp-image-65125&quot; src=&quot;./Media/ets 2024 test 7/images/zenlish-47-48-5.jpg&quot; alt=&quot;&quot; width=&quot;727&quot; height=&quot;369&quot; /&gt;",
                     "is_grouped": true,
                     "audio_url": false,
                     "type": "reading"
@@ -5580,7 +5580,7 @@
                         }
                     ],
                     "title": "ETS 2024 TEST 7. Part 7.149-150",
-                    "content": "&lt;img src=&quot;./Media/images/zenlish-49-50-5.jpg&quot; style=&quot;max-width:100%&quot; /&gt;",
+                    "content": "&lt;img class=&quot;aligncenter size-full wp-image-65126&quot; src=&quot;./Media/ets 2024 test 7/images/zenlish-49-50-5.jpg&quot; alt=&quot;&quot; width=&quot;751&quot; height=&quot;268&quot; /&gt;",
                     "is_grouped": true,
                     "audio_url": false,
                     "type": "reading"
@@ -5654,7 +5654,7 @@
                         }
                     ],
                     "title": "ETS 2024 TEST 7. Part 7.151-152",
-                    "content": "&lt;img src=&quot;./Media/images/zenlish-51-52-5.jpg&quot; style=&quot;max-width:100%&quot; /&gt;",
+                    "content": "&lt;img class=&quot;aligncenter size-full wp-image-65127&quot; src=&quot;./Media/ets 2024 test 7/images/zenlish-51-52-5.jpg&quot; alt=&quot;&quot; width=&quot;757&quot; height=&quot;463&quot; /&gt;",
                     "is_grouped": true,
                     "audio_url": false,
                     "type": "reading"
@@ -5728,7 +5728,7 @@
                         }
                     ],
                     "title": "ETS 2024 TEST 7. Part 7.153-154",
-                    "content": "&lt;img src=&quot;./Media/images/zenlish-53-54-3.jpg&quot; style=&quot;max-width:100%&quot; /&gt;",
+                    "content": "&lt;img class=&quot;aligncenter size-full wp-image-65128&quot; src=&quot;./Media/ets 2024 test 7/images/zenlish-53-54-3.jpg&quot; alt=&quot;&quot; width=&quot;809&quot; height=&quot;603&quot; /&gt;",
                     "is_grouped": true,
                     "audio_url": false,
                     "type": "reading"
@@ -5834,7 +5834,7 @@
                         }
                     ],
                     "title": "ETS 2024 TEST 7. Part 7.155-157",
-                    "content": "&lt;img src=&quot;./Media/images/zenlish-55-57-3.jpg&quot; style=&quot;max-width:100%&quot; /&gt;",
+                    "content": "&lt;img class=&quot;aligncenter size-full wp-image-65129&quot; src=&quot;./Media/ets 2024 test 7/images/zenlish-55-57-3.jpg&quot; alt=&quot;&quot; width=&quot;765&quot; height=&quot;490&quot; /&gt;",
                     "is_grouped": true,
                     "audio_url": false,
                     "type": "reading"
@@ -5940,7 +5940,7 @@
                         }
                     ],
                     "title": "ETS 2024 TEST 7. Part 7.158-160",
-                    "content": "&lt;img src=&quot;./Media/images/zenlish-58-60-4.jpg&quot; style=&quot;max-width:100%&quot; /&gt;",
+                    "content": "&lt;img class=&quot;aligncenter size-full wp-image-65130&quot; src=&quot;./Media/ets 2024 test 7/images/zenlish-58-60-4.jpg&quot; alt=&quot;&quot; width=&quot;724&quot; height=&quot;429&quot; /&gt;",
                     "is_grouped": true,
                     "audio_url": false,
                     "type": "reading"
@@ -6046,7 +6046,7 @@
                         }
                     ],
                     "title": "ETS 2024 TEST 7. Part 7.161-163",
-                    "content": "&lt;img src=&quot;./Media/images/zenlish-61-63-5.jpg&quot; style=&quot;max-width:100%&quot; /&gt;",
+                    "content": "&lt;img class=&quot;aligncenter size-full wp-image-65131&quot; src=&quot;./Media/ets 2024 test 7/images/zenlish-61-63-5.jpg&quot; alt=&quot;&quot; width=&quot;727&quot; height=&quot;450&quot; /&gt;",
                     "is_grouped": true,
                     "audio_url": false,
                     "type": "reading"
@@ -6184,7 +6184,7 @@
                         }
                     ],
                     "title": "ETS 2024 TEST 7. Part 7.164-167",
-                    "content": "&lt;img src=&quot;./Media/images/zenlish-64-67-5.jpg&quot; style=&quot;max-width:100%&quot; /&gt;",
+                    "content": "&lt;img class=&quot;aligncenter size-full wp-image-65132&quot; src=&quot;./Media/ets 2024 test 7/images/zenlish-64-67-5.jpg&quot; alt=&quot;&quot; width=&quot;784&quot; height=&quot;271&quot; /&gt;",
                     "is_grouped": true,
                     "audio_url": false,
                     "type": "reading"
@@ -6322,7 +6322,7 @@
                         }
                     ],
                     "title": "ETS 2024 TEST 7. Part 7.168-171",
-                    "content": "&lt;img src=&quot;./Media/images/zenlish-68-71-5.jpg&quot; style=&quot;max-width:100%&quot; /&gt;",
+                    "content": "&lt;img class=&quot;aligncenter size-full wp-image-65133&quot; src=&quot;./Media/ets 2024 test 7/images/zenlish-68-71-5.jpg&quot; alt=&quot;&quot; width=&quot;793&quot; height=&quot;550&quot; /&gt;",
                     "is_grouped": true,
                     "audio_url": false,
                     "type": "reading"
@@ -6460,7 +6460,7 @@
                         }
                     ],
                     "title": "ETS 2024 TEST 7. Part 7.172-175",
-                    "content": "&lt;img src=&quot;./Media/images/zenlish-72-75-5.jpg&quot; style=&quot;max-width:100%&quot; /&gt;",
+                    "content": "&lt;img class=&quot;aligncenter size-full wp-image-65134&quot; src=&quot;./Media/ets 2024 test 7/images/zenlish-72-75-5.jpg&quot; alt=&quot;&quot; width=&quot;649&quot; height=&quot;681&quot; /&gt;",
                     "is_grouped": true,
                     "audio_url": false,
                     "type": "reading"
@@ -6630,7 +6630,7 @@
                         }
                     ],
                     "title": "ETS 2024 TEST 7. Part 7.176-180",
-                    "content": "&lt;img src=&quot;./Media/images/zenlish-76-80-1-5.jpg&quot; style=&quot;max-width:100%&quot; /&gt;",
+                    "content": "&lt;img class=&quot;aligncenter size-full wp-image-65135&quot; src=&quot;./Media/ets 2024 test 7/images/zenlish-76-80-1-5.jpg&quot; alt=&quot;&quot; width=&quot;738&quot; height=&quot;523&quot; /&gt; &lt;img class=&quot;aligncenter size-full wp-image-65136&quot; src=&quot;./Media/ets 2024 test 7/images/zenlish-76-80-2-5.jpg&quot; alt=&quot;&quot; width=&quot;687&quot; height=&quot;415&quot; /&gt;",
                     "is_grouped": true,
                     "audio_url": false,
                     "type": "reading"
@@ -6800,7 +6800,7 @@
                         }
                     ],
                     "title": "ETS 2024 TEST 7. Part 7.181-185",
-                    "content": "&lt;img src=&quot;./Media/images/zenlish-81-85-1-5.jpg&quot; style=&quot;max-width:100%&quot; /&gt;",
+                    "content": "&lt;img class=&quot;aligncenter size-full wp-image-65137&quot; src=&quot;./Media/ets 2024 test 7/images/zenlish-81-85-1-5.jpg&quot; alt=&quot;&quot; width=&quot;738&quot; height=&quot;496&quot; /&gt; &lt;img class=&quot;aligncenter size-full wp-image-65138&quot; src=&quot;./Media/ets 2024 test 7/images/zenlish-81-85-2-5.jpg&quot; alt=&quot;&quot; width=&quot;627&quot; height=&quot;397&quot; /&gt;",
                     "is_grouped": true,
                     "audio_url": false,
                     "type": "reading"
@@ -6970,7 +6970,7 @@
                         }
                     ],
                     "title": "ETS 2024 TEST 7. Part 7.186-190",
-                    "content": "&lt;img src=&quot;./Media/images/zenlish-86-90-1-5.jpg&quot; style=&quot;max-width:100%&quot; /&gt;",
+                    "content": "&lt;img class=&quot;aligncenter size-full wp-image-65139&quot; src=&quot;./Media/ets 2024 test 7/images/zenlish-86-90-1-5.jpg&quot; alt=&quot;&quot; width=&quot;719&quot; height=&quot;571&quot; /&gt; &lt;img class=&quot;aligncenter size-full wp-image-65140&quot; src=&quot;./Media/ets 2024 test 7/images/zenlish-86-90-2-5.jpg&quot; alt=&quot;&quot; width=&quot;625&quot; height=&quot;394&quot; /&gt; &lt;img class=&quot;aligncenter size-full wp-image-65141&quot; src=&quot;./Media/ets 2024 test 7/images/zenlish-86-90-3-5.jpg&quot; alt=&quot;&quot; width=&quot;623&quot; height=&quot;408&quot; /&gt;",
                     "is_grouped": true,
                     "audio_url": false,
                     "type": "reading"
@@ -7140,7 +7140,7 @@
                         }
                     ],
                     "title": "ETS 2024 TEST 7. Part 7.191-195",
-                    "content": "&lt;img src=&quot;./Media/images/zenlish-91-95-1-5.jpg&quot; style=&quot;max-width:100%&quot; /&gt;",
+                    "content": "&lt;img class=&quot;aligncenter size-full wp-image-65142&quot; src=&quot;./Media/ets 2024 test 7/images/zenlish-91-95-1-5.jpg&quot; alt=&quot;&quot; width=&quot;711&quot; height=&quot;219&quot; /&gt; &lt;img class=&quot;aligncenter size-full wp-image-65143&quot; src=&quot;./Media/ets 2024 test 7/images/zenlish-91-95-2-5.jpg&quot; alt=&quot;&quot; width=&quot;486&quot; height=&quot;439&quot; /&gt; &lt;img class=&quot;aligncenter size-full wp-image-65144&quot; src=&quot;./Media/ets 2024 test 7/images/zenlish-91-95-3-5.jpg&quot; alt=&quot;&quot; width=&quot;578&quot; height=&quot;425&quot; /&gt;",
                     "is_grouped": true,
                     "audio_url": false,
                     "type": "reading"
@@ -7310,7 +7310,7 @@
                         }
                     ],
                     "title": "ETS 2024 TEST 7. Part 7.196-200",
-                    "content": "&lt;img src=&quot;./Media/images/zenlish-96-100-1-5.jpg&quot; style=&quot;max-width:100%&quot; /&gt;",
+                    "content": "&lt;img class=&quot;aligncenter size-full wp-image-65145&quot; src=&quot;./Media/ets 2024 test 7/images/zenlish-96-100-1-5.jpg&quot; alt=&quot;&quot; width=&quot;741&quot; height=&quot;488&quot; /&gt; &lt;img class=&quot;aligncenter size-full wp-image-65146&quot; src=&quot;./Media/ets 2024 test 7/images/zenlish-96-100-2-5.jpg&quot; alt=&quot;&quot; width=&quot;643&quot; height=&quot;406&quot; /&gt; &lt;img class=&quot;aligncenter size-full wp-image-65147&quot; src=&quot;./Media/ets 2024 test 7/images/zenlish-96-100-3-5.jpg&quot; alt=&quot;&quot; width=&quot;668&quot; height=&quot;447&quot; /&gt;",
                     "is_grouped": true,
                     "audio_url": false,
                     "type": "reading"
@@ -7322,11 +7322,11 @@
             "scores": 10,
             "listening_scores": 5,
             "reading_scores": 5,
-            "correct_answers": "",
-            "right_answer_percent": 0,
-            "timeDoTest": 3
+            "correct_answers": "1",
+            "right_answer_percent": 0.5,
+            "timeDoTest": 4
         },
-        "test": "[0]",
-        "user": "[0]"
+        "test": "[3]",
+        "user": "[3]"
     }
 }
