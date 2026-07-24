@@ -3,378 +3,436 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hệ Thống Thi TOEIC</title>
+    <title>Hệ Thống Thi Trực Tuyến</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f4f6f9;
-            margin: 0;
-            color: #333;
-            line-height: 1.6;
-        }
+        body { font-family: 'Inter', sans-serif; background-color: #f4f6f9; margin: 0; color: #333; line-height: 1.5; }
         
-        header {
-            background-color: #0037f4;
-            color: white;
-            padding: 15px 30px;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
+        /* --- GLOBAL --- */
+        * { box-sizing: border-box; }
+        .hidden { display: none !important; }
         
-        header h1 {
-            margin: 0;
-            font-size: 18px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
+        /* --- SCREEN 1: SETUP SCREEN --- */
+        #setup-screen { max-width: 800px; margin: 40px auto; background: white; padding: 40px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .setup-header { border-bottom: 2px solid #eee; padding-bottom: 15px; margin-bottom: 30px; }
+        .setup-header h1 { color: #0d3b66; font-size: 24px; margin: 0; }
         
-        .back-btn {
-            color: white;
-            text-decoration: none;
-            font-weight: 600;
-            background: rgba(255,255,255,0.15);
-            padding: 8px 16px;
-            border-radius: 4px;
-            transition: background 0.2s;
-        }
+        .form-group { margin-bottom: 25px; }
+        .form-group label { font-weight: 600; display: block; margin-bottom: 10px; }
+        .form-group select { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 4px; font-size: 16px; font-family: inherit; }
         
-        .back-btn:hover {
-            background: rgba(255,255,255,0.25);
-        }
+        .part-selection { border: 1px solid #eee; padding: 20px; border-radius: 4px; }
+        .master-checkbox { margin-bottom: 15px; font-weight: 600; font-size: 16px; display: flex; align-items: center; }
+        .master-checkbox input { transform: scale(1.3); margin-right: 10px; }
         
-        .container {
-            max-width: 1200px;
-            margin: 30px auto;
-            padding: 0 20px;
-        }
+        .part-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .part-item { display: flex; align-items: center; background: #f8f9fa; padding: 10px 15px; border-radius: 4px; border: 1px solid #e9ecef; }
+        .part-item input { transform: scale(1.2); margin-right: 10px; }
+        .part-item.disabled { opacity: 0.5; pointer-events: none; }
         
-        #loading {
-            text-align: center;
-            font-size: 16px;
-            color: #555;
-            padding: 40px;
-            background: white;
-            border-radius: 8px;
-            border: 1px solid #ddd;
-        }
-        
-        .error-msg {
-            color: #dc3545;
-            background: #f8d7da;
-            border: 1px solid #f5c6cb;
-            padding: 15px;
-            border-radius: 4px;
-            margin-top: 15px;
-            font-family: monospace;
-            text-align: left;
-        }
-        
-        #result-box {
-            background: #e3f2fd;
-            color: #0d47a1;
-            padding: 20px;
-            border-radius: 8px;
-            text-align: center;
-            margin-bottom: 30px;
-            border: 1px solid #90caf9;
-            font-size: 20px;
-            font-weight: 700;
-        }
-        
-        .hidden {
-            display: none !important;
-        }
+        .start-btn { background: #f27127; color: white; border: none; padding: 15px 40px; font-size: 18px; font-weight: 700; border-radius: 4px; cursor: pointer; display: block; margin: 40px auto 0; text-transform: uppercase; }
+        .start-btn:hover { background: #d95f1c; }
 
-        .question-group {
-            display: flex;
-            gap: 30px;
-            background: white;
-            border-radius: 8px;
-            padding: 30px;
-            margin-bottom: 30px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-            border: 1px solid #e1e4e8;
-            align-items: flex-start;
-        }
+        /* --- SCREEN 2: TEST SCREEN --- */
+        #test-screen { display: flex; flex-direction: column; height: 100vh; }
         
-        /* Left Column: Media */
-        .left-col {
-            flex: 1;
-            position: sticky;
-            top: 80px;
-            max-height: calc(100vh - 100px);
-            overflow-y: auto;
-            padding-right: 15px;
-        }
+        /* Top Header */
+        .test-header { background-color: #0d3b66; color: white; padding: 0 20px; height: 60px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; }
+        .header-title { font-size: 18px; font-weight: 600; text-transform: uppercase; }
+        .header-controls { display: flex; align-items: center; gap: 15px; }
         
-        .left-col::-webkit-scrollbar {
-            width: 6px;
-        }
-        .left-col::-webkit-scrollbar-thumb {
-            background-color: #ccc;
-            border-radius: 3px;
-        }
+        .btn-submit { background-color: #f27127; color: white; border: none; padding: 8px 20px; font-weight: 600; border-radius: 4px; cursor: pointer; text-transform: uppercase; }
+        .btn-submit:hover { background-color: #d95f1c; }
         
-        .passage-content img {
-            max-width: 100%;
-            height: auto;
-            border-radius: 4px;
-            margin-bottom: 15px;
-            display: block;
-            border: 1px solid #eee;
-        }
+        .timer-box { background-color: #55a6f8; color: white; padding: 8px 20px; font-weight: 700; border-radius: 4px; font-variant-numeric: tabular-nums; }
         
-        audio {
-            width: 100%;
-            margin-bottom: 20px;
-            outline: none;
-        }
+        .btn-grid { background: rgba(255,255,255,0.2); border: none; color: white; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 18px; }
         
-        /* Right Column: Questions */
-        .right-col {
-            flex: 1;
-            border-left: 1px solid #e1e4e8;
-            padding-left: 30px;
-        }
+        /* Sub Header (Part & Progress) */
+        .sub-header { background: white; padding: 15px 20px; border-bottom: 1px solid #e1e4e8; display: flex; justify-content: space-between; align-items: center; font-weight: 700; position: sticky; top: 60px; z-index: 999; }
+        .progress-box { background: #f27127; color: white; padding: 5px 15px; border-radius: 4px; }
         
-        .sub-question {
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 1px dashed #e1e4e8;
-        }
+        /* Main Test Layout (2 Columns) */
+        .test-body { display: flex; flex: 1; overflow: hidden; max-width: 1400px; margin: 0 auto; width: 100%; padding: 20px; gap: 20px; }
         
-        .sub-question:last-child {
-            border-bottom: none;
-            margin-bottom: 0;
-            padding-bottom: 0;
-        }
+        .left-panel { flex: 1; background: white; border-radius: 8px; padding: 20px; overflow-y: auto; border: 1px solid #e1e4e8; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .right-panel { flex: 1; background: white; border-radius: 8px; padding: 20px; overflow-y: auto; border: 1px solid #e1e4e8; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
         
-        .q-title {
-            font-weight: 600;
-            font-size: 16px;
-            margin-bottom: 15px;
-            color: #111;
-        }
+        /* Content Styling */
+        .passage-content img { max-width: 100%; height: auto; border: 1px solid #ddd; margin-bottom: 15px; }
+        audio { width: 100%; margin-bottom: 20px; }
         
-        .options {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
+        .sub-question { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #eee; }
+        .sub-question:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .q-title { font-weight: 600; font-size: 16px; margin-bottom: 15px; display: flex; }
+        .q-number { margin-right: 8px; }
         
-        .option-label {
-            display: flex;
-            align-items: center;
-            padding: 10px 15px;
-            border: 1px solid #d1d5da;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            background: #fff;
-        }
+        .options { display: flex; flex-direction: column; gap: 8px; }
+        .option-label { display: flex; align-items: center; padding: 8px 12px; cursor: pointer; transition: background 0.2s; border-radius: 4px; }
+        .option-label:hover { background: #f8f9fa; }
+        .option-label input { margin-right: 12px; transform: scale(1.1); }
         
-        .option-label:hover {
-            border-color: #0037f4;
-            background: #f8f9fa;
-        }
+        /* Results Styling */
+        #final-score-box { background: #0d3b66; color: white; padding: 30px; text-align: center; border-radius: 8px; margin-bottom: 20px; font-size: 24px; font-weight: 700; }
+        .correct { color: #28a745; font-weight: 600; background: #e8f5e9; }
+        .wrong { color: #dc3545; font-weight: 600; background: #f8d7da; }
+        .explanation { background: #f8f9fa; border-left: 4px solid #0d3b66; padding: 15px; margin-top: 15px; font-size: 14px; }
+        .explanation h4 { margin: 0 0 10px 0; color: #0d3b66; }
         
-        .option-label input {
-            margin-right: 12px;
-            transform: scale(1.1);
-        }
+        /* Navigation Grid Modal */
+        #nav-modal { position: fixed; top: 60px; right: -350px; width: 320px; height: calc(100vh - 60px); background: white; box-shadow: -2px 0 10px rgba(0,0,0,0.1); z-index: 1001; transition: right 0.3s ease; overflow-y: auto; padding: 20px; border-left: 1px solid #eee; }
+        #nav-modal.active { right: 0; }
+        .nav-modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px; font-weight: 600; }
+        .close-nav { cursor: pointer; color: #999; font-size: 20px; background: none; border: none; }
         
-        /* Scoring Styles */
-        .correct {
-            background-color: #d4edda !important;
-            border-color: #28a745 !important;
-            color: #155724;
-            font-weight: 600;
-        }
-        
-        .wrong {
-            background-color: #f8d7da !important;
-            border-color: #dc3545 !important;
-            color: #721c24;
-        }
-        
-        .explanation {
-            background: #f8f9fa;
-            border-left: 4px solid #0037f4;
-            padding: 15px;
-            margin-top: 20px;
-            font-size: 14px;
-            color: #333;
-            border-radius: 0 4px 4px 0;
-        }
-        
-        .explanation h4 {
-            margin-top: 0;
-            color: #0037f4;
-            margin-bottom: 8px;
-            font-size: 15px;
-        }
-        
-        .submit-btn {
-            background: #0037f4;
-            color: white;
-            font-size: 16px;
-            font-weight: 600;
-            padding: 15px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            width: 100%;
-            margin-bottom: 50px;
-            transition: background 0.2s;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        
-        .submit-btn:hover {
-            background: #0028b8;
-        }
+        .grid-container { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+        .grid-btn { background: #f4f6f9; border: 1px solid #ddd; padding: 8px 0; text-align: center; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: 500; color: #555; }
+        .grid-btn:hover { background: #e2e6ea; }
+        .grid-btn.answered { background: #55a6f8; color: white; border-color: #55a6f8; }
+        .grid-btn.correct-ans { background: #28a745; color: white; border-color: #28a745; }
+        .grid-btn.wrong-ans { background: #dc3545; color: white; border-color: #dc3545; }
 
-        /* Responsive Design for Mobile */
         @media (max-width: 768px) {
-            .question-group {
-                flex-direction: column;
-                padding: 20px;
-            }
-            .left-col {
-                position: static;
-                max-height: none;
-                border-bottom: 1px solid #e1e4e8;
-                padding-bottom: 20px;
-                padding-right: 0;
-            }
-            .right-col {
-                border-left: none;
-                padding-left: 0;
-            }
+            .test-body { flex-direction: column; overflow-y: auto; }
+            .left-panel, .right-panel { overflow-y: visible; }
+            .header-title { font-size: 14px; }
+            .btn-submit { padding: 6px 12px; font-size: 12px; }
         }
     </style>
 </head>
 <body>
 
-    <header>
-        <a href="index.html" class="back-btn">Back</a>
-        <h1 id="test-title">Loading...</h1>
-        <div style="width: 60px;"></div> 
-    </header>
+    <!-- SCREEN 1: SETUP -->
+    <div id="setup-screen">
+        <div class="setup-header">
+            <h1 id="setup-title">ĐANG TẢI DỮ LIỆU...</h1>
+        </div>
+        
+        <div id="loading-msg" style="text-align: center; padding: 20px;">Đang lấy dữ liệu đề thi, vui lòng đợi...</div>
+        
+        <div id="setup-form" class="hidden">
+            <div class="form-group">
+                <label>Thời gian làm bài:</label>
+                <select id="time-select">
+                    <option value="120">120 phút (2 giờ)</option>
+                    <option value="90">90 phút</option>
+                    <option value="75">75 phút</option>
+                    <option value="60">60 phút</option>
+                    <option value="45">45 phút</option>
+                    <option value="30">30 phút</option>
+                    <option value="15">15 phút</option>
+                    <option value="5">5 phút (Test)</option>
+                </select>
+            </div>
 
-    <div class="container">
-        <div id="loading">Loading test data...</div>
-        <div id="result-box" class="hidden"></div>
-        <div id="test-content"></div>
+            <div class="form-group part-selection">
+                <div class="master-checkbox">
+                    <input type="checkbox" id="chk-custom-parts" onchange="togglePartSelection()">
+                    <label for="chk-custom-parts" style="margin:0; cursor:pointer;">Chọn từng Part</label>
+                </div>
+                
+                <div class="part-grid" id="part-checkboxes">
+                    <!-- Checkboxes will be generated here -->
+                </div>
+            </div>
+
+            <button class="start-btn" onclick="startTest()">BẮT ĐẦU LÀM BÀI</button>
+        </div>
+    </div>
+
+    <!-- SCREEN 2: TEST -->
+    <div id="test-screen" class="hidden">
+        
+        <header class="test-header">
+            <div class="header-title">HỆ THỐNG THI TRỰC TUYẾN</div>
+            <div class="header-controls">
+                <button class="btn-submit" id="btn-submit" onclick="submitTest()">NỘP BÀI</button>
+                <div class="timer-box" id="timer-display">00:00:00</div>
+                <button class="btn-grid" onclick="toggleNav()">☰</button>
+            </div>
+        </header>
+        
+        <div class="sub-header">
+            <div id="current-part-label">Phần thi</div>
+            <div class="progress-box"><span id="answered-count">0</span>/<span id="total-count">0</span></div>
+        </div>
+
+        <div class="test-body">
+            <div class="left-panel" id="left-panel">
+                <div id="final-score-box" class="hidden"></div>
+                <!-- Image/Audio content will load here -->
+            </div>
+            <div class="right-panel" id="right-panel">
+                <!-- Questions will load here -->
+            </div>
+        </div>
+
+        <!-- Navigation Modal -->
+        <div id="nav-modal">
+            <div class="nav-modal-header">
+                Bảng Câu Hỏi
+                <button class="close-nav" onclick="toggleNav()">✕</button>
+            </div>
+            <div class="grid-container" id="nav-grid-container">
+                <!-- Buttons will load here -->
+            </div>
+        </div>
+
     </div>
 
     <script>
         const urlParams = new URLSearchParams(window.location.search);
         const fileName = urlParams.get('file');
-        let testData = null;
+        
+        let fullData = [];      // Toàn bộ dữ liệu gốc
+        let availableParts = []; // Danh sách các Part có trong đề
+        let activeQuestions = [];// Dữ liệu câu hỏi sau khi lọc
+        
+        let totalSubQuestions = 0;
+        let answeredQuestions = 0;
+        let timerInterval;
+        let isSubmitted = false;
 
+        // --- 1. TẢI DỮ LIỆU KHI MỞ TRANG ---
         if (!fileName) {
-            document.getElementById('loading').innerHTML = "Error: Test filename missing from URL parameters.";
+            document.getElementById('loading-msg').innerHTML = "Lỗi: Không tìm thấy đề thi.";
         } else {
             const displayName = fileName.replace(".txt", "").replace(".json", "");
-            document.getElementById('test-title').innerText = displayName.toUpperCase();
+            document.getElementById('setup-title').innerText = displayName.toUpperCase();
             
             fetch('Data/' + encodeURIComponent(fileName))
             .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP Error: ${response.status}. File not found or inaccessible.`);
-                }
+                if (!response.ok) throw new Error("Không thể tải file dữ liệu.");
                 return response.text();
             })
             .then(text => {
-                try {
-                    let json = JSON.parse(text);
-                    testData = json.data.data.questions;
-                    renderTest(testData);
-                } catch (e) {
-                    throw new Error(`JSON Parsing Error. The file does not contain valid JSON format.\nDetails: ${e.message}`);
-                }
+                let json = JSON.parse(text);
+                fullData = json.data.data.questions;
+                extractParts();
+                document.getElementById('loading-msg').classList.add('hidden');
+                document.getElementById('setup-form').classList.remove('hidden');
             })
             .catch(error => {
-                document.getElementById('loading').innerHTML = `
-                    <div style="color: #dc3545; font-weight: 600; margin-bottom: 10px;">Failed to load data</div>
-                    <div class="error-msg">${error.message}</div>
-                `;
-                console.error(error);
+                document.getElementById('loading-msg').innerHTML = `<span style="color:red">Lỗi tải dữ liệu: ${error.message}</span>`;
             });
         }
 
-        function renderTest(questions) {
-            let html = '';
-            questions.forEach((q) => {
-                html += `<div class="question-group">`;
+        // --- 2. XỬ LÝ CHỌN PART (MÀN HÌNH SETUP) ---
+        function extractParts() {
+            let partsSet = new Set();
+            fullData.forEach(q => {
+                if(q.sub_questions && q.sub_questions.length > 0) {
+                    let partName = q.sub_questions[0].term_name.trim();
+                    partsSet.add(partName);
+                }
+            });
+            availableParts = Array.from(partsSet).sort();
+            
+            let gridHtml = '';
+            availableParts.forEach(part => {
+                gridHtml += `
+                    <div class="part-item disabled" id="part-wrap-${part}">
+                        <input type="checkbox" id="chk-${part}" value="${part}" checked disabled>
+                        <label for="chk-${part}" style="margin:0; cursor:pointer;">${part.toUpperCase()}</label>
+                    </div>
+                `;
+            });
+            document.getElementById('part-checkboxes').innerHTML = gridHtml;
+        }
+
+        function togglePartSelection() {
+            let isCustom = document.getElementById('chk-custom-parts').checked;
+            availableParts.forEach(part => {
+                let wrap = document.getElementById(`part-wrap-${part}`);
+                let chk = document.getElementById(`chk-${part}`);
+                if(isCustom) {
+                    wrap.classList.remove('disabled');
+                    chk.disabled = false;
+                } else {
+                    wrap.classList.add('disabled');
+                    chk.disabled = true;
+                    chk.checked = true;
+                }
+            });
+        }
+
+        // --- 3. BẮT ĐẦU LÀM BÀI ---
+        function startTest() {
+            // Lọc dữ liệu theo Part
+            let isCustom = document.getElementById('chk-custom-parts').checked;
+            let selectedParts = [];
+            
+            if(isCustom) {
+                availableParts.forEach(part => {
+                    if(document.getElementById(`chk-${part}`).checked) {
+                        selectedParts.push(part);
+                    }
+                });
+                if(selectedParts.length === 0) {
+                    alert("Vui lòng chọn ít nhất 1 Part để làm bài!");
+                    return;
+                }
+            }
+
+            activeQuestions = fullData.filter(q => {
+                if(!isCustom) return true;
+                if(q.sub_questions && q.sub_questions.length > 0) {
+                    return selectedParts.includes(q.sub_questions[0].term_name.trim());
+                }
+                return false;
+            });
+
+            document.getElementById('setup-screen').classList.add('hidden');
+            document.getElementById('test-screen').classList.remove('hidden');
+            
+            renderTestUI();
+            startTimer();
+        }
+
+        // --- 4. RENDER GIAO DIỆN BÀI THI ---
+        function renderTestUI() {
+            let leftHtml = '';
+            let rightHtml = '';
+            let gridHtml = '';
+            totalSubQuestions = 0;
+
+            activeQuestions.forEach((q, index) => {
+                let groupId = `group-${index}`;
                 
-                // Left Column: Audio and Images
-                html += `<div class="left-col">`;
+                // Cột trái: Media (Ảnh + Âm thanh)
+                leftHtml += `<div id="media-${groupId}" class="media-container" style="margin-bottom: 40px;">`;
                 if (q.audio_url && q.audio_url !== "false" && q.audio_url !== "") {
-                    html += `<audio controls controlsList="nodownload"><source src="${q.audio_url}" type="audio/mpeg"></audio>`;
+                    leftHtml += `<audio controls controlsList="nodownload"><source src="${q.audio_url}" type="audio/mpeg"></audio>`;
                 }
                 if (q.content && q.content !== "") {
                     let decodedContent = q.content.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"');
-                    html += `<div class="passage-content">${decodedContent}</div>`;
+                    leftHtml += `<div class="passage-content">${decodedContent}</div>`;
                 }
-                html += `</div>`;
+                leftHtml += `</div>`;
 
-                // Right Column: Questions and Choices
-                html += `<div class="right-col">`;
+                // Cột phải: Câu hỏi
+                rightHtml += `<div class="question-group" id="qgroup-${groupId}" onmouseenter="syncMedia('${groupId}')">`;
+                rightHtml += `<div style="width: 100%;">`; // Wrapper cho câu hỏi
+                
                 q.sub_questions.forEach(sq => {
-                    html += `<div class="sub-question">`;
-                    html += `<div class="q-title">${sq.title}</div>`;
-                    html += `<div class="options">`;
+                    totalSubQuestions++;
+                    let globalQNum = sq.title.replace('.', '').trim(); // Lấy số câu hỏi
+                    
+                    // Render Grid Button
+                    gridHtml += `<button class="grid-btn" id="grid-btn-${sq.index}" onclick="scrollToQuestion('${sq.index}')">${globalQNum}</button>`;
+
+                    // Render Question
+                    rightHtml += `<div class="sub-question" id="scroll-${sq.index}">`;
+                    rightHtml += `<div class="q-title"><span class="q-number">${sq.title}</span> <span class="q-text">Chọn đáp án đúng nhất</span></div>`;
+                    rightHtml += `<div class="options">`;
                     
                     sq.choices.forEach(c => {
                         let isCorrect = c.choice_right_answer ? "true" : "false";
-                        html += `
+                        rightHtml += `
                         <label class="option-label" id="label-${sq.index}-${c.choice}">
-                            <input type="radio" name="q-${sq.index}" value="${c.choice}" data-correct="${isCorrect}">
+                            <input type="radio" name="q-${sq.index}" value="${c.choice}" data-correct="${isCorrect}" onchange="markAnswered('${sq.index}')">
                             <span style="font-weight:600; margin-right:8px;">${c.choice}.</span> ${c.choice_answer || ""}
                         </label>`;
                     });
                     
-                    html += `</div>`; 
+                    rightHtml += `</div>`; 
                     if(sq.explanation) {
-                        html += `<div class="explanation hidden" id="exp-${sq.index}">
-                                    <h4>Explanation & Translation</h4>
-                                    <div>${sq.explanation}</div>
-                                 </div>`;
+                        rightHtml += `<div class="explanation hidden" id="exp-${sq.index}">
+                                        <h4>Giải thích & Dịch nghĩa:</h4>
+                                        <div>${sq.explanation}</div>
+                                     </div>`;
                     }
-                    html += `</div>`; 
+                    rightHtml += `</div>`; 
                 });
-                html += `</div>`;
-                html += `</div>`;
+                
+                rightHtml += `</div></div>`;
             });
 
-            html += `<button class="submit-btn" onclick="submitTest()">Submit and View Results</button>`;
-
-            document.getElementById('loading').style.display = 'none';
-            document.getElementById('test-content').innerHTML = html;
+            document.getElementById('left-panel').innerHTML += leftHtml;
+            document.getElementById('right-panel').innerHTML = rightHtml;
+            document.getElementById('nav-grid-container').innerHTML = gridHtml;
+            document.getElementById('total-count').innerText = totalSubQuestions;
         }
 
-        function submitTest() {
-            let totalCorrect = 0;
-            let totalQuestions = 0;
+        // --- CÁC HÀM HỖ TRỢ GIAO DIỆN ---
+        function toggleNav() {
+            document.getElementById('nav-modal').classList.toggle('active');
+        }
 
-            testData.forEach(q => {
+        function scrollToQuestion(index) {
+            let el = document.getElementById(`scroll-${index}`);
+            if(el) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                // Cập nhật part label dựa trên câu hỏi
+                // (Chức năng này có thể mở rộng thêm)
+            }
+            toggleNav();
+        }
+
+        function syncMedia(groupId) {
+            // Tính năng cuộn đồng bộ: Khi cuộn cột phải, tự động cuộn cột trái tương ứng
+            let mediaEl = document.getElementById(`media-${groupId}`);
+            let leftPanel = document.getElementById('left-panel');
+            if(mediaEl && leftPanel) {
+                leftPanel.scrollTo({ top: mediaEl.offsetTop - 20, behavior: 'smooth' });
+            }
+        }
+
+        function markAnswered(index) {
+            if(isSubmitted) return;
+            let gridBtn = document.getElementById(`grid-btn-${index}`);
+            if(gridBtn && !gridBtn.classList.contains('answered')) {
+                gridBtn.classList.add('answered');
+                answeredQuestions++;
+                document.getElementById('answered-count').innerText = answeredQuestions;
+            }
+        }
+
+        // --- 5. ĐỒNG HỒ ĐẾM NGƯỢC ---
+        function startTimer() {
+            let minutes = parseInt(document.getElementById('time-select').value);
+            let timeInSeconds = minutes * 60;
+            let timerDisplay = document.getElementById('timer-display');
+
+            timerInterval = setInterval(() => {
+                timeInSeconds--;
+                let h = Math.floor(timeInSeconds / 3600);
+                let m = Math.floor((timeInSeconds % 3600) / 60);
+                let s = timeInSeconds % 60;
+                
+                timerDisplay.innerText = 
+                    (h > 0 ? (h < 10 ? "0" + h + ":" : h + ":") : "") + 
+                    (m < 10 ? "0" + m : m) + ":" + 
+                    (s < 10 ? "0" + s : s);
+
+                if(timeInSeconds <= 300) timerDisplay.style.backgroundColor = "#dc3545"; // Đỏ khi còn 5 phút
+                
+                if (timeInSeconds <= 0) {
+                    clearInterval(timerInterval);
+                    alert("Hết giờ làm bài! Hệ thống tự động nộp bài.");
+                    submitTest();
+                }
+            }, 1000);
+        }
+
+        // --- 6. NỘP BÀI & CHẤM ĐIỂM ---
+        function submitTest() {
+            if(isSubmitted) return;
+            isSubmitted = true;
+            clearInterval(timerInterval);
+
+            let totalCorrect = 0;
+
+            activeQuestions.forEach(q => {
                 q.sub_questions.forEach(sq => {
-                    totalQuestions++;
                     let selectedInput = document.querySelector(`input[name="q-${sq.index}"]:checked`);
+                    let gridBtn = document.getElementById(`grid-btn-${sq.index}`);
                     
                     sq.choices.forEach(c => {
                         let label = document.getElementById(`label-${sq.index}-${c.choice}`);
                         let input = document.querySelector(`input[name="q-${sq.index}"][value="${c.choice}"]`);
-                        input.disabled = true; 
+                        input.disabled = true; // Khóa lựa chọn
 
                         if (c.choice_right_answer) {
                             label.classList.add('correct'); 
@@ -383,25 +441,33 @@
                         }
                     });
 
+                    // Cập nhật điểm & Bảng Grid
                     if (selectedInput && selectedInput.dataset.correct === "true") {
                         totalCorrect++;
+                        if(gridBtn) gridBtn.className = "grid-btn correct-ans";
+                    } else {
+                        if(gridBtn) gridBtn.className = "grid-btn wrong-ans";
                     }
 
+                    // Hiện giải thích
                     let expBox = document.getElementById(`exp-${sq.index}`);
                     if(expBox) expBox.classList.remove('hidden');
                 });
             });
 
-            let resultBox = document.getElementById('result-box');
-            resultBox.classList.remove('hidden');
-            resultBox.innerHTML = `Result: ${totalCorrect} / ${totalQuestions} Correct`;
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            // Hiện điểm ở cột trái
+            let scoreBox = document.getElementById('final-score-box');
+            scoreBox.classList.remove('hidden');
+            scoreBox.innerHTML = `SỐ CÂU ĐÚNG<br><span style="font-size:40px; color:#f27127;">${totalCorrect} / ${totalSubQuestions}</span>`;
             
-            // Thay đổi nút submit thành nút làm lại
-            let submitBtn = document.querySelector('.submit-btn');
-            submitBtn.innerText = 'Retake Test';
-            submitBtn.onclick = function() { location.reload(); };
-            submitBtn.style.backgroundColor = '#6c757d';
+            // Đổi nút nộp bài
+            let btnSubmit = document.getElementById('btn-submit');
+            btnSubmit.innerText = "LÀM LẠI";
+            btnSubmit.style.backgroundColor = "#6c757d";
+            btnSubmit.onclick = function() { location.reload(); };
+
+            document.getElementById('left-panel').scrollTo({ top: 0, behavior: 'smooth' });
+            document.getElementById('right-panel').scrollTo({ top: 0, behavior: 'smooth' });
         }
     </script>
 </body>
