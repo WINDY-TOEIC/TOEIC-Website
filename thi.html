@@ -161,6 +161,27 @@
         .grid-btn.correct-ans { background: #719f4a !important; }
         .grid-btn.wrong-ans { background: #e25b45 !important; }
         .grid-btn.marked { background: #ffc107 !important; color: #111 !important; box-shadow: 0 0 0 2px #fff, 0 0 0 4px #ffc107 !important; }
+        
+        /* --- CÔNG CỤ TƯƠNG TÁC (HIGHLIGHT & DRAW) --- */
+        #drawing-canvas { position: fixed; top: 75px; left: 0; width: 100%; height: calc(100% - 75px); pointer-events: none; z-index: 900; }
+        .canvas-active { pointer-events: auto !important; cursor: crosshair; }
+        
+        .selection-toolbar { position: absolute; background: #555; border-radius: 6px; padding: 6px 10px; display: flex; gap: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 9999; opacity: 0; visibility: hidden; transition: opacity 0.2s; }
+        .selection-toolbar.active { opacity: 1; visibility: visible; }
+        .selection-toolbar.active::after { content: ''; position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%); border-width: 6px 6px 0; border-style: solid; border-color: #555 transparent transparent transparent; }
+        
+        .tb-btn { background: transparent; border: none; color: white; cursor: pointer; padding: 4px 8px; border-radius: 4px; font-size: 14px; display: flex; align-items: center; justify-content: center; }
+        .tb-btn:hover { background: rgba(255,255,255,0.2); }
+        .tb-btn.color-yellow { color: #f1c40f; }
+        .tb-btn.color-red { color: #e74c3c; font-weight: bold; }
+        
+        /* Các class apply vào chữ */
+        .hl-yellow { background-color: #fceea7; cursor: pointer; border-radius: 2px;}
+        .hl-strike { text-decoration: line-through; cursor: pointer; opacity: 0.6;}
+        .hl-underline { border-bottom: 2px solid #e74c3c; cursor: pointer; }
+        .hl-note-text { color: #e74c3c; font-size: 14px; margin-left: 5px; font-style: italic; border: 1px dashed #e74c3c; padding: 2px 4px; border-radius: 4px; cursor: pointer;}
+        .hl-note-text .del-note { color: #999; margin-left: 5px; cursor: pointer; font-weight: normal; }
+        .hl-note-text .del-note:hover { color: red; }
     </style>
 </head>
 <body>
@@ -239,7 +260,12 @@
             </div>
             <div class="header-controls">
                 <div class="shortcut-tooltip">?</div>
-                <button class="btn-exit" onclick="saveAndExit()">Thoát & Lưu</button>
+            <!-- BẮT ĐẦU CHÈN NÚT BÚT VẼ -->
+            <button class="btn-exit" id="btn-draw" onclick="toggleDrawing()" style="background:#f39c12;" title="Bật/Tắt Bút đỏ">Bút: OFF</button>
+            <button class="btn-exit hidden" id="btn-erase" onclick="toggleEraser()" style="background:#95a5a6;" title="Cục tẩy">Tẩy</button>
+            <button class="btn-exit hidden" id="btn-clear-draw" onclick="clearCanvas()" style="background:#c0392b;">Xóa sạch</button>
+            <!-- KẾT THÚC CHÈN -->
+            <button class="btn-exit" onclick="saveAndExit()">Thoát & Lưu</button>
                 <button class="btn-submit" id="btn-submit" onclick="submitTest()">Nộp Bài</button>
                 <div class="timer-box" id="timer-display">00:00:00</div>
                 <div class="guest-text">Guest (Khách)</div>
@@ -302,6 +328,20 @@
                 </div>
             </div>
         </div>
+
+        <!-- TOOLBAR NỔI KHI BÔI ĐEN -->
+        <div id="selection-toolbar" class="selection-toolbar">
+            <button class="tb-btn" id="tb-trash" style="display: none;" title="Xóa">🗑️</button>
+            <button class="tb-btn" id="tb-note" title="Thêm ghi chú">📝</button>
+            <button class="tb-btn color-yellow" id="tb-yellow" title="Bôi vàng">■</button>
+            <button class="tb-btn" id="tb-strike" title="Gạch ngang">abc</button>
+            <button class="tb-btn color-red" id="tb-under" title="Gạch chân đỏ">__</button>
+            <button class="tb-btn" id="tb-search" title="Tra từ điển">🔍</button>
+        </div>
+
+        <!-- KHUNG ĐỂ VẼ BÚT ĐỎ -->
+        <canvas id="drawing-canvas"></canvas>
+
     </div>
 
     <script>
@@ -1108,6 +1148,220 @@
                 document.getElementById('nav-modal').classList.add('active'); 
             }
         }
+
+        // ==========================================
+        // KHU VỰC 1: XỬ LÝ MENU NỔI & TEXT HIGHLIGHT
+        // ==========================================
+        let currentSelectionRange = null;
+        let currentEditingNode = null; 
+        const toolbar = document.getElementById('selection-toolbar');
+
+        document.addEventListener('mouseup', function(e) {
+            if (toolbar.contains(e.target)) return;
+
+            let selection = window.getSelection();
+            let selectedText = selection.toString().trim();
+
+            if (e.target.classList.contains('hl-yellow') || e.target.classList.contains('hl-strike') || e.target.classList.contains('hl-underline')) {
+                currentEditingNode = e.target;
+                showToolbar(e.pageX, e.pageY, true);
+                return;
+            }
+
+            if (selectedText.length > 0) {
+                currentSelectionRange = selection.getRangeAt(0).cloneRange();
+                currentEditingNode = null;
+                showToolbar(e.pageX, e.pageY, false);
+            } else {
+                toolbar.classList.remove('active');
+            }
+        });
+
+        function showToolbar(x, y, isDeleteMode) {
+            toolbar.style.left = (x - 80) + 'px';
+            toolbar.style.top = (y - 50) + 'px';
+            toolbar.classList.add('active');
+
+            if (isDeleteMode) {
+                document.getElementById('tb-trash').style.display = 'block';
+                document.getElementById('tb-yellow').style.display = 'none';
+                document.getElementById('tb-strike').style.display = 'none';
+                document.getElementById('tb-under').style.display = 'none';
+                document.getElementById('tb-note').style.display = 'none';
+                document.getElementById('tb-search').style.display = 'none';
+            } else {
+                document.getElementById('tb-trash').style.display = 'none';
+                document.getElementById('tb-yellow').style.display = 'block';
+                document.getElementById('tb-strike').style.display = 'block';
+                document.getElementById('tb-under').style.display = 'block';
+                document.getElementById('tb-note').style.display = 'block';
+                document.getElementById('tb-search').style.display = 'block';
+            }
+        }
+
+        function applyWrap(className) {
+            if (!currentSelectionRange) return;
+            let span = document.createElement('span');
+            span.className = className;
+            try {
+                currentSelectionRange.surroundContents(span);
+            } catch(e) {
+                alert("Vui lòng bôi đen gọn trong 1 đoạn văn, không bôi chéo qua các ô.");
+            }
+            window.getSelection().removeAllRanges();
+            toolbar.classList.remove('active');
+        }
+
+        document.getElementById('tb-yellow').onclick = () => applyWrap('hl-yellow');
+        document.getElementById('tb-strike').onclick = () => applyWrap('hl-strike');
+        document.getElementById('tb-under').onclick = () => applyWrap('hl-underline');
+        
+        document.getElementById('tb-search').onclick = () => {
+            if(currentSelectionRange) {
+                let text = currentSelectionRange.toString().trim();
+                window.open('https://dict.laban.vn/find?type=1&query=' + encodeURIComponent(text), '_blank');
+                toolbar.classList.remove('active');
+            }
+        };
+
+        document.getElementById('tb-note').onclick = () => {
+            if (!currentSelectionRange) return;
+            let note = prompt("Nhập nội dung ghi chú (Tiếng Việt):");
+            if (note) {
+                let noteSpan = document.createElement('span');
+                noteSpan.className = 'hl-note-text';
+                noteSpan.innerHTML = `${note} <span class="del-note" onclick="this.parentElement.remove()">❌</span>`;
+                
+                let spanWrapper = document.createElement('span');
+                spanWrapper.className = 'hl-yellow'; 
+                currentSelectionRange.surroundContents(spanWrapper);
+                spanWrapper.insertAdjacentElement('afterend', noteSpan);
+            }
+            window.getSelection().removeAllRanges();
+            toolbar.classList.remove('active');
+        };
+
+        document.getElementById('tb-trash').onclick = () => {
+            if (currentEditingNode) {
+                let parent = currentEditingNode.parentNode;
+                while (currentEditingNode.firstChild) {
+                    parent.insertBefore(currentEditingNode.firstChild, currentEditingNode);
+                }
+                parent.removeChild(currentEditingNode);
+                currentEditingNode = null;
+            }
+            toolbar.classList.remove('active');
+        };
+
+        // ==========================================
+        // KHU VỰC 2: XỬ LÝ CANVAS (VẼ BÚT ĐỎ)
+        // ==========================================
+        const canvas = document.getElementById('drawing-canvas');
+        const ctx = canvas.getContext('2d');
+        let isDrawingMode = false;
+        let isEraserMode = false;
+        let isDrawing = false;
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight - 75; 
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        function toggleDrawing() {
+            isDrawingMode = !isDrawingMode;
+            let btnDraw = document.getElementById('btn-draw');
+            let btnErase = document.getElementById('btn-erase');
+            let btnClear = document.getElementById('btn-clear-draw');
+            
+            if (isDrawingMode) {
+                canvas.classList.add('canvas-active');
+                btnDraw.innerText = "Bút: ON";
+                btnDraw.style.background = "#27ae60"; 
+                btnErase.classList.remove('hidden');
+                btnClear.classList.remove('hidden');
+                
+                isEraserMode = false;
+                btnErase.style.background = "#95a5a6";
+                ctx.globalCompositeOperation = "source-over"; 
+            } else {
+                canvas.classList.remove('canvas-active');
+                btnDraw.innerText = "Bút: OFF";
+                btnDraw.style.background = "#f39c12"; 
+                btnErase.classList.add('hidden');
+                btnClear.classList.add('hidden');
+            }
+        }
+
+        function toggleEraser() {
+            isEraserMode = !isEraserMode;
+            let btnErase = document.getElementById('btn-erase');
+            if (isEraserMode) {
+                btnErase.style.background = "#e74c3c"; 
+                ctx.globalCompositeOperation = "destination-out"; 
+                ctx.lineWidth = 20; 
+            } else {
+                btnErase.style.background = "#95a5a6";
+                ctx.globalCompositeOperation = "source-over"; 
+                ctx.lineWidth = 2; 
+            }
+        }
+
+        function clearCanvas() {
+            if(confirm("Bạn có chắc muốn xóa sạch toàn bộ nét vẽ không?")) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+        }
+
+        ctx.strokeStyle = '#e74c3c'; 
+        ctx.lineWidth = 2;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+
+        function getMousePos(e) {
+            const rect = canvas.getBoundingClientRect();
+            return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+        }
+
+        canvas.addEventListener('mousedown', (e) => {
+            isDrawing = true;
+            const pos = getMousePos(e);
+            ctx.beginPath();
+            ctx.moveTo(pos.x, pos.y);
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (!isDrawing) return;
+            const pos = getMousePos(e);
+            ctx.lineTo(pos.x, pos.y);
+            ctx.stroke();
+        });
+
+        canvas.addEventListener('mouseup', () => isDrawing = false);
+        canvas.addEventListener('mouseout', () => isDrawing = false);
+
+        // ==========================================
+        // KHU VỰC 3: XỬ LÝ LƯU NÉT VẼ
+        // ==========================================
+        setInterval(() => {
+            if (!isSubmitted && fileName) {
+                localStorage.setItem(`win_draw_${fileName}`, canvas.toDataURL());
+            }
+        }, 5000);
+
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                let savedDraw = localStorage.getItem(`win_draw_${fileName}`);
+                if (savedDraw) {
+                    let img = new Image();
+                    img.onload = function() {
+                        ctx.drawImage(img, 0, 0);
+                    };
+                    img.src = savedDraw;
+                }
+            }, 1000); 
+        });
     </script>
 </body>
 </html>
