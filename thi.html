@@ -52,6 +52,10 @@
         .guest-text { font-weight: 600; font-size: 16px; }
         .btn-grid { background: rgba(255,255,255,0.2); border: none; color: white; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-size: 18px; }
         
+        .shortcut-tooltip { background: #f27127; color: white; border-radius: 50%; width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; font-size: 16px; font-weight: bold; cursor: help; position: relative; margin-right: 10px; }
+        .shortcut-tooltip::after { content: "[Phím Cách]: Nghe lại Audio \A [←]: Câu trước \A [→]: Câu tiếp \A [↑]: Hiện chữ"; position: absolute; top: 40px; right: 0; background: #333; color: #fff; padding: 12px; border-radius: 4px; white-space: pre; font-size: 14px; opacity: 0; visibility: hidden; transition: 0.2s; pointer-events: none; z-index: 1001; text-align: left; line-height: 1.6; font-weight: normal; box-shadow: 0 4px 6px rgba(0,0,0,0.3);}
+        .shortcut-tooltip:hover::after { opacity: 1; visibility: visible; }
+        
         /* Sub Header */
         .sub-header { background: white; padding: 15px 30px; border-bottom: 1px solid #e1e4e8; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 70px; z-index: 999; }
         #current-part-label { font-size: 22px; font-weight: 800; color: #043b5c; width: 150px; text-transform: uppercase;}
@@ -165,6 +169,7 @@
                 WINDY TOEIC
             </div>
             <div class="header-controls">
+                <div class="shortcut-tooltip">?</div>
                 <button class="btn-submit" id="btn-submit" onclick="submitTest()">Nộp Bài</button>
                 <div class="timer-box" id="timer-display">00:00:00</div>
                 <div class="guest-text">Guest (Khách)</div>
@@ -223,7 +228,7 @@
         let timerInterval;
         let isSubmitted = false;
         let currentMode = 'practice'; // 'practice' or 'exam'
-        let currentAudioFile = "";    // Tracker để tránh load lại loa
+        let currentGroupId = -1;      // Đổi tracker để Reading chịu hiển thị bài đọc/hình ảnh
 
         if (!fileName) {
             document.getElementById('loading-msg').innerHTML = "Lỗi: URL không chứa tên đề thi.";
@@ -323,8 +328,11 @@
                     if(!isCustom || selectedParts.includes(partName)) {
                         group.sub_questions.forEach(sq => {
                             flatQuestions.push({
+                                groupId: fullData.indexOf(group),
                                 audio_url: group.audio_url,
                                 content: group.content,
+                                images: group.images, 
+                                image: group.image || group.image_url, 
                                 sq: sq
                             });
                         });
@@ -383,9 +391,9 @@
 
             document.getElementById('current-part-label').innerText = (sq.term_name || "PART").toUpperCase();
 
-            // XỬ LÝ MEDIA (Bên trái) - Giữ âm thanh liền mạch
-            if (item.audio_url !== currentAudioFile || index === 0) {
-                currentAudioFile = item.audio_url;
+            // XỬ LÝ MEDIA (Bên trái) - Giữ âm thanh liền mạch và nạp lại Bài Đọc mới
+            if (item.groupId !== currentGroupId || index === 0) {
+                currentGroupId = item.groupId;
                 let leftHtml = '';
                 
                 if (item.audio_url && item.audio_url !== "false" && item.audio_url !== "") {
@@ -393,9 +401,6 @@
                     leftHtml += `
                     <div class="audio-wrapper" ${displayStyle}>
                         <audio id="q-audio" controls controlsList="nodownload" autoplay><source src="${item.audio_url}" type="audio/mpeg"></audio>
-                        <div class="shortcut-hints">
-                            [Phím Cách]: Nghe lại Audio &nbsp;|&nbsp; [&#8592;]: Câu trước &nbsp;|&nbsp; [&#8594;]: Câu tiếp
-                        </div>
                     </div>`;
                     
                     if (currentMode === 'practice') {
@@ -413,6 +418,15 @@
                 if (item.content && item.content !== "") {
                     let decodedContent = item.content.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"');
                     leftHtml += `<div class="passage-content">${decodedContent}</div>`;
+                }
+
+                // Xử lý hiển thị thêm ảnh (Dành riêng cho Reading Part 6,7)
+                if (item.images && Array.isArray(item.images)) {
+                    item.images.forEach(img => {
+                        leftHtml += `<img src="${img}" style="max-width:100%; border:1px solid #ccc; margin-bottom: 15px;">`;
+                    });
+                } else if (item.image) {
+                    leftHtml += `<img src="${item.image}" style="max-width:100%; border:1px solid #ccc; margin-bottom: 15px;">`;
                 }
                 
                 document.getElementById('media-content').innerHTML = leftHtml;
@@ -577,9 +591,8 @@
             }
         }
 
-        // Lắng nghe phím tắt: Cách (nghe lại), Mũi tên trái/phải (chuyển câu)
+        // Lắng nghe phím tắt
         document.addEventListener('keydown', function(event) {
-            // Chống bấm nhầm khi đang gõ text
             if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA') return;
 
             if (event.code === 'Space' || event.keyCode === 32) {
@@ -595,6 +608,10 @@
             } else if (event.code === 'ArrowLeft' || event.keyCode === 37) {
                 event.preventDefault();
                 navigateQuestion(-1);
+            } else if (event.code === 'ArrowUp' || event.keyCode === 38) {
+                event.preventDefault();
+                let sq = flatQuestions[currentQIndex].sq;
+                if(sq) toggleTranscript(sq.index);
             }
         });
 
