@@ -146,6 +146,12 @@
         .color-grid { display: grid; grid-template-columns: repeat(5, 25px); gap: 8px; }
         .color-swatch { width: 25px; height: 25px; border-radius: 50%; cursor: pointer; border: 1px solid #ccc; }
         .swatch-rainbow { background: linear-gradient(45deg, red, orange, yellow, green, blue, indigo, violet); }
+        
+        /* --- NÚT LÀM TIẾP --- */
+        .resume-floating-btn { position: fixed; bottom: 30px; right: 30px; background: #f39c12; color: white; padding: 15px 25px; border-radius: 50px; font-weight: bold; font-size: 16px; text-decoration: none; box-shadow: 0 4px 15px rgba(0,0,0,0.3); z-index: 1000; display: none; align-items: center; transition: 0.3s; border: 2px solid #fff;}
+        .resume-floating-btn:hover { background: #e67e22; transform: scale(1.05); }
+        .resume-tooltip { position: absolute; right: 100%; margin-right: 15px; background: #333; color: #fff; padding: 8px 15px; border-radius: 6px; font-size: 14px; white-space: nowrap; opacity: 0; visibility: hidden; transition: 0.3s; font-weight: normal; pointer-events: none; }
+        .resume-floating-btn:hover .resume-tooltip { opacity: 1; visibility: visible; }
     </style>
 </head>
 <body>
@@ -258,6 +264,13 @@
         </div>
 
     </div>
+    
+    <!-- Nút Làm Tiếp -->
+    <a href="#" id="resume-btn" class="resume-floating-btn">
+        ⏳ LÀM TIẾP
+        <div class="resume-tooltip" id="resume-tooltip">Đang tải...</div>
+    </a>
+
 <script>
         window.onload = function() {
             let savedClass = localStorage.getItem('win_classCode');
@@ -274,7 +287,38 @@
             }
             loadBannerBg();
             loadHistory();
+            checkResumeTest();
         };
+
+        function checkResumeTest() {
+            let latestProgress = null;
+            let latestFile = "";
+            
+            // Tìm bài test đang làm dở
+            for (let i = 0; i < localStorage.length; i++) {
+                let key = localStorage.key(i);
+                if (key.startsWith('win_progress_')) {
+                    let data = JSON.parse(localStorage.getItem(key));
+                    let fileName = key.replace('win_progress_', '');
+                    latestProgress = data;
+                    latestFile = fileName;
+                    break; 
+                }
+            }
+            
+            // Nếu có, hiện nút LÀM TIẾP
+            if (latestProgress) {
+                let resumeBtn = document.getElementById('resume-btn');
+                let tooltip = document.getElementById('resume-tooltip');
+                let testName = latestFile.replace('.txt', '').replace('.json', '').toUpperCase();
+                let currentQ = latestProgress.currentQIndex + 1;
+                
+                // Truyền thêm param resume=1 vào URL
+                resumeBtn.href = `thi.html?file=${encodeURIComponent(latestFile)}&resume=1`;
+                resumeBtn.style.display = 'flex';
+                tooltip.innerText = `Đang làm câu ${currentQ} của đề ${testName}`;
+            }
+        }
 
         function toggleHistory() {
             document.getElementById('history-dropdown').classList.toggle('active');

@@ -533,11 +533,20 @@
             let savedProgress = localStorage.getItem(saveKey);
             let resumeData = null;
             
+            // Kiểm tra xem URL có chứa lệnh resume=1 (từ nút Làm Tiếp truyền sang không)
+            let urlParams2 = new URLSearchParams(window.location.search);
+            let isResume = urlParams2.get('resume');
+            
             if (savedProgress) {
-                if (confirm("Hệ thống phát hiện bạn có bài làm đang dang dở.\nBạn có muốn LÀM TIẾP không?\n\n(Bấm OK để làm tiếp, Cancel để xóa dữ liệu làm lại từ đầu)")) {
+                if (isResume === '1') {
+                    // Nếu bấm từ nút Làm Tiếp -> Load dữ liệu cũ
                     resumeData = JSON.parse(savedProgress);
                 } else {
+                    // Nếu click thẳng vào tên Đề (không bấm Làm tiếp) -> Xóa tiến trình cũ, làm lại từ đầu
                     localStorage.removeItem(saveKey);
+                    
+                    // Xóa luôn cả nét vẽ bút đỏ của test đó (nếu có)
+                    localStorage.removeItem(`win_draw_${fileName}`); 
                 }
             }
 
