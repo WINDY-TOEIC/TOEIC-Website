@@ -127,6 +127,7 @@
         /* Màu báo đúng/sai khi nộp bài */
         .grid-btn.correct-ans { background: #719f4a !important; }
         .grid-btn.wrong-ans { background: #e25b45 !important; }
+        .grid-btn.marked { background: #ffc107 !important; color: #111 !important; box-shadow: 0 0 0 2px #fff, 0 0 0 4px #ffc107 !important; }
     </style>
 </head>
 <body>
@@ -186,6 +187,10 @@
                     <div class="color-swatch" style="background: #043b5c;" onclick="changeBannerBg('#043b5c', 'none')"></div>
                     <div class="color-swatch" style="background: #e25b45;" onclick="changeBannerBg('#e25b45', 'none')"></div>
                     <div class="color-swatch" style="background: #28a745;" onclick="changeBannerBg('#28a745', 'none')"></div>
+                    <div class="color-swatch" style="background: #ff69b4;" onclick="changeBannerBg('#ff69b4', 'none')"></div>
+                    <div class="color-swatch" style="background: #9c27b0;" onclick="changeBannerBg('#9c27b0', 'none')"></div>
+                    <div class="color-swatch" style="background: #00ced1;" onclick="changeBannerBg('#00ced1', 'none')"></div>
+                    <div class="color-swatch" style="background: #343a40;" onclick="changeBannerBg('#343a40', 'none')"></div>
                     <div class="color-swatch swatch-rainbow" onclick="changeBannerBg('transparent', 'linear-gradient(45deg, red, orange, yellow, green, blue, indigo, violet)')"></div>
                 </div>
                 <span style="font-size: 13px; font-weight: 600; margin-top: 5px;">Hoặc tải ảnh từ máy:</span>
@@ -247,6 +252,7 @@
         let totalQuestions = 0;
         let answeredQuestions = 0;
         let userAnswers = {}; 
+        let markedQuestions = {}; // Bộ nhớ lưu các câu đã bị đánh dấu vàng
         
         let timerInterval;
         let isSubmitted = false;
@@ -495,9 +501,7 @@
                     audioEl.preservesPitch = true; // Chống bể giọng khi giảm tốc
                     if (currentMode === 'exam') {
                         audioEl.onended = function() {
-                            setTimeout(() => {
-                                autoAdvanceExam(index);
-                            }, 5000);
+                            autoAdvanceExam(index);
                         };
                     }
                 }
@@ -505,11 +509,18 @@
 
             // XỬ LÝ CÂU HỎI (Bên phải)
             let transcriptBtn = currentMode === 'practice' ? `<button class="btn-transcript" onclick="toggleTranscript(${sq.index})">Hiện chữ</button>` : '';
+            let isMarked = markedQuestions[index];
+            let markBtnText = isMarked ? "Bỏ Đánh Dấu" : "Đánh Dấu Lại";
+            let markBtnBg = isMarked ? "#ffc107" : "#fff3cd";
+            let markBtnDisplay = isSubmitted ? "display:none;" : "";
             
             let rightHtml = `
                 <div class="q-title-wrap">
                     <h3 class="q-title"><span class="q-number">${sq.title}</span> Chọn đáp án đúng:</h3>
-                    ${transcriptBtn}
+                    <div>
+                        <button id="btn-mark-current" class="btn-transcript" style="background: ${markBtnBg}; border-color: #ffc107; margin-right: 8px; color: #333; ${markBtnDisplay}" onclick="toggleMark()">&#9873; ${markBtnText}</button>
+                        ${transcriptBtn}
+                    </div>
                 </div>
             `;
             
@@ -554,6 +565,26 @@
         }
 
         // --- CÁC HÀM XỬ LÝ CHUYÊN SÂU ---
+        function toggleMark() {
+            if (isSubmitted) return; // Nộp bài rồi thì không cho đánh dấu nữa
+            
+            markedQuestions[currentQIndex] = !markedQuestions[currentQIndex]; // Bật/Tắt đánh dấu
+            
+            // Đổi màu trong bảng lưới câu hỏi
+            let gridBtn = document.getElementById(`grid-btn-${currentQIndex}`);
+            if (gridBtn) {
+                if (markedQuestions[currentQIndex]) gridBtn.classList.add('marked');
+                else gridBtn.classList.remove('marked');
+            }
+            
+            // Đổi màu cái nút Đánh Dấu hiện tại
+            let markBtn = document.getElementById('btn-mark-current');
+            if (markBtn) {
+                markBtn.innerHTML = markedQuestions[currentQIndex] ? "&#9873; Bỏ Đánh Dấu" : "&#9873; Đánh Dấu Lại";
+                markBtn.style.background = markedQuestions[currentQIndex] ? "#ffc107" : "#fff3cd";
+            }
+        }
+
         function selectAnswer(choice) {
             if (isSubmitted) return;
             document.querySelectorAll('input[name="q-current"]').forEach(input => {
