@@ -8,7 +8,7 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         
-        body { font-family: 'Inter', sans-serif; background-color: #f4f6f9; margin: 0; color: #333; line-height: 1.5; zoom: 1.25; overflow-x: hidden; }
+        body { font-family: Arial, sans-serif; background-color: #f4f6f9; margin: 0; color: #333; line-height: 1.5; zoom: 1.25; overflow-x: hidden; }
         * { box-sizing: border-box; }
         .hidden { display: none !important; }
         
@@ -42,33 +42,33 @@
         #test-screen { display: flex; flex-direction: column; height: 100vh; }
         
         /* Top Header */
-        .test-header { background-color: #043b5c; color: white; padding: 0 30px; height: 70px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; }
+        .test-header { background-color: #003366; color: white; padding: 0 30px; height: 85px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; }
         .header-left { display: flex; align-items: center; gap: 20px; font-size: 20px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;}
         .header-controls { display: flex; align-items: center; gap: 15px; }
         
-        .btn-submit { background-color: #043b5c; color: white; border: 2px solid #fff; padding: 8px 25px; font-weight: 700; font-size: 14px; border-radius: 4px; cursor: pointer; text-transform: uppercase; transition: 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.2);}
-        .btn-submit:hover { background-color: #02243a; }
-        .btn-exit { background-color: transparent; color: white; border: 2px solid rgba(255,255,255,0.6); padding: 8px 15px; font-weight: 700; font-size: 14px; border-radius: 4px; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
-        .btn-exit:hover { background-color: rgba(255,255,255,0.2); border-color: white;}
+        .btn-submit { background-color: rgba(255,255,255,0.25); color: white; border: none; padding: 10px 25px; font-weight: 700; font-size: 14px; border-radius: 4px; cursor: pointer; text-transform: uppercase; transition: 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.1);}
+        .btn-submit:hover { background-color: rgba(255,255,255,0.4); }
+        .btn-exit { background-color: rgba(255,255,255,0.1); color: white; border: none; padding: 10px 15px; font-weight: 700; font-size: 14px; border-radius: 4px; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
+        .btn-exit:hover { background-color: rgba(255,255,255,0.25); }
         .timer-box { background-color: #5ba4e5; color: white; padding: 10px 20px; font-weight: 700; font-size: 16px; border-radius: 4px; font-variant-numeric: tabular-nums; }
         .guest-text { font-weight: 600; font-size: 16px; }
         .btn-grid { background: rgba(255,255,255,0.2); border: none; color: white; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-size: 18px; }
         
-        .shortcut-tooltip { background: #043b5c; border: 2px solid white; color: white; border-radius: 50%; width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; font-size: 16px; font-weight: bold; cursor: help; position: relative; margin-right: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);}
+        .shortcut-tooltip { background: rgba(255,255,255,0.1); border: none; color: white; border-radius: 50%; width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; font-size: 16px; font-weight: bold; cursor: help; position: relative; margin-right: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);}
         .shortcut-tooltip::after { content: "[Phím Cách]: Nghe lại Audio \A [←]: Câu trước \A [→]: Câu tiếp \A [↑]: Hiện chữ"; position: absolute; top: 40px; right: 0; background: #333; color: #fff; padding: 12px; border-radius: 4px; white-space: pre; font-size: 14px; opacity: 0; visibility: hidden; transition: 0.2s; pointer-events: none; z-index: 1001; text-align: left; line-height: 1.6; font-weight: normal; box-shadow: 0 4px 6px rgba(0,0,0,0.3);}
         .shortcut-tooltip:hover::after { opacity: 1; visibility: visible; }
 
         /* Nút đổi màu Banner */
-        .theme-btn { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4); color: white; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 18px; transition: 0.2s;}
+        .theme-btn { background: rgba(255,255,255,0.2); border: none; color: white; padding: 10px 12px; border-radius: 4px; cursor: pointer; font-size: 18px; transition: 0.2s;}
         .theme-btn:hover { background: rgba(255,255,255,0.4); }
-        .theme-panel { position: absolute; top: 60px; left: 30px; background: white; padding: 12px; border-radius: 6px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); z-index: 1002; display: none; width: max-content; flex-direction: column; gap: 10px; color: #333; }
+        .theme-panel { position: absolute; top: 70px; left: 30px; background: white; padding: 12px; border-radius: 6px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); z-index: 1002; display: none; width: max-content; flex-direction: column; gap: 10px; color: #333; }
         .theme-panel.active { display: flex; }
         .color-grid { display: grid; grid-template-columns: repeat(5, 25px); gap: 8px; }
         .color-swatch { width: 25px; height: 25px; border-radius: 50%; cursor: pointer; border: 1px solid #ccc; }
         .swatch-rainbow { background: linear-gradient(45deg, red, orange, yellow, green, blue, indigo, violet); }
-        
+
         /* Sub Header */
-        .sub-header { background: white; padding: 15px 30px; border-bottom: 1px solid #e1e4e8; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 70px; z-index: 999; }
+        .sub-header { background: white; padding: 15px 30px; border-bottom: 1px solid #e1e4e8; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 85px; z-index: 999; }
         #current-part-label { font-size: 22px; font-weight: 800; color: #043b5c; width: 150px; text-transform: uppercase;}
         
         .nav-buttons { display: flex; gap: 10px; flex: 1; justify-content: center;}
@@ -117,7 +117,7 @@
         .explanation { background: #f8f9fa; border-left: 4px solid #043b5c; padding: 20px; margin-top: 20px; font-size: 15px; line-height: 1.6; }
         
         /* Navigation Modal */
-        #nav-modal { position: fixed; top: 70px; right: -350px; width: 340px; height: calc(100vh - 70px); background: #f4f6f9; box-shadow: -2px 0 10px rgba(0,0,0,0.1); z-index: 1001; transition: right 0.3s ease; overflow-y: auto; overflow-x: hidden; padding: 20px; border-left: 1px solid #eee; }
+        #nav-modal { position: fixed; top: 85px; right: -350px; width: 340px; height: calc(100vh - 85px); background: #f4f6f9; box-shadow: -2px 0 10px rgba(0,0,0,0.1); z-index: 1001; transition: right 0.3s ease; overflow-y: auto; overflow-x: hidden; padding: 20px; border-left: 1px solid #eee; }
         #nav-modal.active { right: 0; }
         .nav-modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #ddd; padding-bottom: 15px; margin-bottom: 20px; font-weight: 700; font-size: 18px; color: #333;}
         .close-nav { cursor: pointer; color: #666; font-size: 24px; background: none; border: none; font-weight: bold; }
@@ -302,6 +302,8 @@
             let savedBgImage = localStorage.getItem('win_banner_bgImage');
             if (savedBgColor || savedBgImage) {
                 changeBannerBg(savedBgColor || 'transparent', savedBgImage || 'none');
+            } else {
+                changeBannerBg('#003366', 'none');
             }
         }
 

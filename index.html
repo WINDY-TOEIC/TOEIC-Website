@@ -9,7 +9,7 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
 
         body { 
-            font-family: 'Inter', sans-serif; 
+            font-family: Arial, sans-serif; 
             background-color: #f4f6f9; 
             margin: 0; 
             padding: 0; 
@@ -18,9 +18,9 @@
         }
         
         header { 
-            background-color: #0037f4; 
+            background-color: #003366; 
             color: white; 
-            padding: 25px 0; 
+            padding: 35px 0;
             text-align: center; 
             box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
         }
@@ -122,7 +122,7 @@
         .tooltip-icon:hover::after { opacity: 1; visibility: visible; }
 
         /* Nút đổi nền Banner */
-        .theme-btn { position: absolute; top: 15px; left: 15px; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.5); border-radius: 4px; padding: 6px 10px; cursor: pointer; color: white; font-size: 16px; z-index: 100; transition: 0.2s;}
+        .theme-btn { position: absolute; top: 15px; left: 15px; background: rgba(255,255,255,0.2); border: none; border-radius: 4px; padding: 8px 12px; cursor: pointer; color: white; font-size: 16px; z-index: 100; transition: 0.2s;}
         .theme-btn:hover { background: rgba(255,255,255,0.4); }
         .theme-panel { position: absolute; top: 55px; left: 15px; background: white; padding: 12px; border-radius: 6px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); z-index: 100; display: none; width: max-content; flex-direction: column; gap: 10px; text-align: left; }
         .theme-panel.active { display: flex; }
@@ -268,6 +268,8 @@
             let savedBgImage = localStorage.getItem('win_banner_bgImage');
             if (savedBgColor || savedBgImage) {
                 changeBannerBg(savedBgColor || 'transparent', savedBgImage || 'none');
+            } else {
+                changeBannerBg('#003366', 'none'); // Mặc định là Xanh Dương Đậm
             }
         }
 
