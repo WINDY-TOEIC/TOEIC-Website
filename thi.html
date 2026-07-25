@@ -214,10 +214,14 @@
     </div>
 
     <script>
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzWAINM3W5jAJA0Jhv4Ha_kPPApcrbVi4ANAY0gQ6oB2gUuLv4loTglWov4dwEXTQdz/exec";
+
         const urlParams = new URLSearchParams(window.location.search);
         const fileName = urlParams.get('file');
         
         let fullData = [];      
+        let studentName = "";
+        let classCode = "";
         let availableParts = []; 
         let flatQuestions = []; 
         
@@ -642,6 +646,20 @@
 
             showQuestion(currentQIndex);
             document.getElementById('nav-modal').classList.add('active');
+
+            // Gửi dữ liệu về Google Sheets
+            if (GOOGLE_SCRIPT_URL !== "") {
+                let testDisplayName = document.getElementById('test-title').innerText;
+                let submitUrl = GOOGLE_SCRIPT_URL + 
+                    "?name=" + encodeURIComponent(studentName) +
+                    "&classcode=" + encodeURIComponent(classCode) +
+                    "&test=" + encodeURIComponent(testDisplayName) +
+                    "&score=" + encodeURIComponent(totalCorrect + "/" + totalQuestions);
+
+                fetch(submitUrl, { mode: 'no-cors' }).then(() => {
+                    console.log("Đã gửi điểm về hệ thống thành công!");
+                }).catch(err => console.log("Lỗi gửi điểm: ", err));
+            }
         }
     </script>
 </body>
