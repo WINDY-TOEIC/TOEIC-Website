@@ -263,6 +263,10 @@
             <!-- CÔNG CỤ BÚT & TẨY -->
             <button class="btn-grid" id="btn-draw" onclick="toggleDrawing()" title="Bấm Esc để thoát">🖍️</button>
             <button class="btn-grid" onclick="clearCanvas()" title="Xóa toàn bộ nét vẽ">🧽</button>
+
+            <!-- CÔNG CỤ GHI CHÚ -->
+            <button class="btn-grid" onclick="saveNotes()" title="Lưu lại Ghi chú & Highlight">💾</button>
+            <button class="btn-grid" onclick="clearNotes()" title="Xóa sạch Ghi chú">🗑️</button>
             
             <button class="btn-exit" onclick="saveAndExit()">Thoát & Lưu</button>
                 <button class="btn-submit" id="btn-submit" onclick="submitTest()">Nộp Bài</button>
@@ -381,6 +385,7 @@
         let globalTimeInSeconds = 0;  
         let isCountDown = false;      
         let currentAudioSpeed = 1.0;  
+        let savedNotes = {};
 
         // CÔNG TẮC BẬT/TẮT NÚT HIỆN CHỮ
         // Chỉnh thành "true" nếu bạn muốn nó hiện lại, hiện tại đang "false" (tắt)
@@ -607,6 +612,10 @@
             
             buildNavGrid();
 
+            // Load ghi chú cũ từ máy
+            let storedNotes = localStorage.getItem(`win_notes_${fileName}`);
+            if (storedNotes) savedNotes = JSON.parse(storedNotes);
+
             // Phục hồi dữ liệu nếu chọn Làm Tiếp
             if (resumeData) {
                 userAnswers = resumeData.userAnswers || {};
@@ -796,6 +805,35 @@
                 });
 
                 document.getElementById('question-content').innerHTML = rightHtml;
+
+                // KIỂM TRA VÀ PHỤC HỒI GHI CHÚ (NẾU CÓ LƯU)
+                if (savedNotes && savedNotes[currentGroupId]) {
+                    document.getElementById('media-content').innerHTML = savedNotes[currentGroupId].left;
+                    document.getElementById('question-content').innerHTML = savedNotes[currentGroupId].right;
+                    
+                    // Phục hồi Audio
+                    let audioEl = document.getElementById('q-audio');
+                    if (audioEl) {
+                        audioEl.playbackRate = currentAudioSpeed;
+                        audioEl.preservesPitch = true;
+                        if (currentMode === 'exam') audioEl.onended = function() { autoAdvanceExam(index); };
+                    }
+                    
+                    // Đồng bộ lại trạng thái chọn Đáp án và Gắn Cờ
+                    groupItems.forEach(gItem => {
+                        let qIdx = gItem.idx;
+                        document.querySelectorAll(`input[name="q-${qIdx}"]`).forEach(input => {
+                            input.checked = (input.value === userAnswers[qIdx]);
+                        });
+                        let markBtn = document.getElementById(`btn-mark-${qIdx}`);
+                        let markText = document.getElementById(`mark-text-${qIdx}`);
+                        if (markBtn && markText) {
+                            markText.innerText = markedQuestions[qIdx] ? "Bỏ Cờ" : "Gắn Cờ";
+                            markBtn.style.background = markedQuestions[qIdx] ? "#ffc107" : "#fff3cd";
+                        }
+                    });
+                }
+
                 document.getElementById('right-panel').scrollTop = 0;
             } // Hết khối Render
 
@@ -1090,9 +1128,8 @@
             // Xây dựng HTML thống kê chi tiết từng Part
             let statsHtml = '';
             Object.keys(partStats).sort().forEach(p => {
-                let padCorrect = String(partStats[p].correct).padStart(2, '0');
-                let padTotal = String(partStats[p].total).padStart(2, '0');
-                statsHtml += `<div class="stat-row"><span>${p}</span> <span style="font-variant-numeric: tabular-nums;"><b>${padCorrect}</b> / ${padTotal}</span></div>`;
+                let totalStr = partStats[p].total < 10 ? "0" + partStats[p].total : partStats[p].total;
+                statsHtml += `<div class="stat-row"><span>${p}</span> <span><b>${partStats[p].correct}</b> / ${totalStr}</span></div>`;
             });
             document.getElementById('part-stats-box').innerHTML = statsHtml;
 
@@ -1182,6 +1219,33 @@
                 showQuestion(currentQIndex);
                 document.getElementById('nav-modal').classList.add('active'); 
             }
+        }
+
+        function saveNotes() {
+            if (currentGroupId === -1) return;
+            // Lưu toàn bộ trạng thái HTML của đoạn văn và câu hỏi hiện tại
+            savedNotes[currentGroupId] = {
+                left: document.getElementById('media-content').innerHTML,
+                right: document.getElementById('question-content').innerHTML
+            };
+            localStorage.setItem(`win_notes_${fileName}`, JSON.stringify(savedNotes));
+            
+            // Hiệu ứng nháy xanh lá báo đã lưu
+            let btn = event.currentTarget;
+            let oldBg = btn.style.background;
+            btn.style.background = "#27ae60";
+            setTimeout(() => { btn.style.background = oldBg; }, 1000);
+        }
+
+        function clearNotes() {
+            if (currentGroupId === -1) return;
+            delete savedNotes[currentGroupId]; // Xóa data
+            localStorage.setItem(`win_notes_${fileName}`, JSON.stringify(savedNotes));
+            
+            // Load lại màn hình sạch sẽ
+            initHistoryState();
+            currentGroupId = -1; 
+            showQuestion(currentQIndex);
         }
 
         // ==========================================
@@ -1299,46 +1363,44 @@
             let text = currentSelectionRange.toString().trim();
             if(!text) return;
 
-            // Đổi icon sang đồng hồ cát báo hiệu đang dịch
             let btnSearch = document.getElementById('tb-search');
             let oldIcon = btnSearch.innerHTML;
             btnSearch.innerHTML = "⏳";
 
             try {
-                // Gọi API Google Translate ngầm để lấy nghĩa Tiếng Việt
                 let res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=vi&dt=t&q=${encodeURIComponent(text)}`);
                 let data = await res.json();
-                let translatedText = data[0][0][0]; // Lấy chữ đã dịch
+                
+                // GHÉP NGHĨA CHUẨN: Xử lý khi có dấu câu bị cắt mảng
+                let translatedText = "";
+                data[0].forEach(item => { if(item[0]) translatedText += item[0]; });
 
-                // Tạo khung hiển thị nghĩa Tiếng Việt (màu xanh dương) chèn ngay sát chữ đó
                 let noteSpan = document.createElement('span');
                 noteSpan.className = 'hl-note-text';
-                noteSpan.style.color = '#2980b9'; // Chữ màu xanh
-                noteSpan.style.borderColor = '#2980b9'; // Viền màu xanh
+                noteSpan.style.color = '#2980b9'; 
+                noteSpan.style.borderColor = '#2980b9'; 
                 noteSpan.innerHTML = `(${translatedText}) <span class="del-note" onclick="this.parentElement.remove(); saveActionState();">❌</span>`;
                 
-                let spanWrapper = document.createElement('span');
-                spanWrapper.className = 'hl-yellow'; 
-                currentSelectionRange.surroundContents(spanWrapper);
-                spanWrapper.insertAdjacentElement('afterend', noteSpan);
+                // KHÔNG BÔI VÀNG - CHỈ CHÈN VÀO ĐẰNG SAU TỪ ĐÓ
+                let range = currentSelectionRange;
+                range.collapse(false);
+                range.insertNode(noteSpan);
+
                 saveActionState();
-                
                 window.getSelection().removeAllRanges();
                 toolbar.classList.remove('active');
             } catch (err) {
                 alert("Lỗi tra từ. Vui lòng kiểm tra lại mạng!");
             } finally {
-                btnSearch.innerHTML = oldIcon; // Trả lại icon kính lúp
+                btnSearch.innerHTML = oldIcon; 
             }
         };
 
-        // --- XỬ LÝ KHUNG NHẬP GHI CHÚ MỚI ---
         document.getElementById('tb-note').onclick = () => {
             if (!currentSelectionRange) return;
-            // Ẩn các icon, hiện ô nhập chữ
             document.getElementById('tb-buttons-wrap').style.display = 'none';
             document.getElementById('tb-note-input-wrap').style.display = 'flex';
-            document.getElementById('tb-note-input').focus(); // Đặt con trỏ sẵn vào ô
+            document.getElementById('tb-note-input').focus(); 
         };
 
         document.getElementById('tb-note-cancel').onclick = () => {
@@ -1353,12 +1415,12 @@
                 noteSpan.className = 'hl-note-text';
                 noteSpan.innerHTML = `${note} <span class="del-note" onclick="this.parentElement.remove(); saveActionState();">❌</span>`;
                 
-                let spanWrapper = document.createElement('span');
-                spanWrapper.className = 'hl-yellow'; 
-                currentSelectionRange.surroundContents(spanWrapper);
-                spanWrapper.insertAdjacentElement('afterend', noteSpan);
-                saveActionState();
+                // KHÔNG BÔI VÀNG - CHỈ CHÈN VÀO ĐẰNG SAU TỪ ĐÓ
+                let range = currentSelectionRange;
+                range.collapse(false);
+                range.insertNode(noteSpan);
 
+                saveActionState(); 
             }
             window.getSelection().removeAllRanges();
             toolbar.classList.remove('active');
