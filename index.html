@@ -120,11 +120,35 @@
         .tooltip-icon { background: #6c757d; color: white; border-radius: 50%; width: 20px; height: 20px; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; cursor: help; position: relative; }
         .tooltip-icon::after { content: "Đăng nhập để lưu kết quả"; position: absolute; bottom: -30px; right: 0; background: #333; color: #fff; padding: 5px 10px; border-radius: 4px; white-space: nowrap; font-size: 12px; opacity: 0; visibility: hidden; transition: 0.2s; pointer-events: none; z-index: 100;}
         .tooltip-icon:hover::after { opacity: 1; visibility: visible; }
+
+        /* Nút đổi nền Banner */
+        .theme-btn { position: absolute; top: 15px; left: 15px; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.5); border-radius: 4px; padding: 6px 10px; cursor: pointer; color: white; font-size: 16px; z-index: 100; transition: 0.2s;}
+        .theme-btn:hover { background: rgba(255,255,255,0.4); }
+        .theme-panel { position: absolute; top: 55px; left: 15px; background: white; padding: 12px; border-radius: 6px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); z-index: 100; display: none; width: max-content; flex-direction: column; gap: 10px; text-align: left; }
+        .theme-panel.active { display: flex; }
+        .color-grid { display: grid; grid-template-columns: repeat(5, 25px); gap: 8px; }
+        .color-swatch { width: 25px; height: 25px; border-radius: 50%; cursor: pointer; border: 1px solid #ccc; }
+        .swatch-rainbow { background: linear-gradient(45deg, red, orange, yellow, green, blue, indigo, violet); }
     </style>
 </head>
 <body>
 
-    <header style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+    <header id="main-banner" style="display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; background-size: cover; background-position: center; transition: background 0.3s;">
+        
+        <!-- Khu vực đổi màu nền -->
+        <button class="theme-btn" onclick="toggleThemePanel()" title="Đổi màu nền">🎨</button>
+        <div id="theme-panel" class="theme-panel">
+            <span style="font-size: 13px; font-weight: 600; color: #333;">Chọn màu nền:</span>
+            <div class="color-grid">
+                <div class="color-swatch" style="background: #0037f4;" onclick="changeBannerBg('#0037f4', 'none')"></div>
+                <div class="color-swatch" style="background: #043b5c;" onclick="changeBannerBg('#043b5c', 'none')"></div>
+                <div class="color-swatch" style="background: #e25b45;" onclick="changeBannerBg('#e25b45', 'none')"></div>
+                <div class="color-swatch" style="background: #28a745;" onclick="changeBannerBg('#28a745', 'none')"></div>
+                <div class="color-swatch swatch-rainbow" onclick="changeBannerBg('transparent', 'linear-gradient(45deg, red, orange, yellow, green, blue, indigo, violet)')"></div>
+            </div>
+            <span style="font-size: 13px; font-weight: 600; color: #333; margin-top: 5px;">Hoặc tải ảnh từ máy:</span>
+            <input type="file" id="bg-upload" accept="image/*" style="font-size: 12px; max-width: 160px; color: black;" onchange="uploadBannerImg(event)">
+        </div>
         <img src="logo.png" alt="Windy TOEIC Logo" style="height: 70px; margin-bottom: 10px; border-radius: 8px; background: white; padding: 5px;">
         <h1 style="letter-spacing: 2px;">WINDY TOEIC</h1>
         <p style="margin-top: 5px; font-weight: 500; font-size: 15px;">CHIA SẺ KIẾN THỨC - VỮNG BƯỚC THÀNH CÔNG</p>
@@ -207,7 +231,40 @@
             if (savedClass && savedName) {
                 showLoggedIn(savedClass, savedName);
             }
+            loadBannerBg();
         };
+
+        // --- HÀM XỬ LÝ ĐỔI MÀU NỀN ---
+        function toggleThemePanel() {
+            document.getElementById('theme-panel').classList.toggle('active');
+        }
+
+        function changeBannerBg(bgColor, bgImage) {
+            let banner = document.getElementById('main-banner');
+            banner.style.backgroundColor = bgColor;
+            banner.style.backgroundImage = bgImage;
+            localStorage.setItem('win_banner_bgColor', bgColor);
+            localStorage.setItem('win_banner_bgImage', bgImage);
+        }
+
+        function uploadBannerImg(event) {
+            let file = event.target.files[0];
+            if (file) {
+                let reader = new FileReader();
+                reader.onload = function(e) {
+                    changeBannerBg('transparent', `url('${e.target.result}')`);
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function loadBannerBg() {
+            let savedBgColor = localStorage.getItem('win_banner_bgColor');
+            let savedBgImage = localStorage.getItem('win_banner_bgImage');
+            if (savedBgColor || savedBgImage) {
+                changeBannerBg(savedBgColor || 'transparent', savedBgImage || 'none');
+            }
+        }
 
         function signIn() {
             let classCode = document.getElementById('home-class-code').value.trim();

@@ -55,6 +55,15 @@
         .shortcut-tooltip { background: #f27127; color: white; border-radius: 50%; width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; font-size: 16px; font-weight: bold; cursor: help; position: relative; margin-right: 10px; }
         .shortcut-tooltip::after { content: "[Phím Cách]: Nghe lại Audio \A [←]: Câu trước \A [→]: Câu tiếp \A [↑]: Hiện chữ"; position: absolute; top: 40px; right: 0; background: #333; color: #fff; padding: 12px; border-radius: 4px; white-space: pre; font-size: 14px; opacity: 0; visibility: hidden; transition: 0.2s; pointer-events: none; z-index: 1001; text-align: left; line-height: 1.6; font-weight: normal; box-shadow: 0 4px 6px rgba(0,0,0,0.3);}
         .shortcut-tooltip:hover::after { opacity: 1; visibility: visible; }
+
+        /* Nút đổi màu Banner */
+        .theme-btn { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4); color: white; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 18px; transition: 0.2s;}
+        .theme-btn:hover { background: rgba(255,255,255,0.4); }
+        .theme-panel { position: absolute; top: 60px; left: 30px; background: white; padding: 12px; border-radius: 6px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); z-index: 1002; display: none; width: max-content; flex-direction: column; gap: 10px; color: #333; }
+        .theme-panel.active { display: flex; }
+        .color-grid { display: grid; grid-template-columns: repeat(5, 25px); gap: 8px; }
+        .color-swatch { width: 25px; height: 25px; border-radius: 50%; cursor: pointer; border: 1px solid #ccc; }
+        .swatch-rainbow { background: linear-gradient(45deg, red, orange, yellow, green, blue, indigo, violet); }
         
         /* Sub Header */
         .sub-header { background: white; padding: 15px 30px; border-bottom: 1px solid #e1e4e8; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 70px; z-index: 999; }
@@ -163,10 +172,24 @@
     </div>
 
     <div id="test-screen" class="hidden">
-        <header class="test-header">
+        <header class="test-header" id="main-banner" style="background-size: cover; background-position: center; transition: background 0.3s;">
             <div class="header-left">
+                <button class="theme-btn" onclick="toggleThemePanel()" style="margin-right: 10px;" title="Đổi màu nền">🎨</button>
                 <img src="logo.png" alt="Windy TOEIC" style="height: 40px; border-radius: 4px; background: white; padding: 2px;">
                 WINDY TOEIC
+            </div>
+            
+            <div id="theme-panel" class="theme-panel">
+                <span style="font-size: 13px; font-weight: 600;">Chọn màu nền:</span>
+                <div class="color-grid">
+                    <div class="color-swatch" style="background: #0037f4;" onclick="changeBannerBg('#0037f4', 'none')"></div>
+                    <div class="color-swatch" style="background: #043b5c;" onclick="changeBannerBg('#043b5c', 'none')"></div>
+                    <div class="color-swatch" style="background: #e25b45;" onclick="changeBannerBg('#e25b45', 'none')"></div>
+                    <div class="color-swatch" style="background: #28a745;" onclick="changeBannerBg('#28a745', 'none')"></div>
+                    <div class="color-swatch swatch-rainbow" onclick="changeBannerBg('transparent', 'linear-gradient(45deg, red, orange, yellow, green, blue, indigo, violet)')"></div>
+                </div>
+                <span style="font-size: 13px; font-weight: 600; margin-top: 5px;">Hoặc tải ảnh từ máy:</span>
+                <input type="file" id="bg-upload" accept="image/*" style="font-size: 12px; max-width: 160px; color: black;" onchange="uploadBannerImg(event)">
             </div>
             <div class="header-controls">
                 <div class="shortcut-tooltip">?</div>
@@ -229,6 +252,40 @@
         let isSubmitted = false;
         let currentMode = 'practice'; // 'practice' or 'exam'
         let currentGroupId = -1;      // Đổi tracker để Reading chịu hiển thị bài đọc/hình ảnh
+
+        // --- XỬ LÝ ĐỔI MÀU NỀN BANNER ---
+        window.addEventListener('DOMContentLoaded', loadBannerBg);
+
+        function toggleThemePanel() {
+            document.getElementById('theme-panel').classList.toggle('active');
+        }
+
+        function changeBannerBg(bgColor, bgImage) {
+            let banner = document.getElementById('main-banner');
+            banner.style.backgroundColor = bgColor;
+            banner.style.backgroundImage = bgImage;
+            localStorage.setItem('win_banner_bgColor', bgColor);
+            localStorage.setItem('win_banner_bgImage', bgImage);
+        }
+
+        function uploadBannerImg(event) {
+            let file = event.target.files[0];
+            if (file) {
+                let reader = new FileReader();
+                reader.onload = function(e) {
+                    changeBannerBg('transparent', `url('${e.target.result}')`);
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function loadBannerBg() {
+            let savedBgColor = localStorage.getItem('win_banner_bgColor');
+            let savedBgImage = localStorage.getItem('win_banner_bgImage');
+            if (savedBgColor || savedBgImage) {
+                changeBannerBg(savedBgColor || 'transparent', savedBgImage || 'none');
+            }
+        }
 
         if (!fileName) {
             document.getElementById('loading-msg').innerHTML = "Lỗi: URL không chứa tên đề thi.";
