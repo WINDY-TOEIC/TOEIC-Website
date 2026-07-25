@@ -297,7 +297,7 @@
             let studentName = localStorage.getItem('win_studentName') || "";
             
             if (classCode !== "" && studentName !== "") {
-                studentInfo = `WIN${classCode} - ${studentName}`;
+                studentInfo = `WIN ${classCode} - ${studentName}`;
                 document.querySelector('.guest-text').innerText = studentInfo;
             } else {
                 studentInfo = "Guest (Khách)";
