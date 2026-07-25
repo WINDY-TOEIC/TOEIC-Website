@@ -7,7 +7,7 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         
-        body { font-family: 'Inter', sans-serif; background-color: #f4f6f9; margin: 0; color: #333; line-height: 1.5; }
+        body { font-family: 'Inter', sans-serif; background-color: #f4f6f9; margin: 0; color: #333; line-height: 1.5; zoom: 1.25; overflow-x: hidden; }
         * { box-sizing: border-box; }
         .hidden { display: none !important; }
         
@@ -68,12 +68,10 @@
         .left-panel-title { font-weight: 700; font-size: 16px; margin-bottom: 20px; color: #111; }
         .passage-content img { max-width: 100%; height: auto; border: 1px solid #ddd; margin-bottom: 15px; display: block; }
         
-        /* Chỉnh thanh Audio và Dấu chấm hỏi */
-        .audio-wrapper { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; }
-        .audio-wrapper audio { flex: 1; outline: none; }
-        .tooltip { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; background-color: #043b5c; color: white; border-radius: 50%; font-weight: bold; cursor: help; font-size: 14px; }
-        .tooltip .tooltiptext { visibility: hidden; width: max-content; background-color: #333; color: #fff; text-align: center; border-radius: 4px; padding: 6px 12px; position: absolute; z-index: 1; bottom: 125%; left: 50%; transform: translateX(-50%); opacity: 0; transition: opacity 0.3s; font-size: 13px; font-weight: normal; pointer-events: none;}
-        .tooltip:hover .tooltiptext { visibility: visible; opacity: 1; }
+        /* Chỉnh thanh Audio và Hướng dẫn phím tắt */
+        .audio-wrapper { margin-bottom: 15px; }
+        .audio-wrapper audio { width: 100%; outline: none; margin-bottom: 10px; }
+        .shortcut-hints { background: #e3f2fd; color: #043b5c; padding: 10px 15px; border-radius: 6px; font-size: 13px; font-weight: 600; border: 1px dashed #5ba4e5; line-height: 1.6; text-align: center; }
 
         /* Tùy chỉnh tốc độ Audio */
         .speed-controls { display: flex; gap: 8px; margin-bottom: 20px; align-items: center; font-size: 14px; font-weight: 600; background: #f4f6f9; padding: 8px; border-radius: 6px;}
@@ -180,7 +178,6 @@
         <div class="test-body">
             <!-- Cột trái (Hình & Âm thanh) -->
             <div class="left-panel" id="left-panel">
-                <div class="left-panel-title">Tài liệu tham chiếu</div>
                 <div id="media-content"></div>
             </div>
             
@@ -369,8 +366,8 @@
                     leftHtml += `
                     <div class="audio-wrapper" ${displayStyle}>
                         <audio id="q-audio" controls controlsList="nodownload" autoplay><source src="${item.audio_url}" type="audio/mpeg"></audio>
-                        <div class="tooltip">?
-                            <span class="tooltiptext">Nhấn phím cách để nghe lại</span>
+                        <div class="shortcut-hints">
+                            [Phím Cách]: Nghe lại Audio &nbsp;|&nbsp; [&#8592;]: Câu trước &nbsp;|&nbsp; [&#8594;]: Câu tiếp
                         </div>
                     </div>`;
                     
@@ -553,16 +550,24 @@
             }
         }
 
-        // Lắng nghe phím Cách (Spacebar) để tua lại Audio
+        // Lắng nghe phím tắt: Cách (nghe lại), Mũi tên trái/phải (chuyển câu)
         document.addEventListener('keydown', function(event) {
+            // Chống bấm nhầm khi đang gõ text
+            if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA') return;
+
             if (event.code === 'Space' || event.keyCode === 32) {
                 let audioEl = document.getElementById('q-audio');
-                // Chống bấm nhầm khi đang gõ text (nếu sau này có ô input)
-                if (audioEl && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
-                    event.preventDefault(); // Chống trình duyệt tự cuộn trang xuống
-                    audioEl.currentTime = 0; // Trở về mốc 0 giây
-                    audioEl.play(); // Phát lại
+                if (audioEl) {
+                    event.preventDefault();
+                    audioEl.currentTime = 0; 
+                    audioEl.play(); 
                 }
+            } else if (event.code === 'ArrowRight' || event.keyCode === 39) {
+                event.preventDefault();
+                navigateQuestion(1);
+            } else if (event.code === 'ArrowLeft' || event.keyCode === 37) {
+                event.preventDefault();
+                navigateQuestion(-1);
             }
         });
 
