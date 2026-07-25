@@ -331,12 +331,21 @@
 
         <!-- TOOLBAR NỔI KHI BÔI ĐEN -->
         <div id="selection-toolbar" class="selection-toolbar">
-            <button class="tb-btn" id="tb-trash" style="display: none;" title="Xóa">🗑️</button>
-            <button class="tb-btn" id="tb-note" title="Thêm ghi chú">📝</button>
-            <button class="tb-btn color-yellow" id="tb-yellow" title="Bôi vàng">■</button>
-            <button class="tb-btn" id="tb-strike" title="Gạch ngang">abc</button>
-            <button class="tb-btn color-red" id="tb-under" title="Gạch chân đỏ">__</button>
-            <button class="tb-btn" id="tb-search" title="Tra từ điển">🔍</button>
+            <!-- Khu vực các nút công cụ -->
+            <div id="tb-buttons-wrap" style="display: flex; gap: 8px;">
+                <button class="tb-btn" id="tb-trash" style="display: none;" title="Xóa">🗑️</button>
+                <button class="tb-btn" id="tb-note" title="Thêm ghi chú">📝</button>
+                <button class="tb-btn color-yellow" id="tb-yellow" title="Bôi vàng">■</button>
+                <button class="tb-btn" id="tb-strike" title="Gạch ngang">abc</button>
+                <button class="tb-btn color-red" id="tb-under" title="Gạch chân đỏ">__</button>
+                <button class="tb-btn" id="tb-search" title="Tra từ điển">🔍</button>
+            </div>
+            <!-- Khu vực nhập Ghi chú (ẩn mặc định, chỉ hiện khi bấm icon Note) -->
+            <div id="tb-note-input-wrap" style="display: none; align-items: center; gap: 5px;">
+                <input type="text" id="tb-note-input" placeholder="Nhập ghi chú..." style="padding: 4px 8px; border-radius: 4px; border: 1px solid #ccc; font-size: 13px; outline: none; width: 180px; color: #333;">
+                <button class="tb-btn" id="tb-note-save" style="background: #27ae60; padding: 4px 10px; font-weight: bold;">Lưu</button>
+                <button class="tb-btn" id="tb-note-cancel" style="background: #c0392b; padding: 4px 10px;">Hủy</button>
+            </div>
         </div>
 
         <!-- KHUNG ĐỂ VẼ BÚT ĐỎ -->
@@ -1196,6 +1205,11 @@
             toolbar.style.left = (x - 80) + 'px';
             toolbar.style.top = (y - 50) + 'px';
             toolbar.classList.add('active');
+            
+            // Reset giao diện về lúc ban đầu (hiện nút công cụ, ẩn ô nhập)
+            document.getElementById('tb-buttons-wrap').style.display = 'flex';
+            document.getElementById('tb-note-input-wrap').style.display = 'none';
+            document.getElementById('tb-note-input').value = "";
 
             if (isDeleteMode) {
                 document.getElementById('tb-trash').style.display = 'block';
@@ -1239,9 +1253,22 @@
             }
         };
 
+        // --- XỬ LÝ KHUNG NHẬP GHI CHÚ MỚI ---
         document.getElementById('tb-note').onclick = () => {
             if (!currentSelectionRange) return;
-            let note = prompt("Nhập nội dung ghi chú (Tiếng Việt):");
+            // Ẩn các icon, hiện ô nhập chữ
+            document.getElementById('tb-buttons-wrap').style.display = 'none';
+            document.getElementById('tb-note-input-wrap').style.display = 'flex';
+            document.getElementById('tb-note-input').focus(); // Đặt con trỏ sẵn vào ô
+        };
+
+        document.getElementById('tb-note-cancel').onclick = () => {
+            window.getSelection().removeAllRanges();
+            toolbar.classList.remove('active');
+        };
+
+        function saveNote() {
+            let note = document.getElementById('tb-note-input').value.trim();
             if (note) {
                 let noteSpan = document.createElement('span');
                 noteSpan.className = 'hl-note-text';
@@ -1254,7 +1281,16 @@
             }
             window.getSelection().removeAllRanges();
             toolbar.classList.remove('active');
-        };
+        }
+
+        document.getElementById('tb-note-save').onclick = saveNote;
+        
+        // Bấm Enter để lưu thay vì phải click nút "Lưu"
+        document.getElementById('tb-note-input').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                saveNote();
+            }
+        });
 
         document.getElementById('tb-trash').onclick = () => {
             if (currentEditingNode) {
