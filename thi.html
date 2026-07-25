@@ -101,9 +101,17 @@
         .action-btns-wrap { position: absolute; top: 0; right: 0; display: flex; flex-direction: column; gap: 6px; width: 110px; z-index: 10; }
         .btn-transcript { background: #e2e6ea; border: 1px solid #ccc; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: 600; color: #333; transition: 0.2s; width: 100%;}
         
-        /* Chức năng Zoom ảnh thông minh */
-        .zoomable-img { width: 100%; max-width: 100%; border: 1px solid #ccc; margin-bottom: 15px; cursor: zoom-in; transition: transform 0.3s ease; display: block; }
-        .zoomable-img.zoomed { transform: scale(1.8); cursor: zoom-out; position: relative; z-index: 10; box-shadow: 0 5px 20px rgba(0,0,0,0.3); }
+        /* Chức năng Zoom & Nâng cao độ sắc nét ảnh */
+        .zoomable-img { width: 100%; max-width: 100%; border: 1px solid #ccc; margin-bottom: 15px; cursor: zoom-in; transition: transform 0.3s ease; display: block; image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges; pointer-events: auto; position: relative; z-index: 1; }
+        .zoomable-img.zoomed { transform: scale(1.8); cursor: zoom-out; z-index: 9999; box-shadow: 0 5px 30px rgba(0,0,0,0.4); }
+        
+        /* Dropdown Thống kê chi tiết từng Part */
+        .part-stats-btn { background: #f4f6f9; border: 1px solid #ddd; width: 100%; padding: 10px; text-align: left; font-weight: 600; cursor: pointer; border-radius: 4px; margin-top: 15px; color: #333; display: flex; justify-content: space-between; transition: 0.2s;}
+        .part-stats-btn:hover { background: #e9ecef; }
+        .part-stats-container { display: none; background: #fafafa; border: 1px solid #eee; border-top: none; padding: 15px; border-radius: 0 0 4px 4px; font-size: 14.5px; }
+        .part-stats-container.active { display: block; }
+        .stat-row { display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px dashed #e1e4e8; padding-bottom: 4px; color: #111;}
+        .stat-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
         .btn-transcript:hover { background: #d3d9df; }
 
         .options { display: flex; flex-direction: column; gap: 2px; padding-right: 120px; }
@@ -273,15 +281,24 @@
         <div id="score-overlay" class="modal-overlay">
             <div class="score-modal">
                 <h2>HOÀN THÀNH BÀI KIỂM TRA</h2>
-                <p class="sub">Bài kiểm tra của bạn đã được xử lý. Hãy chụp lại màn hình kết quả vì nó sẽ chỉ hiển thị 1 lần. Kết quả:</p>
+                <p class="sub">Hãy chụp lại màn hình kết quả:</p>
                 <div class="score-row">Số câu đúng: <span id="m-total-correct" style="margin-left:5px;"> 0/200</span></div>
                 <div class="score-row">Listening: <span id="m-list-detail" style="margin-left:5px;"> 0/100 – 5 điểm</span></div>
                 <div class="score-row">Reading: <span id="m-read-detail" style="margin-left:5px;"> 0/100 – 5 điểm</span></div>
-                <div class="score-total">Tổng điểm: <span id="m-final-score" style="color: #e25b45;"> 10 điểm</span></div>
+                <div class="score-total">Tổng điểm: <span id="m-final-score" style="color: #dc3545; margin-left: 5px;"> 10 điểm</span></div>
+                
+                <!-- Nút xổ xuống chi tiết từng Part -->
+                <button class="part-stats-btn" onclick="document.getElementById('part-stats-box').classList.toggle('active')">
+                    Thống kê chi tiết từng Part <span>▼</span>
+                </button>
+                <div id="part-stats-box" class="part-stats-container">
+                    <!-- Javascript sẽ tự động chèn điểm từng Part vào đây -->
+                </div>
                 
                 <div class="modal-buttons">
-                    <button class="btn-modal-blue" onclick="closeScoreModal()">XEM ĐÁP ÁN</button>
-                    <button class="btn-modal-red" onclick="closeScoreModal()">ĐÓNG</button>
+                    <!-- Gọi hàm truyền true để về Câu 1 -->
+                    <button class="btn-modal-blue" onclick="closeScoreModal(true)">XEM ĐÁP ÁN</button>
+                    <button class="btn-modal-red" onclick="closeScoreModal(false)">ĐÓNG</button>
                 </div>
             </div>
         </div>
@@ -307,11 +324,29 @@
         
         let timerInterval;
         let isSubmitted = false;
-        let currentMode = 'practice'; // 'practice' or 'exam'
-        let currentGroupId = -1;      // Đổi tracker để Reading chịu hiển thị bài đọc/hình ảnh
-        let globalTimeInSeconds = 0;  // Lưu thời gian để resume
-        let isCountDown = false;      // Phân biệt chế độ đếm ngược hay đếm tới
-        let currentAudioSpeed = 1.0;  // Lưu tốc độ Audio để giữ nguyên qua các câu
+        let currentMode = 'practice'; 
+        let currentGroupId = -1;      
+        let globalTimeInSeconds = 0;  
+        let isCountDown = false;      
+        let currentAudioSpeed = 1.0;  
+
+        // CÔNG TẮC BẬT/TẮT NÚT HIỆN CHỮ
+        // Chỉnh thành "true" nếu bạn muốn nó hiện lại, hiện tại đang "false" (tắt)
+        const ENABLE_TRANSCRIPT = false; 
+
+        // HÀM ZOOM ẢNH TOÀN CỤC (Để luôn hoạt động ổn định)
+        window.handleZoom = function(event, imgElement) {
+            if (imgElement.classList.contains('zoomed')) {
+                imgElement.classList.remove('zoomed');
+                imgElement.style.transformOrigin = 'center center';
+            } else {
+                let rect = imgElement.getBoundingClientRect();
+                let x = ((event.clientX - rect.left) / rect.width) * 100;
+                let y = ((event.clientY - rect.top) / rect.height) * 100;
+                imgElement.style.transformOrigin = `${x}% ${y}%`;
+                imgElement.classList.add('zoomed');
+            }
+        };
 
         // --- XỬ LÝ ĐỔI MÀU NỀN BANNER ---
         window.addEventListener('DOMContentLoaded', loadBannerBg);
@@ -642,7 +677,7 @@
                     let qIdx = gItem.idx;
                     let gSq = gItem.q.sq;
                     
-                    let transcriptBtn = (currentMode === 'practice' && !isSubmitted) ? `<button class="btn-transcript" onclick="toggleTranscript(${gSq.index})">Hiện chữ</button>` : '';
+                    let transcriptBtn = (ENABLE_TRANSCRIPT && currentMode === 'practice' && !isSubmitted) ? `<button class="btn-transcript" onclick="toggleTranscript(${gSq.index})">Hiện chữ</button>` : '';
 
                     let isMarked = markedQuestions[qIdx];
                     let markBtnText = isMarked ? "Bỏ Cờ" : "Gắn Cờ";
@@ -726,23 +761,8 @@
         }
 
         // --- CÁC HÀM XỬ LÝ CHUYÊN SÂU ---
-        function handleZoom(event, imgElement) {
-            if (imgElement.classList.contains('zoomed')) {
-                // Đang zoom thì thu nhỏ lại
-                imgElement.classList.remove('zoomed');
-            } else {
-                // Tính toán tọa độ X, Y của con trỏ chuột so với bức ảnh
-                let rect = imgElement.getBoundingClientRect();
-                let x = ((event.clientX - rect.left) / rect.width) * 100;
-                let y = ((event.clientY - rect.top) / rect.height) * 100;
-                
-                // Đặt tâm Zoom vào đúng cái chỗ vừa click
-                imgElement.style.transformOrigin = `${x}% ${y}%`;
-                imgElement.classList.add('zoomed');
-            }
-        }
-
         function toggleMark(idx) {
+
             if (isSubmitted) return; 
             markedQuestions[idx] = !markedQuestions[idx]; 
             
@@ -964,9 +984,14 @@
             if(audioEl) audioEl.pause();
 
             let totalCorrect = 0, listCorrect = 0, readCorrect = 0;
+            let partStats = {}; // Bộ đếm điểm từng Part
             
             flatQuestions.forEach((item, index) => {
                 let sq = item.sq;
+                let partName = sq.term_name ? sq.term_name.trim().toUpperCase() : "OTHER";
+                if(!partStats[partName]) partStats[partName] = { correct: 0, total: 0 };
+                partStats[partName].total++;
+
                 let correctObj = sq.choices.find(c => c.choice_right_answer);
                 let correctChoice = correctObj ? correctObj.choice : null;
                 let userChoice = userAnswers[index];
@@ -988,6 +1013,13 @@
             let finalL = scoreL[listCorrect] || 5;
             let finalR = scoreR[readCorrect] || 5;
             let finalTotal = finalL + finalR;
+
+            // Xây dựng HTML thống kê chi tiết từng Part
+            let statsHtml = '';
+            Object.keys(partStats).sort().forEach(p => {
+                statsHtml += `<div class="stat-row"><span>${p}</span> <span><b>${partStats[p].correct}</b> / ${partStats[p].total}</span></div>`;
+            });
+            document.getElementById('part-stats-box').innerHTML = statsHtml;
 
             // ĐIỀN DỮ LIỆU VÀO BẢNG MODAL
             document.getElementById('m-total-correct').innerText = `${totalCorrect}/${totalQuestions}`;
@@ -1014,11 +1046,11 @@
                     }
                 }, 100);
 
-                // Tự động tắt ngúm âm thanh sau đúng 4 giây (4000 mili-giây)
+                // Tự động tắt ngúm âm thanh sau đúng 6 giây (6000 mili-giây)
                 setTimeout(() => {
                     successAudio.pause();
-                    successAudio.currentTime = 0; // Trả về đầu phòng khi muốn nghe lại
-                }, 4000);
+                    successAudio.currentTime = 0; 
+                }, 6000);
             }).catch(e => console.log("Lỗi âm thanh: ", e));
 
             // LƯU LỊCH SỬ LÀM BÀI VÀO MÁY
@@ -1030,7 +1062,7 @@
             localStorage.setItem('win_history', JSON.stringify(historyData));
 
             // Pháo giấy Confetti
-            var duration = 3 * 1000;
+            var duration = 6 * 1000;
             var animationEnd = Date.now() + duration;
             var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 10000 };
             function randomInRange(min, max) { return Math.random() * (max - min) + min; }
@@ -1045,10 +1077,8 @@
             // Giao diện sau nộp bài
             let btnSubmit = document.getElementById('btn-submit');
             btnSubmit.innerText = "LÀM LẠI";
-            btnSubmit.style.backgroundColor = "#6c757d";
+            btnSubmit.style.backgroundColor = "#f27127"; // Đổi sang màu cam
             btnSubmit.onclick = function() { location.reload(); };
-
-            showQuestion(currentQIndex); 
 
             // Gửi dữ liệu về Google Sheets (CHỈ GỬI KHI ĐÃ ĐĂNG NHẬP, KHÁCH THÌ KHÔNG GỬI ĐỂ SẠCH EXCEL)
             if (GOOGLE_SCRIPT_URL !== "" && classCode !== "GUEST") {
@@ -1065,10 +1095,18 @@
             }
         }
 
-        // Hàm Đóng Modal
-        function closeScoreModal() {
+        // Hàm Đóng Modal & Xử lý quay về Câu 1
+        function closeScoreModal(viewAnswers) {
             document.getElementById('score-overlay').classList.remove('active');
-            document.getElementById('nav-modal').classList.add('active'); // Mở bảng 200 câu lên cho xem
+            
+            if (viewAnswers) {
+                // Nếu bấm Xem Đáp Án -> Tự động trượt về câu đầu tiên
+                jumpToQuestion(0);
+            } else {
+                // Nếu bấm Đóng -> Vẫn giữ nguyên ở câu hiện tại, mở bảng danh sách lên
+                showQuestion(currentQIndex);
+                document.getElementById('nav-modal').classList.add('active'); 
+            }
         }
     </script>
 </body>
