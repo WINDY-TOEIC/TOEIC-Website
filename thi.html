@@ -807,6 +807,9 @@
         document.addEventListener('keydown', function(event) {
             if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA') return;
 
+            // NẾU LÀ GIAO DIỆN THI THẬT -> KHÓA TOÀN BỘ PHÍM TẮT 
+            if (currentMode === 'exam') return;
+
             if (event.code === 'Space' || event.keyCode === 32) {
                 let audioEl = document.getElementById('q-audio');
                 if (audioEl) {
