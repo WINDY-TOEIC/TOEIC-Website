@@ -67,8 +67,14 @@
         
         .left-panel-title { font-weight: 700; font-size: 16px; margin-bottom: 20px; color: #111; }
         .passage-content img { max-width: 100%; height: auto; border: 1px solid #ddd; margin-bottom: 15px; display: block; }
-        audio { width: 100%; margin-bottom: 10px; outline: none;}
         
+        /* Chỉnh thanh Audio và Dấu chấm hỏi */
+        .audio-wrapper { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; }
+        .audio-wrapper audio { flex: 1; outline: none; }
+        .tooltip { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; background-color: #043b5c; color: white; border-radius: 50%; font-weight: bold; cursor: help; font-size: 14px; }
+        .tooltip .tooltiptext { visibility: hidden; width: max-content; background-color: #333; color: #fff; text-align: center; border-radius: 4px; padding: 6px 12px; position: absolute; z-index: 1; bottom: 125%; left: 50%; transform: translateX(-50%); opacity: 0; transition: opacity 0.3s; font-size: 13px; font-weight: normal; pointer-events: none;}
+        .tooltip:hover .tooltiptext { visibility: visible; opacity: 1; }
+
         /* Tùy chỉnh tốc độ Audio */
         .speed-controls { display: flex; gap: 8px; margin-bottom: 20px; align-items: center; font-size: 14px; font-weight: 600; background: #f4f6f9; padding: 8px; border-radius: 6px;}
         .speed-btn { border: 1px solid #ccc; background: white; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 600; color: #333;}
@@ -91,17 +97,24 @@
         .explanation { background: #f8f9fa; border-left: 4px solid #043b5c; padding: 20px; margin-top: 20px; font-size: 15px; line-height: 1.6; }
         
         /* Navigation Modal */
-        #nav-modal { position: fixed; top: 70px; right: -350px; width: 320px; height: calc(100vh - 70px); background: white; box-shadow: -2px 0 10px rgba(0,0,0,0.1); z-index: 1001; transition: right 0.3s ease; overflow-y: auto; padding: 20px; border-left: 1px solid #eee; }
+        #nav-modal { position: fixed; top: 70px; right: -350px; width: 340px; height: calc(100vh - 70px); background: #f4f6f9; box-shadow: -2px 0 10px rgba(0,0,0,0.1); z-index: 1001; transition: right 0.3s ease; overflow-y: auto; overflow-x: hidden; padding: 20px; border-left: 1px solid #eee; }
         #nav-modal.active { right: 0; }
-        .nav-modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px; font-weight: 700; }
-        .close-nav { cursor: pointer; color: #999; font-size: 20px; background: none; border: none; font-weight: bold; }
+        .nav-modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #ddd; padding-bottom: 15px; margin-bottom: 20px; font-weight: 700; font-size: 18px; color: #333;}
+        .close-nav { cursor: pointer; color: #666; font-size: 24px; background: none; border: none; font-weight: bold; }
         
-        .grid-container { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
-        .grid-btn { background: #f4f6f9; border: 1px solid #ddd; padding: 10px 0; text-align: center; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: 600; color: #555; }
-        .grid-btn.current { border: 2px solid #043b5c; font-weight: 800; color: #043b5c;}
-        .grid-btn.answered { background: #5ba4e5; color: white; border-color: #5ba4e5; }
-        .grid-btn.correct-ans { background: #28a745; color: white; border-color: #28a745; }
-        .grid-btn.wrong-ans { background: #dc3545; color: white; border-color: #dc3545; }
+        .nav-part-group { margin-bottom: 25px; }
+        .nav-part-title { font-size: 18px; font-weight: 400; color: #555; margin-bottom: 15px; }
+        .grid-container { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px 10px; }
+        
+        /* Tạo nút */
+        .grid-btn { width: 45px; height: 45px; background: #adb5bd; border: none; border-radius: 50%; cursor: pointer; font-size: 15px; font-weight: 400; color: white; display: flex; align-items: center; justify-content: center; transition: 0.2s; margin: 0 auto;}
+        .grid-btn:hover { background: #6c757d; }
+        .grid-btn.current { box-shadow: 0 0 0 2px #f4f6f9, 0 0 0 4px #043b5c; background: #043b5c; font-weight: 700;}
+        .grid-btn.answered { background: #5ba4e5; }
+        
+        /* Màu báo đúng/sai khi nộp bài */
+        .grid-btn.correct-ans { background: #719f4a !important; }
+        .grid-btn.wrong-ans { background: #e25b45 !important; }
     </style>
 </head>
 <body>
@@ -117,8 +130,11 @@
             <div class="form-group">
                 <label>Thời gian làm bài:</label>
                 <select id="time-select">
-                    <option value="120">120 phút (Thi thật)</option>
-                    <option value="90">90 phút</option>
+                    <option value="0" selected>Không giới hạn</option>
+                    <option value="120">2 giờ (Thi thật)</option>
+                    <option value="105">1 giờ 45 phút</option>
+                    <option value="90">1 giờ 30 phút</option>
+                    <option value="75">1 giờ 15 phút</option>
                     <option value="60">60 phút</option>
                     <option value="45">45 phút</option>
                     <option value="30">30 phút</option>
@@ -305,11 +321,34 @@
 
         function buildNavGrid() {
             let gridHtml = '';
+            let currentPart = '';
+
             flatQuestions.forEach((item, index) => {
-                let qNum = item.sq.title.replace('.', '').trim();
+                let partName = item.sq.term_name ? item.sq.term_name.trim() : "PART";
+                
+                // Nếu đề chuyển sang Part mới, tạo tiêu đề Part
+                if (partName !== currentPart) {
+                    if (currentPart !== '') gridHtml += `</div></div>`; // Đóng cụm Part cũ
+                    gridHtml += `<div class="nav-part-group">
+                                    <div class="nav-part-title">${partName}</div>
+                                    <div class="grid-container">`;
+                    currentPart = partName;
+                }
+
+                // Dùng Regex chỉ hút đúng con số ra khỏi chuỗi (Bỏ hết chữ rác)
+                let qNumMatch = item.sq.title.match(/\d+/);
+                let qNum = qNumMatch ? qNumMatch[0] : (index + 1);
+
                 gridHtml += `<button class="grid-btn" id="grid-btn-${index}" onclick="jumpToQuestion(${index})">${qNum}</button>`;
             });
-            document.getElementById('nav-grid-container').innerHTML = gridHtml;
+            
+            if (currentPart !== '') gridHtml += `</div></div>`; // Đóng cụm Part cuối cùng
+
+            // Xóa class grid-container ở thẻ cha vì đã bọc bên trong từng part
+            let navContainer = document.getElementById('nav-grid-container');
+            navContainer.className = ""; 
+            navContainer.innerHTML = gridHtml;
+            
             document.getElementById('total-count').innerText = totalQuestions;
         }
 
@@ -327,7 +366,13 @@
                 
                 if (item.audio_url && item.audio_url !== "false" && item.audio_url !== "") {
                     let displayStyle = currentMode === 'exam' ? 'style="display:none;"' : '';
-                    leftHtml += `<audio id="q-audio" controls controlsList="nodownload" ${displayStyle} autoplay><source src="${item.audio_url}" type="audio/mpeg"></audio>`;
+                    leftHtml += `
+                    <div class="audio-wrapper" ${displayStyle}>
+                        <audio id="q-audio" controls controlsList="nodownload" autoplay><source src="${item.audio_url}" type="audio/mpeg"></audio>
+                        <div class="tooltip">?
+                            <span class="tooltiptext">Nhấn phím cách để nghe lại</span>
+                        </div>
+                    </div>`;
                     
                     if (currentMode === 'practice') {
                         leftHtml += `
@@ -474,29 +519,52 @@
             }
         }
 
-        // --- ĐỒNG HỒ & NỘP BÀI ---
+        // --- 6. ĐỒNG HỒ & PHÍM TẮT ---
         function startTimer() {
             let minutes = parseInt(document.getElementById('time-select').value);
-            let timeInSeconds = minutes * 60;
             let timerDisplay = document.getElementById('timer-display');
+            
+            if (minutes === 0) {
+                // Chế độ Không giới hạn (Đếm tới)
+                let timeInSeconds = 0;
+                timerInterval = setInterval(() => {
+                    timeInSeconds++;
+                    let h = Math.floor(timeInSeconds / 3600);
+                    let m = Math.floor((timeInSeconds % 3600) / 60);
+                    let s = timeInSeconds % 60;
+                    timerDisplay.innerText = (h > 0 ? (h < 10 ? "0" + h + ":" : h + ":") : "") + (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s);
+                }, 1000);
+            } else {
+                // Chế độ Đếm ngược
+                let timeInSeconds = minutes * 60;
+                timerInterval = setInterval(() => {
+                    timeInSeconds--;
+                    let h = Math.floor(timeInSeconds / 3600);
+                    let m = Math.floor((timeInSeconds % 3600) / 60);
+                    let s = timeInSeconds % 60;
+                    timerDisplay.innerText = (h > 0 ? (h < 10 ? "0" + h + ":" : h + ":") : "") + (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s);
 
-            timerInterval = setInterval(() => {
-                timeInSeconds--;
-                let h = Math.floor(timeInSeconds / 3600);
-                let m = Math.floor((timeInSeconds % 3600) / 60);
-                let s = timeInSeconds % 60;
-                
-                timerDisplay.innerText = 
-                    (h > 0 ? (h < 10 ? "0" + h + ":" : h + ":") : "") + 
-                    (m < 10 ? "0" + m : m) + ":" + 
-                    (s < 10 ? "0" + s : s);
-
-                if (timeInSeconds <= 0) {
-                    clearInterval(timerInterval);
-                    submitTest();
-                }
-            }, 1000);
+                    if (timeInSeconds <= 0) {
+                        clearInterval(timerInterval);
+                        alert("Hết giờ làm bài! Hệ thống tự động nộp bài.");
+                        submitTest();
+                    }
+                }, 1000);
+            }
         }
+
+        // Lắng nghe phím Cách (Spacebar) để tua lại Audio
+        document.addEventListener('keydown', function(event) {
+            if (event.code === 'Space' || event.keyCode === 32) {
+                let audioEl = document.getElementById('q-audio');
+                // Chống bấm nhầm khi đang gõ text (nếu sau này có ô input)
+                if (audioEl && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
+                    event.preventDefault(); // Chống trình duyệt tự cuộn trang xuống
+                    audioEl.currentTime = 0; // Trở về mốc 0 giây
+                    audioEl.play(); // Phát lại
+                }
+            }
+        });
 
         function submitTest() {
             if(isSubmitted) return;
