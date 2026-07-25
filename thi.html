@@ -63,7 +63,7 @@
         .theme-btn:hover { background: rgba(255,255,255,0.4); }
         .theme-panel { position: absolute; top: 70px; left: 30px; background: white; padding: 12px; border-radius: 6px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); z-index: 1002; display: none; width: max-content; flex-direction: column; gap: 10px; color: #333; }
         .theme-panel.active { display: flex; }
-        .color-grid { display: grid; grid-template-columns: repeat(5, 25px); gap: 8px; }
+        .color-grid { display: grid; grid-template-columns: repeat(4, 25px); gap: 10px; }
         .color-swatch { width: 25px; height: 25px; border-radius: 50%; cursor: pointer; border: 1px solid #ccc; }
         .swatch-rainbow { background: linear-gradient(45deg, red, orange, yellow, green, blue, indigo, violet); }
 
@@ -95,7 +95,7 @@
         .speed-btn { border: 1px solid #ccc; background: white; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 600; color: #333;}
         .speed-btn.active { background: #043b5c; color: white; border-color: #043b5c;}
 
-        .q-title-wrap { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; gap: 15px;}
+        .q-title-wrap { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; gap: 15px;}
         .q-title { font-weight: 700; font-size: 18px; color: #111; margin: 0; flex: 1; line-height: 1.4;}
         .action-btns-wrap { display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; width: 130px; }
         .btn-transcript { background: #e2e6ea; border: 1px solid #ccc; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: 600; color: #333; transition: 0.2s; width: 100%;}
@@ -117,7 +117,7 @@
         .explanation { background: #f8f9fa; border-left: 4px solid #043b5c; padding: 20px; margin-top: 20px; font-size: 15px; line-height: 1.6; }
         
         /* Navigation Modal */
-        #nav-modal { position: fixed; top: 75px; right: -350px; width: 340px; height: calc(100vh - 75px); background: #f4f6f9; box-shadow: -2px 0 10px rgba(0,0,0,0.1); z-index: 1001; transition: right 0.3s ease; overflow-y: auto; overflow-x: hidden; padding: 20px 20px 100px 20px; border-left: 1px solid #eee; }
+        #nav-modal { position: fixed; top: 75px; right: -350px; width: 340px; height: calc(100vh - 75px); background: #f4f6f9; box-shadow: -2px 0 10px rgba(0,0,0,0.1); z-index: 1001; transition: right 0.3s ease; overflow-y: auto; overflow-x: hidden; padding: 20px 20px 250px 20px; border-left: 1px solid #eee; }
         #nav-modal.active { right: 0; }
         .nav-modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #ddd; padding-bottom: 15px; margin-bottom: 20px; font-weight: 700; font-size: 18px; color: #333;}
         .close-nav { cursor: pointer; color: #666; font-size: 24px; background: none; border: none; font-weight: bold; }
@@ -200,7 +200,11 @@
                     <div class="color-swatch" style="background: #00ced1;" onclick="changeBannerBg('#00ced1', 'none')"></div>
                     <div class="color-swatch" style="background: #343a40;" onclick="changeBannerBg('#343a40', 'none')"></div>
                     <div class="color-swatch" style="background: #dc3545;" onclick="changeBannerBg('#dc3545', 'none')"></div>
-                    <div class="color-swatch swatch-rainbow" onclick="changeBannerBg('transparent', 'linear-gradient(45deg, red, orange, yellow, green, blue, indigo, violet)')"></div>
+                    <div class="color-swatch swatch-rainbow" onclick="changeBannerBg('transparent', 'linear-gradient(45deg, red, orange, yellow, green, blue, indigo, violet)')" title="Cầu vồng"></div>
+                    <!-- Nút Bảng màu -->
+                    <div style="position: relative; width: 25px; height: 25px; border-radius: 50%; overflow: hidden; border: 1px solid #ccc; cursor: pointer; box-shadow: inset 0 0 5px rgba(0,0,0,0.2);" title="Màu tự chọn">
+                        <input type="color" onchange="changeBannerBg(this.value, 'none')" style="position: absolute; top: -10px; left: -10px; width: 50px; height: 50px; cursor: pointer;">
+                    </div>
                 </div>
                 <span style="font-size: 13px; font-weight: 600; margin-top: 5px;">Hoặc tải ảnh từ máy:</span>
                 <input type="file" id="bg-upload" accept="image/*" style="font-size: 12px; max-width: 160px; color: black;" onchange="uploadBannerImg(event)">
