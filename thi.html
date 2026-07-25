@@ -42,7 +42,7 @@
         #test-screen { display: flex; flex-direction: column; height: 100vh; }
         
         /* Top Header */
-        .test-header { background-color: #003366; color: white; padding: 0 30px; height: 95px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; }
+        .test-header { background-color: #003366; color: white; padding: 0 30px; height: 75px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; }
         .header-left { display: flex; align-items: center; gap: 20px; font-size: 20px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;}
         .header-controls { display: flex; align-items: center; gap: 15px; }
         
@@ -61,14 +61,14 @@
         /* Nút đổi màu Banner */
         .theme-btn { background: rgba(255,255,255,0.2); border: none; color: white; padding: 10px 12px; border-radius: 4px; cursor: pointer; font-size: 18px; transition: 0.2s;}
         .theme-btn:hover { background: rgba(255,255,255,0.4); }
-        .theme-panel { position: absolute; top: 85px; left: 30px; background: white; padding: 12px; border-radius: 6px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); z-index: 1002; display: none; width: max-content; flex-direction: column; gap: 10px; color: #333; }
+        .theme-panel { position: absolute; top: 70px; left: 30px; background: white; padding: 12px; border-radius: 6px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); z-index: 1002; display: none; width: max-content; flex-direction: column; gap: 10px; color: #333; }
         .theme-panel.active { display: flex; }
         .color-grid { display: grid; grid-template-columns: repeat(5, 25px); gap: 8px; }
         .color-swatch { width: 25px; height: 25px; border-radius: 50%; cursor: pointer; border: 1px solid #ccc; }
         .swatch-rainbow { background: linear-gradient(45deg, red, orange, yellow, green, blue, indigo, violet); }
 
         /* Sub Header */
-        .sub-header { background: white; padding: 15px 30px; border-bottom: 1px solid #e1e4e8; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 95px; z-index: 999; }
+        .sub-header { background: white; padding: 15px 30px; border-bottom: 1px solid #e1e4e8; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 75px; z-index: 999; }
         #current-part-label { font-size: 22px; font-weight: 800; color: #043b5c; width: 150px; text-transform: uppercase;}
         
         .nav-buttons { display: flex; gap: 10px; flex: 1; justify-content: center;}
@@ -79,8 +79,8 @@
         
         /* Main Layout (2 Columns) */
         .test-body { display: flex; flex: 1; max-width: 1650px; margin: 0 auto; width: 100%; padding: 30px; gap: 30px; }
-        .left-panel { flex: 1.4; background: white; border-radius: 8px; padding: 30px 30px 50vh 30px; border: 1px solid #e1e4e8; box-shadow: 0 1px 3px rgba(0,0,0,0.05); overflow-y: auto; overflow-x: hidden; max-height: calc(100vh - 190px); }
-        .right-panel { flex: 1; background: white; border-radius: 8px; padding: 30px; border: 1px solid #e1e4e8; box-shadow: 0 1px 3px rgba(0,0,0,0.05); overflow-y: auto; overflow-x: hidden; max-height: calc(100vh - 190px); }
+        .left-panel { flex: 1.4; background: white; border-radius: 8px; padding: 30px 30px 50vh 30px; border: 1px solid #e1e4e8; box-shadow: 0 1px 3px rgba(0,0,0,0.05); overflow-y: auto; overflow-x: hidden; max-height: calc(100vh - 170px); }
+        .right-panel { flex: 1; background: white; border-radius: 8px; padding: 30px 30px 50vh 30px; border: 1px solid #e1e4e8; box-shadow: 0 1px 3px rgba(0,0,0,0.05); overflow-y: auto; overflow-x: hidden; max-height: calc(100vh - 170px); }
         
         .left-panel-title { font-weight: 700; font-size: 16px; margin-bottom: 20px; color: #111; }
         .passage-content img { max-width: 100%; height: auto; border: 1px solid #ddd; margin-bottom: 15px; display: block; }
@@ -105,8 +105,8 @@
         .zoomable-img.zoomed { transform: scale(1.6); cursor: zoom-out; position: relative; z-index: 10; }
         .btn-transcript:hover { background: #d3d9df; }
 
-        .options { display: flex; flex-direction: column; gap: 12px; }
-        .option-label { display: flex; align-items: center; padding: 12px 15px; cursor: pointer; transition: background 0.2s; border-radius: 4px; font-size: 16px; border: 1px solid transparent; }
+        .options { display: flex; flex-direction: column; gap: 4px; }
+        .option-label { display: flex; align-items: center; padding: 6px 10px; cursor: pointer; transition: background 0.2s; border-radius: 4px; font-size: 16px; border: 1px solid transparent; }
         .option-label:hover { background: #f8f9fa; border-color: #e1e4e8;}
         .option-label input { margin-right: 15px; transform: scale(1.2); }
         
@@ -117,7 +117,7 @@
         .explanation { background: #f8f9fa; border-left: 4px solid #043b5c; padding: 20px; margin-top: 20px; font-size: 15px; line-height: 1.6; }
         
         /* Navigation Modal */
-        #nav-modal { position: fixed; top: 95px; right: -350px; width: 340px; height: calc(100vh - 95px); background: #f4f6f9; box-shadow: -2px 0 10px rgba(0,0,0,0.1); z-index: 1001; transition: right 0.3s ease; overflow-y: auto; overflow-x: hidden; padding: 20px; border-left: 1px solid #eee; }
+        #nav-modal { position: fixed; top: 75px; right: -350px; width: 340px; height: calc(100vh - 75px); background: #f4f6f9; box-shadow: -2px 0 10px rgba(0,0,0,0.1); z-index: 1001; transition: right 0.3s ease; overflow-y: auto; overflow-x: hidden; padding: 20px 20px 100px 20px; border-left: 1px solid #eee; }
         #nav-modal.active { right: 0; }
         .nav-modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #ddd; padding-bottom: 15px; margin-bottom: 20px; font-weight: 700; font-size: 18px; color: #333;}
         .close-nav { cursor: pointer; color: #666; font-size: 24px; background: none; border: none; font-weight: bold; }
@@ -577,7 +577,7 @@
                     let markBtnDisplay = isSubmitted ? "display:none;" : "";
                     
                     rightHtml += `
-                        <div class="q-block" id="q-block-${qIdx}" style="padding-bottom: 25px; margin-bottom: 25px; border-bottom: 2px dashed #eee;">
+                        <div class="q-block" id="q-block-${qIdx}" style="padding-bottom: 12px; margin-bottom: 12px; border-bottom: 1px dashed #ccc;">
                             <div class="q-title-wrap">
                                 <h3 class="q-title"><span class="q-number">${gSq.title}</span></h3>
                                 <div class="action-btns-wrap">
@@ -669,7 +669,31 @@
         }
 
         function navigateQuestion(step) {
-            let newIndex = currentQIndex + step;
+            let currentGroup = flatQuestions[currentQIndex].groupId;
+            let newIndex = currentQIndex;
+
+            if (step === 1) {
+                // Đi tới: Tìm câu hỏi đầu tiên của NHÓM TIẾP THEO
+                while (newIndex < totalQuestions && flatQuestions[newIndex].groupId === currentGroup) {
+                    newIndex++;
+                }
+            } else if (step === -1) {
+                // Đi lùi: Tìm câu hỏi đầu tiên của NHÓM TRƯỚC ĐÓ
+                // 1. Trở về câu đầu tiên của nhóm hiện tại
+                while (newIndex > 0 && flatQuestions[newIndex - 1].groupId === currentGroup) {
+                    newIndex--;
+                }
+                // 2. Lùi thêm 1 bước để sang nhóm trước
+                if (newIndex > 0) {
+                    newIndex--;
+                    let prevGroup = flatQuestions[newIndex].groupId;
+                    // 3. Tìm câu đầu tiên của nhóm trước đó
+                    while (newIndex > 0 && flatQuestions[newIndex - 1].groupId === prevGroup) {
+                        newIndex--;
+                    }
+                }
+            }
+
             if (newIndex >= 0 && newIndex < totalQuestions) {
                 showQuestion(newIndex);
             }
