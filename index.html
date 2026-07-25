@@ -233,6 +233,13 @@
         window.onload = function() {
             let savedClass = localStorage.getItem('win_classCode');
             let savedName = localStorage.getItem('win_studentName');
+            
+            // Lấy dữ liệu gợi ý điền sẵn
+            let lastClass = localStorage.getItem('win_last_class');
+            let lastName = localStorage.getItem('win_last_name');
+            if (lastClass) document.getElementById('home-class-code').value = lastClass;
+            if (lastName) document.getElementById('home-student-name').value = lastName;
+
             if (savedClass && savedName) {
                 showLoggedIn(savedClass, savedName);
             }
@@ -279,6 +286,11 @@
             if (classCode !== "" && name !== "") {
                 localStorage.setItem('win_classCode', classCode);
                 localStorage.setItem('win_studentName', name);
+                
+                // Lưu vĩnh viễn làm gợi ý
+                localStorage.setItem('win_last_class', classCode);
+                localStorage.setItem('win_last_name', name);
+                
                 showLoggedIn(classCode, name);
             }
         }
@@ -288,8 +300,6 @@
             localStorage.removeItem('win_studentName');
             document.getElementById('logged-in-view').style.display = 'none';
             document.getElementById('logged-out-view').style.display = 'flex';
-            document.getElementById('home-class-code').value = '';
-            document.getElementById('home-student-name').value = '';
         }
 
         function showLoggedIn(classCode, name) {

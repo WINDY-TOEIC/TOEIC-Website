@@ -1002,8 +1002,8 @@
 
             showQuestion(currentQIndex); 
 
-            // Gửi dữ liệu về Google Sheets
-            if (GOOGLE_SCRIPT_URL !== "") {
+            // Gửi dữ liệu về Google Sheets (CHỈ GỬI KHI ĐÃ ĐĂNG NHẬP, KHÁCH THÌ KHÔNG GỬI ĐỂ SẠCH EXCEL)
+            if (GOOGLE_SCRIPT_URL !== "" && classCode !== "GUEST") {
                 let testDisplayName = document.getElementById('setup-title').innerText;
                 let submitUrl = GOOGLE_SCRIPT_URL + 
                     "?name=" + encodeURIComponent(studentName) +
