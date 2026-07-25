@@ -76,8 +76,9 @@
         .progress-box { background: #f27127; color: white; padding: 10px 25px; border-radius: 4px; font-weight: 700; font-size: 18px; width: 150px; text-align: center;}
         
         /* Main Layout (2 Columns) */
-        .test-body { display: flex; flex: 1; max-width: 1400px; margin: 0 auto; width: 100%; padding: 30px; gap: 30px; }
-        .left-panel, .right-panel { flex: 1; background: white; border-radius: 8px; padding: 30px; border: 1px solid #e1e4e8; box-shadow: 0 1px 3px rgba(0,0,0,0.05); overflow-y: auto; max-height: calc(100vh - 190px); }
+        .test-body { display: flex; flex: 1; max-width: 1650px; margin: 0 auto; width: 100%; padding: 30px; gap: 30px; }
+        .left-panel { flex: 1.4; background: white; border-radius: 8px; padding: 30px; border: 1px solid #e1e4e8; box-shadow: 0 1px 3px rgba(0,0,0,0.05); overflow-y: auto; overflow-x: hidden; max-height: calc(100vh - 190px); }
+        .right-panel { flex: 1; background: white; border-radius: 8px; padding: 30px; border: 1px solid #e1e4e8; box-shadow: 0 1px 3px rgba(0,0,0,0.05); overflow-y: auto; overflow-x: hidden; max-height: calc(100vh - 190px); }
         
         .left-panel-title { font-weight: 700; font-size: 16px; margin-bottom: 20px; color: #111; }
         .passage-content img { max-width: 100%; height: auto; border: 1px solid #ddd; margin-bottom: 15px; display: block; }
@@ -92,9 +93,14 @@
         .speed-btn { border: 1px solid #ccc; background: white; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 600; color: #333;}
         .speed-btn.active { background: #043b5c; color: white; border-color: #043b5c;}
 
-        .q-title-wrap { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;}
-        .q-title { font-weight: 700; font-size: 18px; color: #111; margin: 0;}
-        .btn-transcript { background: #e2e6ea; border: 1px solid #ccc; padding: 4px 12px; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: 600; color: #333; transition: 0.2s;}
+        .q-title-wrap { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; gap: 15px;}
+        .q-title { font-weight: 700; font-size: 18px; color: #111; margin: 0; flex: 1; line-height: 1.4;}
+        .action-btns-wrap { display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; width: 130px; }
+        .btn-transcript { background: #e2e6ea; border: 1px solid #ccc; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: 600; color: #333; transition: 0.2s; width: 100%;}
+        
+        /* Chức năng Zoom ảnh */
+        .zoomable-img { max-width: 100%; border: 1px solid #ccc; margin-bottom: 15px; cursor: zoom-in; transition: transform 0.3s ease; transform-origin: top center; display: block; }
+        .zoomable-img.zoomed { transform: scale(1.6); cursor: zoom-out; position: relative; z-index: 10; }
         .btn-transcript:hover { background: #d3d9df; }
 
         .options { display: flex; flex-direction: column; gap: 12px; }
@@ -484,13 +490,13 @@
                     leftHtml += `<div class="passage-content">${decodedContent}</div>`;
                 }
 
-                // Xử lý hiển thị thêm ảnh (Dành riêng cho Reading Part 6,7)
+                // Xử lý hiển thị thêm ảnh (Có chức năng bấm vào để Zoom)
                 if (item.images && Array.isArray(item.images)) {
                     item.images.forEach(img => {
-                        leftHtml += `<img src="${img}" style="max-width:100%; border:1px solid #ccc; margin-bottom: 15px;">`;
+                        leftHtml += `<img src="${img}" class="zoomable-img" onclick="this.classList.toggle('zoomed')">`;
                     });
                 } else if (item.image) {
-                    leftHtml += `<img src="${item.image}" style="max-width:100%; border:1px solid #ccc; margin-bottom: 15px;">`;
+                    leftHtml += `<img src="${item.image}" class="zoomable-img" onclick="this.classList.toggle('zoomed')">`;
                 }
                 
                 document.getElementById('media-content').innerHTML = leftHtml;
@@ -517,9 +523,9 @@
             
             let rightHtml = `
                 <div class="q-title-wrap">
-                    <h3 class="q-title"><span class="q-number">${sq.title}</span> Chọn đáp án đúng:</h3>
-                    <div>
-                        <button id="btn-mark-current" class="btn-transcript" style="background: ${markBtnBg}; border-color: #ffc107; margin-right: 8px; color: #333; ${markBtnDisplay}" onclick="toggleMark()">&#9873; ${markBtnText}</button>
+                    <h3 class="q-title"><span class="q-number">${sq.title}</span></h3>
+                    <div class="action-btns-wrap">
+                        <button id="btn-mark-current" class="btn-transcript" style="background: ${markBtnBg}; border-color: #ffc107; color: #333; ${markBtnDisplay}" onclick="toggleMark()">&#9873; ${markBtnText}</button>
                         ${transcriptBtn}
                     </div>
                 </div>
