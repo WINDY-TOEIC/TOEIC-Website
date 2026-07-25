@@ -638,8 +638,20 @@
                 targetBlock.scrollIntoView({ behavior: "smooth", block: "center" });
             }
 
-            document.getElementById('btn-prev').disabled = (index === 0);
-            document.getElementById('btn-next').disabled = (index === totalQuestions - 1);
+            let isListening = (index < 100); // 100 câu đầu là Listening
+            let btnPrev = document.getElementById('btn-prev');
+            let btnNext = document.getElementById('btn-next');
+
+            // Ẩn nút nếu đang ở Exam mode, chưa nộp bài và đang làm Listening
+            if (currentMode === 'exam' && !isSubmitted && isListening) {
+                btnPrev.style.display = 'none';
+                btnNext.style.display = 'none';
+            } else {
+                btnPrev.style.display = 'inline-block';
+                btnNext.style.display = 'inline-block';
+                btnPrev.disabled = (index === 0);
+                btnNext.disabled = (index === totalQuestions - 1);
+            }
 
             document.querySelectorAll('.grid-btn').forEach(btn => btn.classList.remove('current'));
             let currentBtn = document.getElementById(`grid-btn-${index}`);
@@ -705,11 +717,19 @@
             }
 
             if (newIndex >= 0 && newIndex < totalQuestions) {
+                if (currentMode === 'exam' && !isSubmitted && newIndex < 100) {
+                    alert("Listening thi thật không qua lại câu trước được!");
+                    return;
+                }
                 showQuestion(newIndex);
             }
         }
 
         function jumpToQuestion(index) {
+            if (currentMode === 'exam' && !isSubmitted && index < 100) {
+                alert("Listening thi thật không qua lại câu trước được!");
+                return; // Chặn đứng, không cho nhảy câu
+            }
             showQuestion(index);
             document.getElementById('nav-modal').classList.remove('active');
         }
