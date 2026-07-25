@@ -439,9 +439,9 @@
         let studentInfo = ""; // Biến lưu thông tin học viên
 
         function startTest(mode) {
-            // Lấy thông tin đã lưu từ trang ngoài
-            let classCode = localStorage.getItem('win_classCode') || "";
-            let studentName = localStorage.getItem('win_studentName') || "";
+            // Lấy thông tin đã lưu từ trang ngoài (Đã sửa lỗi biến để gửi lên Google Sheet)
+            classCode = localStorage.getItem('win_classCode') || "";
+            studentName = localStorage.getItem('win_studentName') || "";
             
             if (classCode !== "" && studentName !== "") {
                 studentInfo = `WIN ${classCode} - ${studentName}`;
@@ -743,6 +743,7 @@
 
         function selectAnswer(idx, choice) {
             if (isSubmitted) return;
+            if (document.activeElement) document.activeElement.blur(); // Gỡ kẹt phím mũi tên
             document.querySelectorAll(`input[name="q-${idx}"]`).forEach(input => {
                 input.checked = (input.value === choice);
             });
@@ -889,7 +890,7 @@
 
         // Lắng nghe phím tắt
         document.addEventListener('keydown', function(event) {
-            if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA') return;
+            if (document.activeElement.tagName === 'TEXTAREA' || (document.activeElement.tagName === 'INPUT' && document.activeElement.type !== 'radio')) return;
 
             // NẾU LÀ GIAO DIỆN THI THẬT -> KHÓA TOÀN BỘ PHÍM TẮT 
             if (currentMode === 'exam') return;
@@ -962,10 +963,10 @@
             // HIỆN MODAL, BẮN PHÁO GIẤY VÀ PHÁT ÂM THANH
             document.getElementById('score-overlay').classList.add('active');
             
-            // Âm thanh Elegant Success Chime
-            let successAudio = new Audio('https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3');
-            successAudio.volume = 0.6;
-            successAudio.play().catch(e => console.log("Trình duyệt chặn autoplay audio"));
+            // Âm thanh Elegant Success Chime (Link ổn định 100%)
+            let successAudio = new Audio('https://upload.wikimedia.org/wikipedia/commons/3/34/Sound_Effect_-_Positive_Bell.ogg');
+            successAudio.volume = 0.8;
+            successAudio.play().catch(e => console.log("Lỗi âm thanh: ", e));
 
             // Pháo giấy Confetti
             var duration = 3 * 1000;
