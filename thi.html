@@ -1111,6 +1111,11 @@
             }
             
             isSubmitted = true;
+
+            // Tự động mở khóa các công cụ trên Banner (Bút, Ghi chú...) sau khi nộp
+            let practiceTools = document.getElementById('practice-tools');
+            if (practiceTools) practiceTools.style.display = 'flex';
+
             clearInterval(timerInterval);
             localStorage.removeItem(`win_progress_${fileName}`); 
 
@@ -1325,8 +1330,10 @@
         const toolbar = document.getElementById('selection-toolbar');
 
         document.addEventListener('mouseup', function(e) {
-            if (toolbar.contains(e.target)) return;
+            // Nếu đang thi thật và CHƯA nộp bài -> Khóa luôn Menu nổi
+            if (currentMode === 'exam' && !isSubmitted) return;
 
+            if (toolbar.contains(e.target)) return;
             let selection = window.getSelection();
             let selectedText = selection.toString().trim();
 
