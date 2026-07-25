@@ -1090,7 +1090,9 @@
             // Xây dựng HTML thống kê chi tiết từng Part
             let statsHtml = '';
             Object.keys(partStats).sort().forEach(p => {
-                statsHtml += `<div class="stat-row"><span>${p}</span> <span><b>${partStats[p].correct}</b> / ${partStats[p].total}</span></div>`;
+                let padCorrect = String(partStats[p].correct).padStart(2, '0');
+                let padTotal = String(partStats[p].total).padStart(2, '0');
+                statsHtml += `<div class="stat-row"><span>${p}</span> <span style="font-variant-numeric: tabular-nums;"><b>${padCorrect}</b> / ${padTotal}</span></div>`;
             });
             document.getElementById('part-stats-box').innerHTML = statsHtml;
 
