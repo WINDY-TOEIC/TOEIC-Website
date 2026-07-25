@@ -582,9 +582,11 @@
                 let leftHtml = '';
                 if (item.audio_url && item.audio_url !== "false" && item.audio_url !== "") {
                     let displayStyle = currentMode === 'exam' ? 'style="display:none;"' : '';
+                    let autoPlayAttr = isSubmitted ? '' : 'autoplay'; // Tắt tự động phát nếu đã nộp bài
+                    
                     leftHtml += `
                     <div class="audio-wrapper" ${displayStyle}>
-                        <audio id="q-audio" controls controlsList="nodownload" autoplay><source src="${item.audio_url}" type="audio/mpeg"></audio>
+                        <audio id="q-audio" controls controlsList="nodownload" ${autoPlayAttr}><source src="${item.audio_url}" type="audio/mpeg"></audio>
                     </div>`;
                     
                     if (currentMode === 'practice') {
