@@ -148,8 +148,9 @@
         .swatch-rainbow { background: linear-gradient(45deg, red, orange, yellow, green, blue, indigo, violet); }
         
         /* --- NÚT LÀM TIẾP --- */
-        .resume-floating-btn { position: fixed; bottom: 30px; right: 30px; background: #f39c12; color: white; padding: 15px 25px; border-radius: 50px; font-weight: bold; font-size: 16px; text-decoration: none; box-shadow: 0 4px 15px rgba(0,0,0,0.3); z-index: 1000; display: none; align-items: center; transition: 0.3s; border: 2px solid #fff;}
-        .resume-floating-btn:hover { background: #e67e22; transform: scale(1.05); }
+        .resume-floating-btn { position: fixed; bottom: 30px; right: 30px; background: #dc3545; color: white; padding: 15px 25px; border-radius: 50px; font-weight: bold; font-size: 16px; text-decoration: none; box-shadow: 0 4px 15px rgba(0,0,0,0.3); z-index: 1000; display: none; align-items: center; transition: 0.3s; border: 2px solid #fff; animation: pulseRed 1.5s infinite;}
+        .resume-floating-btn:hover { background: #c82333; transform: scale(1.05); }
+        @keyframes pulseRed { 0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); } 100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); } }
         .resume-tooltip { position: absolute; right: 100%; margin-right: 15px; background: #333; color: #fff; padding: 8px 15px; border-radius: 6px; font-size: 14px; white-space: nowrap; opacity: 0; visibility: hidden; transition: 0.3s; font-weight: normal; pointer-events: none; }
         .resume-floating-btn:hover .resume-tooltip { opacity: 1; visibility: visible; }
     </style>

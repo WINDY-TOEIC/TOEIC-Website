@@ -1249,11 +1249,40 @@
         document.getElementById('tb-strike').onclick = () => applyWrap('hl-strike');
         document.getElementById('tb-under').onclick = () => applyWrap('hl-underline');
         
-        document.getElementById('tb-search').onclick = () => {
-            if(currentSelectionRange) {
-                let text = currentSelectionRange.toString().trim();
-                window.open('https://dict.laban.vn/find?type=1&query=' + encodeURIComponent(text), '_blank');
+        document.getElementById('tb-search').onclick = async () => {
+            if(!currentSelectionRange) return;
+            let text = currentSelectionRange.toString().trim();
+            if(!text) return;
+
+            // Đổi icon sang đồng hồ cát báo hiệu đang dịch
+            let btnSearch = document.getElementById('tb-search');
+            let oldIcon = btnSearch.innerHTML;
+            btnSearch.innerHTML = "⏳";
+
+            try {
+                // Gọi API Google Translate ngầm để lấy nghĩa Tiếng Việt
+                let res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=vi&dt=t&q=${encodeURIComponent(text)}`);
+                let data = await res.json();
+                let translatedText = data[0][0][0]; // Lấy chữ đã dịch
+
+                // Tạo khung hiển thị nghĩa Tiếng Việt (màu xanh dương) chèn ngay sát chữ đó
+                let noteSpan = document.createElement('span');
+                noteSpan.className = 'hl-note-text';
+                noteSpan.style.color = '#2980b9'; // Chữ màu xanh
+                noteSpan.style.borderColor = '#2980b9'; // Viền màu xanh
+                noteSpan.innerHTML = `(${translatedText}) <span class="del-note" onclick="this.parentElement.remove()">❌</span>`;
+                
+                let spanWrapper = document.createElement('span');
+                spanWrapper.className = 'hl-yellow'; 
+                currentSelectionRange.surroundContents(spanWrapper);
+                spanWrapper.insertAdjacentElement('afterend', noteSpan);
+                
+                window.getSelection().removeAllRanges();
                 toolbar.classList.remove('active');
+            } catch (err) {
+                alert("Lỗi tra từ. Vui lòng kiểm tra lại mạng!");
+            } finally {
+                btnSearch.innerHTML = oldIcon; // Trả lại icon kính lúp
             }
         };
 
