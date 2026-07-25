@@ -1239,13 +1239,24 @@
 
         function clearNotes() {
             if (currentGroupId === -1) return;
-            delete savedNotes[currentGroupId]; // Xóa data
+            if(!confirm("Bạn có chắc muốn xóa sạch toàn bộ ghi chú ở bài này?")) return;
+            
+            delete savedNotes[currentGroupId];
             localStorage.setItem(`win_notes_${fileName}`, JSON.stringify(savedNotes));
             
-            // Load lại màn hình sạch sẽ
-            initHistoryState();
-            currentGroupId = -1; 
-            showQuestion(currentQIndex);
+            // 1. Xóa vĩnh viễn các đoạn text ghi chú / nghĩa tiếng Việt
+            document.querySelectorAll('.hl-note-text').forEach(el => el.remove());
+            
+            // 2. Gỡ bỏ bôi vàng, gạch ngang, gạch dưới (Giữ nguyên chữ gốc bên trong)
+            document.querySelectorAll('.hl-yellow, .hl-strike, .hl-underline').forEach(el => {
+                let parent = el.parentNode;
+                while (el.firstChild) {
+                    parent.insertBefore(el.firstChild, el);
+                }
+                parent.removeChild(el);
+            });
+
+            initHistoryState(); // Xóa lịch sử Undo/Redo
         }
 
         // ==========================================
