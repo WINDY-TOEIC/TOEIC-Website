@@ -859,6 +859,19 @@
                 let s = globalTimeInSeconds % 60;
                 timerDisplay.innerText = (h > 0 ? (h < 10 ? "0" + h + ":" : h + ":") : "") + (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s);
 
+                // TÍNH NĂNG AUTO-SAVE: Âm thầm lưu dữ liệu mỗi giây (Chống cúp điện, tắt tab ngang)
+                if (!isSubmitted) {
+                    let progressData = {
+                        userAnswers: userAnswers,
+                        markedQuestions: markedQuestions,
+                        currentQIndex: currentQIndex,
+                        answeredQuestions: answeredQuestions,
+                        globalTimeInSeconds: globalTimeInSeconds,
+                        isCountDown: isCountDown
+                    };
+                    localStorage.setItem(`win_progress_${fileName}`, JSON.stringify(progressData));
+                }
+
                 if (isCountDown && globalTimeInSeconds <= 0) {
                     clearInterval(timerInterval);
                     alert("Hết giờ làm bài! Hệ thống tự động nộp bài.");
