@@ -164,7 +164,7 @@
         
         /* --- CÔNG CỤ TƯƠNG TÁC (HIGHLIGHT & DRAW) --- */
         #drawing-canvas { position: fixed; top: 75px; left: 0; width: 100%; height: calc(100% - 75px); pointer-events: none; z-index: 900; }
-        .canvas-active { pointer-events: auto !important; cursor: crosshair; }
+        .canvas-active { pointer-events: auto !important; cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" style="font-size: 20px;"><text y="20">🖍️</text></svg>') 0 24, crosshair; }
         
         .selection-toolbar { position: absolute; background: #555; border-radius: 6px; padding: 6px 10px; display: flex; gap: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 9999; opacity: 0; visibility: hidden; transition: opacity 0.2s; }
         .selection-toolbar.active { opacity: 1; visibility: visible; }
@@ -177,7 +177,7 @@
         
         /* Các class apply vào chữ */
         .hl-yellow { background-color: #fceea7; cursor: pointer; border-radius: 2px;}
-        .hl-strike { text-decoration: line-through; cursor: pointer; opacity: 0.6;}
+        .hl-strike { text-decoration: line-through; cursor: pointer; }
         .hl-underline { border-bottom: 2px solid #e74c3c; cursor: pointer; }
         .hl-note-text { color: #e74c3c; font-size: 14px; margin-left: 5px; font-style: italic; border: 1px dashed #e74c3c; padding: 2px 4px; border-radius: 4px; cursor: pointer;}
         .hl-note-text .del-note { color: #999; margin-left: 5px; cursor: pointer; font-weight: normal; }
@@ -260,11 +260,10 @@
             </div>
             <div class="header-controls">
                 <div class="shortcut-tooltip">?</div>
-            <!-- BẮT ĐẦU CHÈN NÚT BÚT VẼ -->
-            <button class="btn-exit" id="btn-draw" onclick="toggleDrawing()" style="background:#f39c12; font-size: 16px; padding: 5px 12px;" title="Bật/Tắt Bút đỏ">🖍️</button>
-            <button class="btn-exit hidden" id="btn-erase" onclick="toggleEraser()" style="background:#95a5a6; font-size: 16px; padding: 5px 12px;" title="Cục tẩy">🧽</button>
-            <button class="btn-exit hidden" id="btn-clear-draw" onclick="clearCanvas()" style="background:#c0392b;" title="Xóa sạch nét vẽ">Xóa nét vẽ</button>
-            <!-- KẾT THÚC CHÈN -->
+            <!-- CÔNG CỤ BÚT & TẨY -->
+            <button class="btn-grid" id="btn-draw" onclick="toggleDrawing()" title="Bấm Esc để thoát">🖍️</button>
+            <button class="btn-grid" onclick="clearCanvas()" title="Xóa toàn bộ nét vẽ">🧽</button>
+            
             <button class="btn-exit" onclick="saveAndExit()">Thoát & Lưu</button>
                 <button class="btn-submit" id="btn-submit" onclick="submitTest()">Nộp Bài</button>
                 <div class="timer-box" id="timer-display">00:00:00</div>
@@ -824,6 +823,9 @@
             document.querySelectorAll('.grid-btn').forEach(btn => btn.classList.remove('current'));
             let currentBtn = document.getElementById(`grid-btn-${index}`);
             if(currentBtn) currentBtn.classList.add('current');
+            
+            // Xóa lịch sử Undo/Redo khi qua nhóm câu hỏi mới
+            setTimeout(initHistoryState, 100);
         }
 
         // --- CÁC HÀM XỬ LÝ CHUYÊN SÂU ---
@@ -986,13 +988,7 @@
         }
 
         function saveAndExit() {
-            if (isSubmitted) {
-                window.location.href = "index.html";
-                return;
-            }
-
-            let confirmExit = confirm("Bạn có chắc chắn muốn TẠM DỪNG VÀ THOÁT?\nTiến trình của bạn sẽ được lưu lại cho lần sau.");
-            if (confirmExit) {
+            if (!isSubmitted) {
                 let progressData = {
                     userAnswers: userAnswers,
                     markedQuestions: markedQuestions,
@@ -1002,13 +998,24 @@
                     isCountDown: isCountDown
                 };
                 localStorage.setItem(`win_progress_${fileName}`, JSON.stringify(progressData));
-                window.location.href = "index.html"; // Trở về trang chủ
             }
+            window.location.href = "index.html";
         }
 
-        // Lắng nghe phím tắt
+        // Lắng nghe phím tắt (Thêm Ctrl Z, Ctrl Y, Esc)
         document.addEventListener('keydown', function(event) {
-            if (document.activeElement.tagName === 'TEXTAREA' || (document.activeElement.tagName === 'INPUT' && document.activeElement.type !== 'radio')) return;
+            if (document.activeElement.tagName === 'TEXTAREA' || (document.activeElement.tagName === 'INPUT' && document.activeElement.type !== 'radio' && document.activeElement.id !== 'tb-note-input')) return;
+
+            if (event.key === 'Escape' && isDrawingMode) {
+                toggleDrawing();
+                return;
+            }
+            if (event.ctrlKey && (event.key === 'z' || event.key === 'Z')) {
+                event.preventDefault(); undoAction(); return;
+            }
+            if (event.ctrlKey && (event.key === 'y' || event.key === 'Y')) {
+                event.preventDefault(); redoAction(); return;
+            }
 
             // NẾU LÀ THI THẬT: Cấm phím Cách (Nghe lại). Cấm Mũi tên nếu đang ở Listening (<100). Reading thì cho qua lại.
             if (currentMode === 'exam') {
@@ -1178,6 +1185,41 @@
         // ==========================================
         // KHU VỰC 1: XỬ LÝ MENU NỔI & TEXT HIGHLIGHT
         // ==========================================
+        let actionHistory = [];
+        let historyStep = -1;
+
+        function initHistoryState() {
+            actionHistory = [];
+            historyStep = -1;
+            saveActionState();
+        }
+
+        function saveActionState() {
+            let qContent = document.getElementById('question-content');
+            if(!qContent) return;
+            if(historyStep < actionHistory.length - 1) actionHistory = actionHistory.slice(0, historyStep + 1);
+            actionHistory.push({ canvas: canvas.toDataURL(), dom: qContent.innerHTML });
+            historyStep++;
+        }
+
+        function restoreState(state) {
+            let img = new Image();
+            img.onload = function() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0);
+            };
+            img.src = state.canvas;
+            document.getElementById('question-content').innerHTML = state.dom;
+        }
+
+        function undoAction() {
+            if(historyStep > 0) { historyStep--; restoreState(actionHistory[historyStep]); }
+        }
+
+        function redoAction() {
+            if(historyStep < actionHistory.length - 1) { historyStep++; restoreState(actionHistory[historyStep]); }
+        }
+
         let currentSelectionRange = null;
         let currentEditingNode = null; 
         const toolbar = document.getElementById('selection-toolbar');
@@ -1238,6 +1280,7 @@
             span.className = className;
             try {
                 currentSelectionRange.surroundContents(span);
+                saveActionState(); // Lưu vào bộ nhớ Undo
             } catch(e) {
                 alert("Vui lòng bôi đen gọn trong 1 đoạn văn, không bôi chéo qua các ô.");
             }
@@ -1270,12 +1313,13 @@
                 noteSpan.className = 'hl-note-text';
                 noteSpan.style.color = '#2980b9'; // Chữ màu xanh
                 noteSpan.style.borderColor = '#2980b9'; // Viền màu xanh
-                noteSpan.innerHTML = `(${translatedText}) <span class="del-note" onclick="this.parentElement.remove()">❌</span>`;
+                noteSpan.innerHTML = `(${translatedText}) <span class="del-note" onclick="this.parentElement.remove(); saveActionState();">❌</span>`;
                 
                 let spanWrapper = document.createElement('span');
                 spanWrapper.className = 'hl-yellow'; 
                 currentSelectionRange.surroundContents(spanWrapper);
                 spanWrapper.insertAdjacentElement('afterend', noteSpan);
+                saveActionState();
                 
                 window.getSelection().removeAllRanges();
                 toolbar.classList.remove('active');
@@ -1305,12 +1349,14 @@
             if (note) {
                 let noteSpan = document.createElement('span');
                 noteSpan.className = 'hl-note-text';
-                noteSpan.innerHTML = `${note} <span class="del-note" onclick="this.parentElement.remove()">❌</span>`;
+                noteSpan.innerHTML = `${note} <span class="del-note" onclick="this.parentElement.remove(); saveActionState();">❌</span>`;
                 
                 let spanWrapper = document.createElement('span');
                 spanWrapper.className = 'hl-yellow'; 
                 currentSelectionRange.surroundContents(spanWrapper);
                 spanWrapper.insertAdjacentElement('afterend', noteSpan);
+                saveActionState();
+
             }
             window.getSelection().removeAllRanges();
             toolbar.classList.remove('active');
@@ -1333,6 +1379,7 @@
                 }
                 parent.removeChild(currentEditingNode);
                 currentEditingNode = null;
+                saveActionState(); // Lưu vào bộ nhớ Undo
             }
             toolbar.classList.remove('active');
         };
@@ -1356,44 +1403,18 @@
         function toggleDrawing() {
             isDrawingMode = !isDrawingMode;
             let btnDraw = document.getElementById('btn-draw');
-            let btnErase = document.getElementById('btn-erase');
-            let btnClear = document.getElementById('btn-clear-draw');
-            
             if (isDrawingMode) {
                 canvas.classList.add('canvas-active');
-                btnDraw.style.background = "#27ae60"; // Chuyển xanh khi đang bật
-                btnErase.classList.remove('hidden');
-                btnClear.classList.remove('hidden');
-                
-                isEraserMode = false;
-                btnErase.style.background = "#95a5a6";
-                ctx.globalCompositeOperation = "source-over"; 
+                btnDraw.style.background = "#27ae60"; 
             } else {
                 canvas.classList.remove('canvas-active');
-                btnDraw.style.background = "#f39c12"; // Trở về màu cam khi tắt
-                btnErase.classList.add('hidden');
-                btnClear.classList.add('hidden');
-            }
-        }
-
-        function toggleEraser() {
-            isEraserMode = !isEraserMode;
-            let btnErase = document.getElementById('btn-erase');
-            if (isEraserMode) {
-                btnErase.style.background = "#e74c3c"; 
-                ctx.globalCompositeOperation = "destination-out"; 
-                ctx.lineWidth = 20; 
-            } else {
-                btnErase.style.background = "#95a5a6";
-                ctx.globalCompositeOperation = "source-over"; 
-                ctx.lineWidth = 2; 
+                btnDraw.style.background = "rgba(255,255,255,0.2)"; 
             }
         }
 
         function clearCanvas() {
-            if(confirm("Bạn có chắc muốn xóa sạch toàn bộ nét vẽ không?")) {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-            }
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            saveActionState(); // Lưu Undo khi xóa sạch nét vẽ
         }
 
         ctx.strokeStyle = '#e74c3c'; 
@@ -1420,8 +1441,12 @@
             ctx.stroke();
         });
 
-        canvas.addEventListener('mouseup', () => isDrawing = false);
-        canvas.addEventListener('mouseout', () => isDrawing = false);
+        canvas.addEventListener('mouseup', () => {
+            if(isDrawing) { isDrawing = false; saveActionState(); }
+        });
+        canvas.addEventListener('mouseout', () => {
+            if(isDrawing) { isDrawing = false; saveActionState(); }
+        });
 
         // ==========================================
         // KHU VỰC 3: XỬ LÝ LƯU NÉT VẼ
