@@ -126,6 +126,18 @@
         <div id="loading-msg" style="text-align: center; padding: 20px; font-weight: 600;">Hệ thống đang nạp dữ liệu, vui lòng đợi...</div>
         
         <div id="setup-form" class="hidden">
+            
+            <div class="form-group">
+                <label>Thông tin học viên:</label>
+                <div style="display: flex; gap: 10px;">
+                    <div style="display: flex; align-items: center; background: #e9ecef; border: 1px solid #ccc; border-radius: 4px; padding-left: 15px;">
+                        <span style="font-weight: 700; color: #043b5c;">WIN</span>
+                        <input type="number" id="class-code" placeholder="Mã số..." style="border: none; padding: 12px; outline: none; width: 100px; border-radius: 0 4px 4px 0; margin-left: 5px;" required>
+                    </div>
+                    <input type="text" id="student-name" placeholder="Nhập Họ và Tên..." style="flex: 1; padding: 12px; border: 1px solid #ccc; border-radius: 4px; outline: none; font-family: inherit; font-size: 15px;" required>
+                </div>
+            </div>
+
             <div class="form-group">
                 <label>Thời gian làm bài:</label>
                 <select id="time-select">
@@ -278,7 +290,22 @@
             });
         }
 
+        let studentInfo = ""; // Biến lưu thông tin học viên
+
         function startTest(mode) {
+            // Kiểm tra đăng nhập
+            let classCode = document.getElementById('class-code').value.trim();
+            let studentName = document.getElementById('student-name').value.trim();
+            
+            if (classCode === "" || studentName === "") {
+                alert("Vui lòng nhập Mã lớp (chỉ nhập số) và Họ Tên trước khi làm bài!");
+                return;
+            }
+            
+            // Lưu thông tin để hiển thị và lưu kết quả
+            studentInfo = `WIN${classCode} - ${studentName}`;
+            document.querySelector('.guest-text').innerText = studentInfo;
+
             currentMode = mode;
             let isCustom = document.getElementById('chk-custom-parts').checked;
             let selectedParts = [];
