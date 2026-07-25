@@ -98,6 +98,14 @@
         .test-card:hover .test-tag { 
             color: #0037f4; 
         }
+        
+        /* Giao diện Lịch sử làm bài */
+        .history-list { display: flex; flex-direction: column; gap: 10px; }
+        .history-item { background: #f8f9fa; border-left: 4px solid #28a745; padding: 12px 15px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; font-size: 15px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);}
+        .h-test { font-weight: 700; color: #003366; }
+        .h-score { font-weight: 700; color: #dc3545; font-size: 16px; background: #fff; padding: 4px 10px; border-radius: 4px; border: 1px solid #eee;}
+        .h-date { font-size: 13px; color: #666; }
+        .no-history { text-align: center; color: #777; font-style: italic; padding: 20px; }
     /* Ẩn mũi tên lên xuống của ô nhập số */
         input[type="number"]::-webkit-outer-spin-button,
         input[type="number"]::-webkit-inner-spin-button {
@@ -180,6 +188,14 @@
     </div>
 
     <div class="container">
+
+        <div class="year-section">
+            <h2>🏆 Lịch Sử Làm Bài Của Bạn</h2>
+            <div id="history-container" class="history-list">
+                <!-- Lịch sử sẽ tự động chèn vào đây -->
+            </div>
+        </div>
+
         <div class="year-section">
             <h2>📚 Bộ Đề ETS 2026</h2>
             <div class="test-grid">
@@ -244,7 +260,29 @@
                 showLoggedIn(savedClass, savedName);
             }
             loadBannerBg();
+            loadHistory();
         };
+
+        function loadHistory() {
+            let historyData = JSON.parse(localStorage.getItem('win_history') || '[]');
+            let container = document.getElementById('history-container');
+            if (historyData.length === 0) {
+                container.innerHTML = '<div class="no-history">Chưa có lịch sử làm bài nào trên máy này.</div>';
+                return;
+            }
+            let html = '';
+            historyData.forEach(item => {
+                html += `
+                <div class="history-item">
+                    <div>
+                        <div class="h-test">${item.test}</div>
+                        <div class="h-date">${item.date}</div>
+                    </div>
+                    <div class="h-score">${item.score} Điểm</div>
+                </div>`;
+            });
+            container.innerHTML = html;
+        }
 
         // --- HÀM XỬ LÝ ĐỔI MÀU NỀN ---
         function toggleThemePanel() {

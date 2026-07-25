@@ -101,9 +101,9 @@
         .action-btns-wrap { position: absolute; top: 0; right: 0; display: flex; flex-direction: column; gap: 6px; width: 110px; z-index: 10; }
         .btn-transcript { background: #e2e6ea; border: 1px solid #ccc; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: 600; color: #333; transition: 0.2s; width: 100%;}
         
-        /* Chức năng Zoom ảnh */
-        .zoomable-img { max-width: 100%; border: 1px solid #ccc; margin-bottom: 15px; cursor: zoom-in; transition: transform 0.3s ease; transform-origin: top center; display: block; }
-        .zoomable-img.zoomed { transform: scale(1.6); cursor: zoom-out; position: relative; z-index: 10; }
+        /* Chức năng Zoom ảnh thông minh */
+        .zoomable-img { width: 100%; max-width: 100%; border: 1px solid #ccc; margin-bottom: 15px; cursor: zoom-in; transition: transform 0.3s ease; display: block; }
+        .zoomable-img.zoomed { transform: scale(1.8); cursor: zoom-out; position: relative; z-index: 10; box-shadow: 0 5px 20px rgba(0,0,0,0.3); }
         .btn-transcript:hover { background: #d3d9df; }
 
         .options { display: flex; flex-direction: column; gap: 2px; padding-right: 120px; }
@@ -604,12 +604,13 @@
                     leftHtml += `<div class="passage-content">${decodedContent}</div>`;
                 }
 
+                // Xử lý hiển thị thêm ảnh (Full width + Click để Zoom tại điểm nhấn)
                 if (item.images && Array.isArray(item.images)) {
                     item.images.forEach(img => {
-                        leftHtml += `<img src="${img}" class="zoomable-img" onclick="this.classList.toggle('zoomed')">`;
+                        leftHtml += `<img src="${img}" class="zoomable-img" onclick="handleZoom(event, this)">`;
                     });
                 } else if (item.image) {
-                    leftHtml += `<img src="${item.image}" class="zoomable-img" onclick="this.classList.toggle('zoomed')">`;
+                    leftHtml += `<img src="${item.image}" class="zoomable-img" onclick="handleZoom(event, this)">`;
                 }
                 
                 document.getElementById('media-content').innerHTML = leftHtml;
@@ -696,10 +697,10 @@
                 document.getElementById('right-panel').scrollTop = 0;
             } // Hết khối Render
 
-            // Tự động cuộn mượt mà tới câu hỏi đang được chọn
+            // Tự động cuộn tới câu hỏi (Đổi center thành nearest để không bị giật khi hiện đáp án dài)
             let targetBlock = document.getElementById(`q-block-${index}`);
             if (targetBlock && item.groupId === currentGroupId) {
-                targetBlock.scrollIntoView({ behavior: "smooth", block: "center" });
+                targetBlock.scrollIntoView({ behavior: "smooth", block: "nearest" });
             }
 
             let isListening = (index < 100); // 100 câu đầu là Listening
@@ -723,6 +724,22 @@
         }
 
         // --- CÁC HÀM XỬ LÝ CHUYÊN SÂU ---
+        function handleZoom(event, imgElement) {
+            if (imgElement.classList.contains('zoomed')) {
+                // Đang zoom thì thu nhỏ lại
+                imgElement.classList.remove('zoomed');
+            } else {
+                // Tính toán tọa độ X, Y của con trỏ chuột so với bức ảnh
+                let rect = imgElement.getBoundingClientRect();
+                let x = ((event.clientX - rect.left) / rect.width) * 100;
+                let y = ((event.clientY - rect.top) / rect.height) * 100;
+                
+                // Đặt tâm Zoom vào đúng cái chỗ vừa click
+                imgElement.style.transformOrigin = `${x}% ${y}%`;
+                imgElement.classList.add('zoomed');
+            }
+        }
+
         function toggleMark(idx) {
             if (isSubmitted) return; 
             markedQuestions[idx] = !markedQuestions[idx]; 
@@ -905,8 +922,11 @@
         document.addEventListener('keydown', function(event) {
             if (document.activeElement.tagName === 'TEXTAREA' || (document.activeElement.tagName === 'INPUT' && document.activeElement.type !== 'radio')) return;
 
-            // NẾU LÀ GIAO DIỆN THI THẬT -> KHÓA TOÀN BỘ PHÍM TẮT 
-            if (currentMode === 'exam') return;
+            // NẾU LÀ THI THẬT: Cấm phím Cách (Nghe lại). Cấm Mũi tên nếu đang ở Listening (<100). Reading thì cho qua lại.
+            if (currentMode === 'exam') {
+                if (event.code === 'Space' || event.keyCode === 32) return; 
+                if (currentQIndex < 100) return; 
+            }
 
             if (event.code === 'Space' || event.keyCode === 32) {
                 let audioEl = document.getElementById('q-audio');
@@ -976,10 +996,18 @@
             // HIỆN MODAL, BẮN PHÁO GIẤY VÀ PHÁT ÂM THANH
             document.getElementById('score-overlay').classList.add('active');
             
-            // Âm thanh Elegant Success Chime (Link ổn định 100%)
-            let successAudio = new Audio('https://upload.wikimedia.org/wikipedia/commons/3/34/Sound_Effect_-_Positive_Bell.ogg');
-            successAudio.volume = 0.8;
+            // Âm thanh Tiếng Vỗ Tay / Cheer (Không giật mình, lớn vừa phải)
+            let successAudio = new Audio('https://upload.wikimedia.org/wikipedia/commons/1/15/Crowd_cheering.ogg');
+            successAudio.volume = 0.4;
             successAudio.play().catch(e => console.log("Lỗi âm thanh: ", e));
+
+            // LƯU LỊCH SỬ LÀM BÀI VÀO MÁY
+            let historyData = JSON.parse(localStorage.getItem('win_history') || '[]');
+            let testName = document.getElementById('setup-title').innerText;
+            let dateStr = new Date().toLocaleString("vi-VN");
+            historyData.unshift({ test: testName, score: finalTotal, date: dateStr }); // Đẩy lên đầu danh sách
+            if (historyData.length > 30) historyData.pop(); // Chỉ giữ lại 30 lần gần nhất cho nhẹ máy
+            localStorage.setItem('win_history', JSON.stringify(historyData));
 
             // Pháo giấy Confetti
             var duration = 3 * 1000;
