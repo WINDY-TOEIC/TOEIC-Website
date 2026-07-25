@@ -348,7 +348,11 @@
         const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzWAINM3W5jAJA0Jhv4Ha_kPPApcrbVi4ANAY0gQ6oB2gUuLv4loTglWov4dwEXTQdz/exec";
 
         const urlParams = new URLSearchParams(window.location.search);
-        const fileName = urlParams.get('file');
+        
+        // Hỗ trợ cả link mới (?test=...) lẫn link cũ (?file=...) lỡ ai đó đã lưu link cũ
+        let testParam = urlParams.get('test');
+        let fileParam = urlParams.get('file');
+        const fileName = testParam ? (testParam + ".txt") : fileParam;
         
         let fullData = [];      
         let studentName = "";
@@ -427,7 +431,9 @@
         if (!fileName) {
             document.getElementById('loading-msg').innerHTML = "Lỗi: URL không chứa tên đề thi.";
         } else {
-            document.getElementById('setup-title').innerText = fileName.replace(".txt", "").replace(".json", "").toUpperCase();
+            // Thay dấu gạch ngang thành dấu cách để hiển thị tên đề trên Web cho đẹp
+            let displayName = fileName.replace(".txt", "").replace(".json", "").replace(/-/g, " ").toUpperCase();
+            document.getElementById('setup-title').innerText = displayName;
             
             fetch('Data/' + encodeURIComponent(fileName))
             .then(response => {
