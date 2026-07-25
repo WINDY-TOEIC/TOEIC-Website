@@ -996,10 +996,28 @@
             // HIỆN MODAL, BẮN PHÁO GIẤY VÀ PHÁT ÂM THANH
             document.getElementById('score-overlay').classList.add('active');
             
-            // Âm thanh Tiếng Vỗ Tay / Cheer (Không giật mình, lớn vừa phải)
-            let successAudio = new Audio('https://upload.wikimedia.org/wikipedia/commons/1/15/Crowd_cheering.ogg');
-            successAudio.volume = 0.4;
-            successAudio.play().catch(e => console.log("Lỗi âm thanh: ", e));
+            // Âm thanh Tiếng Vỗ Tay (cheer.mp3) - Lớn dần (Fade in) và tự tắt sau 4s
+            let successAudio = new Audio('cheer.mp3');
+            successAudio.volume = 0; // Bắt đầu từ 0 để tuyệt đối không giật mình
+            let maxVolume = 0.3;     // Âm lượng tối đa (0.3 là mức nhỏ êm ái)
+            
+            successAudio.play().then(() => {
+                // Tăng âm lượng nhẹ nhàng từng chút một mỗi 100 mili-giây
+                let fadeInterval = setInterval(() => {
+                    if (successAudio.volume < maxVolume) {
+                        let newVol = successAudio.volume + 0.015;
+                        successAudio.volume = Math.min(newVol, maxVolume); // Không cho vượt mức max
+                    } else {
+                        clearInterval(fadeInterval);
+                    }
+                }, 100);
+
+                // Tự động tắt ngúm âm thanh sau đúng 4 giây (4000 mili-giây)
+                setTimeout(() => {
+                    successAudio.pause();
+                    successAudio.currentTime = 0; // Trả về đầu phòng khi muốn nghe lại
+                }, 4000);
+            }).catch(e => console.log("Lỗi âm thanh: ", e));
 
             // LƯU LỊCH SỬ LÀM BÀI VÀO MÁY
             let historyData = JSON.parse(localStorage.getItem('win_history') || '[]');
