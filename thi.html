@@ -106,9 +106,9 @@
         .zoomable-img.zoomed { transform: scale(1.8); cursor: zoom-out; z-index: 9999; box-shadow: 0 5px 30px rgba(0,0,0,0.4); }
         
         /* Dropdown Thống kê chi tiết từng Part */
-        .part-stats-btn { background: #f4f6f9; border: 1px solid #ddd; width: 100%; padding: 10px; text-align: left; font-weight: 600; cursor: pointer; border-radius: 4px; margin-top: 15px; color: #333; display: flex; justify-content: space-between; transition: 0.2s;}
+        .part-stats-btn { background: #f4f6f9; border: 1px solid #ddd; width: 100%; padding: 10px; text-align: left; font-weight: 600; cursor: pointer; border-radius: 4px; margin-top: 15px; color: #333; display: flex; justify-content: space-between; transition: 0.2s; font-size: 16px;}
         .part-stats-btn:hover { background: #e9ecef; }
-        .part-stats-container { display: none; background: #fafafa; border: 1px solid #eee; border-top: none; padding: 15px; border-radius: 0 0 4px 4px; font-size: 14.5px; }
+        .part-stats-container { display: none; background: #fafafa; border: 1px solid #eee; border-top: none; padding: 15px; border-radius: 0 0 4px 4px; font-size: 16px; }
         .part-stats-container.active { display: block; }
         .stat-row { display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px dashed #e1e4e8; padding-bottom: 4px; color: #111;}
         .stat-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
@@ -261,9 +261,9 @@
             <div class="header-controls">
                 <div class="shortcut-tooltip">?</div>
             <!-- BẮT ĐẦU CHÈN NÚT BÚT VẼ -->
-            <button class="btn-exit" id="btn-draw" onclick="toggleDrawing()" style="background:#f39c12;" title="Bật/Tắt Bút đỏ">Bút: OFF</button>
-            <button class="btn-exit hidden" id="btn-erase" onclick="toggleEraser()" style="background:#95a5a6;" title="Cục tẩy">Tẩy</button>
-            <button class="btn-exit hidden" id="btn-clear-draw" onclick="clearCanvas()" style="background:#c0392b;">Xóa sạch</button>
+            <button class="btn-exit" id="btn-draw" onclick="toggleDrawing()" style="background:#f39c12; font-size: 16px; padding: 5px 12px;" title="Bật/Tắt Bút đỏ">🖍️</button>
+            <button class="btn-exit hidden" id="btn-erase" onclick="toggleEraser()" style="background:#95a5a6; font-size: 16px; padding: 5px 12px;" title="Cục tẩy">🧽</button>
+            <button class="btn-exit hidden" id="btn-clear-draw" onclick="clearCanvas()" style="background:#c0392b;" title="Xóa sạch nét vẽ">Xóa nét vẽ</button>
             <!-- KẾT THÚC CHÈN -->
             <button class="btn-exit" onclick="saveAndExit()">Thoát & Lưu</button>
                 <button class="btn-submit" id="btn-submit" onclick="submitTest()">Nộp Bài</button>
@@ -1202,8 +1202,10 @@
         });
 
         function showToolbar(x, y, isDeleteMode) {
-            toolbar.style.left = (x - 80) + 'px';
-            toolbar.style.top = (y - 50) + 'px';
+            // Chia cho 1.25 để bù trừ lại CSS body { zoom: 1.25; }
+            let zoomLevel = 1.25; 
+            toolbar.style.left = ((x / zoomLevel) - 100) + 'px'; 
+            toolbar.style.top = ((y / zoomLevel) - 60) + 'px'; 
             toolbar.classList.add('active');
             
             // Reset giao diện về lúc ban đầu (hiện nút công cụ, ẩn ô nhập)
@@ -1328,8 +1330,7 @@
             
             if (isDrawingMode) {
                 canvas.classList.add('canvas-active');
-                btnDraw.innerText = "Bút: ON";
-                btnDraw.style.background = "#27ae60"; 
+                btnDraw.style.background = "#27ae60"; // Chuyển xanh khi đang bật
                 btnErase.classList.remove('hidden');
                 btnClear.classList.remove('hidden');
                 
@@ -1338,8 +1339,7 @@
                 ctx.globalCompositeOperation = "source-over"; 
             } else {
                 canvas.classList.remove('canvas-active');
-                btnDraw.innerText = "Bút: OFF";
-                btnDraw.style.background = "#f39c12"; 
+                btnDraw.style.background = "#f39c12"; // Trở về màu cam khi tắt
                 btnErase.classList.add('hidden');
                 btnClear.classList.add('hidden');
             }
