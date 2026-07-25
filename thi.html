@@ -46,13 +46,15 @@
         .header-left { display: flex; align-items: center; gap: 20px; font-size: 20px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;}
         .header-controls { display: flex; align-items: center; gap: 15px; }
         
-        .btn-submit { background-color: #f27127; color: white; border: none; padding: 10px 25px; font-weight: 700; font-size: 14px; border-radius: 4px; cursor: pointer; text-transform: uppercase; }
-        .btn-submit:hover { background-color: #d95f1c; }
+        .btn-submit { background-color: #043b5c; color: white; border: 2px solid #fff; padding: 8px 25px; font-weight: 700; font-size: 14px; border-radius: 4px; cursor: pointer; text-transform: uppercase; transition: 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.2);}
+        .btn-submit:hover { background-color: #02243a; }
+        .btn-exit { background-color: transparent; color: white; border: 2px solid rgba(255,255,255,0.6); padding: 8px 15px; font-weight: 700; font-size: 14px; border-radius: 4px; cursor: pointer; text-transform: uppercase; transition: 0.2s; }
+        .btn-exit:hover { background-color: rgba(255,255,255,0.2); border-color: white;}
         .timer-box { background-color: #5ba4e5; color: white; padding: 10px 20px; font-weight: 700; font-size: 16px; border-radius: 4px; font-variant-numeric: tabular-nums; }
         .guest-text { font-weight: 600; font-size: 16px; }
         .btn-grid { background: rgba(255,255,255,0.2); border: none; color: white; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-size: 18px; }
         
-        .shortcut-tooltip { background: #f27127; color: white; border-radius: 50%; width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; font-size: 16px; font-weight: bold; cursor: help; position: relative; margin-right: 10px; }
+        .shortcut-tooltip { background: #043b5c; border: 2px solid white; color: white; border-radius: 50%; width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; font-size: 16px; font-weight: bold; cursor: help; position: relative; margin-right: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);}
         .shortcut-tooltip::after { content: "[Phím Cách]: Nghe lại Audio \A [←]: Câu trước \A [→]: Câu tiếp \A [↑]: Hiện chữ"; position: absolute; top: 40px; right: 0; background: #333; color: #fff; padding: 12px; border-radius: 4px; white-space: pre; font-size: 14px; opacity: 0; visibility: hidden; transition: 0.2s; pointer-events: none; z-index: 1001; text-align: left; line-height: 1.6; font-weight: normal; box-shadow: 0 4px 6px rgba(0,0,0,0.3);}
         .shortcut-tooltip:hover::after { opacity: 1; visibility: visible; }
 
@@ -73,7 +75,7 @@
         .nav-btn { background-color: #043b5c; color: white; border: none; padding: 10px 20px; font-weight: 600; font-size: 15px; border-radius: 4px; cursor: pointer; }
         .nav-btn:hover:not(:disabled) { background-color: #032a42; }
         .nav-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-        .progress-box { background: #f27127; color: white; padding: 10px 25px; border-radius: 4px; font-weight: 700; font-size: 18px; width: 150px; text-align: center;}
+        .progress-box { background: #043b5c; color: white; padding: 10px 25px; border-radius: 4px; font-weight: 700; font-size: 18px; width: 150px; text-align: center; box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);}
         
         /* Main Layout (2 Columns) */
         .test-body { display: flex; flex: 1; max-width: 1650px; margin: 0 auto; width: 100%; padding: 30px; gap: 30px; }
@@ -205,6 +207,7 @@
             </div>
             <div class="header-controls">
                 <div class="shortcut-tooltip">?</div>
+                <button class="btn-exit" onclick="saveAndExit()">Thoát & Lưu</button>
                 <button class="btn-submit" id="btn-submit" onclick="submitTest()">Nộp Bài</button>
                 <div class="timer-box" id="timer-display">00:00:00</div>
                 <div class="guest-text">Guest (Khách)</div>
@@ -265,6 +268,8 @@
         let isSubmitted = false;
         let currentMode = 'practice'; // 'practice' or 'exam'
         let currentGroupId = -1;      // Đổi tracker để Reading chịu hiển thị bài đọc/hình ảnh
+        let globalTimeInSeconds = 0;  // Lưu thời gian để resume
+        let isCountDown = false;      // Phân biệt chế độ đếm ngược hay đếm tới
 
         // --- XỬ LÝ ĐỔI MÀU NỀN BANNER ---
         window.addEventListener('DOMContentLoaded', loadBannerBg);
@@ -372,9 +377,21 @@
             } else {
                 studentInfo = "Guest (Khách)";
                 document.querySelector('.guest-text').innerText = studentInfo;
-                // Học viên không đăng nhập, gán tạm để lúc nộp bài lên file Google Sheet không bị trống
                 classCode = "GUEST";
                 studentName = "Khách Không Đăng Nhập";
+            }
+
+            // Kiểm tra tiến trình lưu trữ
+            let saveKey = `win_progress_${fileName}`;
+            let savedProgress = localStorage.getItem(saveKey);
+            let resumeData = null;
+            
+            if (savedProgress) {
+                if (confirm("Hệ thống phát hiện bạn có bài làm đang dang dở.\nBạn có muốn LÀM TIẾP không?\n\n(Bấm OK để làm tiếp, Cancel để xóa dữ liệu làm lại từ đầu)")) {
+                    resumeData = JSON.parse(savedProgress);
+                } else {
+                    localStorage.removeItem(saveKey);
+                }
             }
 
             currentMode = mode;
@@ -417,8 +434,32 @@
             document.getElementById('test-screen').classList.remove('hidden');
             
             buildNavGrid();
-            showQuestion(0);
-            startTimer();
+
+            // Phục hồi dữ liệu nếu chọn Làm Tiếp
+            if (resumeData) {
+                userAnswers = resumeData.userAnswers || {};
+                markedQuestions = resumeData.markedQuestions || {};
+                answeredQuestions = resumeData.answeredQuestions || 0;
+                globalTimeInSeconds = resumeData.globalTimeInSeconds || 0;
+                isCountDown = resumeData.isCountDown || false;
+
+                // Tô lại màu các câu đã trả lời và đánh dấu
+                for (let idx in userAnswers) {
+                    let btn = document.getElementById(`grid-btn-${idx}`);
+                    if (btn) btn.classList.add('answered');
+                }
+                for (let idx in markedQuestions) {
+                    let btn = document.getElementById(`grid-btn-${idx}`);
+                    if (btn && markedQuestions[idx]) btn.classList.add('marked');
+                }
+                
+                document.getElementById('answered-count').innerText = answeredQuestions;
+                showQuestion(resumeData.currentQIndex || 0);
+                startTimer(true);
+            } else {
+                showQuestion(0);
+                startTimer(false);
+            }
         }
 
         function buildNavGrid() {
@@ -652,37 +693,56 @@
             }
         }
 
-        // --- 6. ĐỒNG HỒ & PHÍM TẮT ---
-        function startTimer() {
-            let minutes = parseInt(document.getElementById('time-select').value);
+        // --- 6. ĐỒNG HỒ, LƯU TRỮ & PHÍM TẮT ---
+        function startTimer(isResume = false) {
             let timerDisplay = document.getElementById('timer-display');
             
-            if (minutes === 0) {
-                // Chế độ Không giới hạn (Đếm tới)
-                let timeInSeconds = 0;
-                timerInterval = setInterval(() => {
-                    timeInSeconds++;
-                    let h = Math.floor(timeInSeconds / 3600);
-                    let m = Math.floor((timeInSeconds % 3600) / 60);
-                    let s = timeInSeconds % 60;
-                    timerDisplay.innerText = (h > 0 ? (h < 10 ? "0" + h + ":" : h + ":") : "") + (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s);
-                }, 1000);
-            } else {
-                // Chế độ Đếm ngược
-                let timeInSeconds = minutes * 60;
-                timerInterval = setInterval(() => {
-                    timeInSeconds--;
-                    let h = Math.floor(timeInSeconds / 3600);
-                    let m = Math.floor((timeInSeconds % 3600) / 60);
-                    let s = timeInSeconds % 60;
-                    timerDisplay.innerText = (h > 0 ? (h < 10 ? "0" + h + ":" : h + ":") : "") + (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s);
+            if (!isResume) {
+                let minutes = parseInt(document.getElementById('time-select').value);
+                if (minutes === 0) {
+                    globalTimeInSeconds = 0;
+                    isCountDown = false;
+                } else {
+                    globalTimeInSeconds = minutes * 60;
+                    isCountDown = true;
+                }
+            }
 
-                    if (timeInSeconds <= 0) {
-                        clearInterval(timerInterval);
-                        alert("Hết giờ làm bài! Hệ thống tự động nộp bài.");
-                        submitTest();
-                    }
-                }, 1000);
+            timerInterval = setInterval(() => {
+                if (isCountDown) globalTimeInSeconds--;
+                else globalTimeInSeconds++;
+
+                let h = Math.floor(globalTimeInSeconds / 3600);
+                let m = Math.floor((globalTimeInSeconds % 3600) / 60);
+                let s = globalTimeInSeconds % 60;
+                timerDisplay.innerText = (h > 0 ? (h < 10 ? "0" + h + ":" : h + ":") : "") + (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s);
+
+                if (isCountDown && globalTimeInSeconds <= 0) {
+                    clearInterval(timerInterval);
+                    alert("Hết giờ làm bài! Hệ thống tự động nộp bài.");
+                    submitTest();
+                }
+            }, 1000);
+        }
+
+        function saveAndExit() {
+            if (isSubmitted) {
+                window.location.href = "index.html";
+                return;
+            }
+
+            let confirmExit = confirm("Bạn có chắc chắn muốn TẠM DỪNG VÀ THOÁT?\nTiến trình của bạn sẽ được lưu lại cho lần sau.");
+            if (confirmExit) {
+                let progressData = {
+                    userAnswers: userAnswers,
+                    markedQuestions: markedQuestions,
+                    currentQIndex: currentQIndex,
+                    answeredQuestions: answeredQuestions,
+                    globalTimeInSeconds: globalTimeInSeconds,
+                    isCountDown: isCountDown
+                };
+                localStorage.setItem(`win_progress_${fileName}`, JSON.stringify(progressData));
+                window.location.href = "index.html"; // Trở về trang chủ
             }
         }
 
@@ -718,6 +778,7 @@
             
             isSubmitted = true;
             clearInterval(timerInterval);
+            localStorage.removeItem(`win_progress_${fileName}`); // Xóa tiến trình khi đã nộp bài
 
             // Tắt nhạc đang phát
             let audioEl = document.getElementById('q-audio');
