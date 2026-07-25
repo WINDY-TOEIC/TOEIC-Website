@@ -115,6 +115,7 @@
         .correct { color: #155724; font-weight: 600; background: #d4edda !important; border: 1px solid #c3e6cb !important; }
         .wrong { color: #721c24; font-weight: 600; background: #f8d7da !important; border: 1px solid #f5c6cb !important; }
         .explanation { background: #f8f9fa; border-left: 4px solid #043b5c; padding: 20px; margin-top: 20px; font-size: 15px; line-height: 1.6; }
+        .pre-submit-text, .pre-submit-text * { color: #333 !important; font-weight: 400 !important; background: transparent !important; text-decoration: none !important; font-style: normal !important;}
         
         /* Navigation Modal */
         #nav-modal { position: fixed; top: 75px; right: -350px; width: 340px; height: calc(100vh - 75px); background: #f4f6f9; box-shadow: -2px 0 10px rgba(0,0,0,0.1); z-index: 1001; transition: right 0.3s ease; overflow-y: auto; overflow-x: hidden; padding: 20px 20px 250px 20px; border-left: 1px solid #eee; }
@@ -574,7 +575,8 @@
                     let qIdx = gItem.idx;
                     let gSq = gItem.q.sq;
                     
-                    let transcriptBtn = currentMode === 'practice' ? `<button class="btn-transcript" onclick="toggleTranscript(${gSq.index})">Hiện chữ</button>` : '';
+                    let transcriptBtn = (currentMode === 'practice' && !isSubmitted) ? `<button class="btn-transcript" onclick="toggleTranscript(${gSq.index})">Hiện chữ</button>` : '';
+
                     let isMarked = markedQuestions[qIdx];
                     let markBtnText = isMarked ? "Bỏ Đánh Dấu" : "Đánh Dấu Lại";
                     let markBtnBg = isMarked ? "#ffc107" : "#fff3cd";
@@ -612,11 +614,15 @@
                     
                     rightHtml += `</div>`;
                     
-                    let expClass = (isSubmitted && currentMode === 'exam') ? "" : "hidden";
+                    // Nếu đã nộp bài: Bỏ class hidden (auto hiện), bỏ class ép màu đen (trả lại màu/bold gốc)
+                    let expClass = isSubmitted ? "" : "hidden";
+                    let contentStyle = isSubmitted ? "" : "pre-submit-text";
+                    let headerTitle = isSubmitted ? "Nội dung & Dịch nghĩa / Đáp án:" : "Transcript:";
+                    
                     if (gSq.explanation) {
                         rightHtml += `<div class="explanation ${expClass}" id="exp-${gSq.index}">
-                                        <h4>Nội dung & Dịch nghĩa:</h4>
-                                        <div>${gSq.explanation}</div>
+                                        <h4 style="margin-top:0; color:#003366;">${headerTitle}</h4>
+                                        <div class="${contentStyle}">${gSq.explanation}</div>
                                      </div>`;
                     }
                     rightHtml += `</div>`;
