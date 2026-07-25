@@ -98,6 +98,28 @@
         .test-card:hover .test-tag { 
             color: #0037f4; 
         }
+    /* Ẩn mũi tên lên xuống của ô nhập số */
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        /* Giao diện khu vực đăng nhập */
+        .login-wrapper { position: absolute; top: 15px; right: 20px; font-size: 14px; }
+        .login-box { display: flex; align-items: center; gap: 8px; background: white; padding: 5px 10px; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .login-input { padding: 8px; border: 1px solid #ccc; border-radius: 4px; outline: none; font-family: inherit; }
+        
+        .btn-signin { background: #28a745; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: 600; }
+        .btn-signin:hover { background: #218838; }
+        
+        .btn-signout { background: #dc3545; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: 600; }
+        .btn-signout:hover { background: #c82333; }
+
+        /* Dấu chấm hỏi */
+        .tooltip-icon { background: #6c757d; color: white; border-radius: 50%; width: 20px; height: 20px; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; cursor: help; position: relative; }
+        .tooltip-icon::after { content: "Đăng nhập để lưu kết quả"; position: absolute; bottom: -30px; left: 50%; transform: translateX(-50%); background: #333; color: #fff; padding: 5px 10px; border-radius: 4px; white-space: nowrap; font-size: 12px; opacity: 0; visibility: hidden; transition: 0.2s; pointer-events: none; z-index: 100;}
+        .tooltip-icon:hover::after { opacity: 1; visibility: visible; }
     </style>
 </head>
 <body>
@@ -108,8 +130,27 @@
         <p style="margin-top: 5px; font-weight: 500; font-size: 15px;">CHIA SẺ KIẾN THỨC - VỮNG BƯỚC THÀNH CÔNG</p>
     </header>
 
-    <div class="container">
+    <!-- Khu vực Đăng Nhập -->
+    <div class="login-wrapper">
+        <!-- Khi CHƯA đăng nhập -->
+        <div id="logged-out-view" class="login-box">
+            <div style="display: flex; align-items: center; background: #e9ecef; border: 1px solid #ccc; border-radius: 4px; padding-left: 10px;">
+                <span style="font-weight: 700; color: #0037f4;">WIN</span>
+                <input type="number" id="home-class-code" placeholder="Mã số..." class="login-input" style="border: none; width: 70px; border-radius: 0 4px 4px 0; margin-left: 5px;">
+            </div>
+            <input type="text" id="home-student-name" placeholder="Họ và Tên" class="login-input" style="width: 150px;">
+            <button class="btn-signin" onclick="signIn()">Sign In</button>
+            <span class="tooltip-icon">?</span>
+        </div>
 
+        <!-- Khi ĐÃ đăng nhập -->
+        <div id="logged-in-view" class="login-box" style="display: none;">
+            <span id="display-user-name" style="font-weight: 600; color: #0037f4;"></span>
+            <button class="btn-signout" onclick="signOut()">Sign Out</button>
+        </div>
+    </div>
+
+    <div class="container">
         <div class="year-section">
             <h2>📚 Bộ Đề ETS 2026</h2>
             <div class="test-grid">
@@ -159,5 +200,39 @@
         </div>
 
     </div>
+<script>
+        window.onload = function() {
+            let savedClass = localStorage.getItem('win_classCode');
+            let savedName = localStorage.getItem('win_studentName');
+            if (savedClass && savedName) {
+                showLoggedIn(savedClass, savedName);
+            }
+        };
+
+        function signIn() {
+            let classCode = document.getElementById('home-class-code').value.trim();
+            let name = document.getElementById('home-student-name').value.trim();
+            if (classCode !== "" && name !== "") {
+                localStorage.setItem('win_classCode', classCode);
+                localStorage.setItem('win_studentName', name);
+                showLoggedIn(classCode, name);
+            }
+        }
+
+        function signOut() {
+            localStorage.removeItem('win_classCode');
+            localStorage.removeItem('win_studentName');
+            document.getElementById('logged-in-view').style.display = 'none';
+            document.getElementById('logged-out-view').style.display = 'flex';
+            document.getElementById('home-class-code').value = '';
+            document.getElementById('home-student-name').value = '';
+        }
+
+        function showLoggedIn(classCode, name) {
+            document.getElementById('logged-out-view').style.display = 'none';
+            document.getElementById('logged-in-view').style.display = 'flex';
+            document.getElementById('display-user-name').innerText = "WIN" + classCode + " - " + name;
+        }
+    </script>
 </body>
 </html>
