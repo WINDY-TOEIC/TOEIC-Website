@@ -78,9 +78,9 @@
         .progress-box { background: #043b5c; color: white; padding: 10px 25px; border-radius: 4px; font-weight: 700; font-size: 18px; width: 150px; text-align: center; box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);}
         
         /* Main Layout (2 Columns) */
-        .test-body { display: flex; flex: 1; max-width: 1650px; margin: 0 auto; width: 100%; padding: 30px; gap: 30px; }
-        .left-panel { flex: 1.4; background: white; border-radius: 8px; padding: 30px 30px 50vh 30px; border: 1px solid #e1e4e8; box-shadow: 0 1px 3px rgba(0,0,0,0.05); overflow-y: auto; overflow-x: hidden; max-height: calc(100vh - 170px); }
-        .right-panel { flex: 1; background: white; border-radius: 8px; padding: 30px 30px 50vh 30px; border: 1px solid #e1e4e8; box-shadow: 0 1px 3px rgba(0,0,0,0.05); overflow-y: auto; overflow-x: hidden; max-height: calc(100vh - 170px); }
+        .test-body { display: flex; flex: 1; max-width: 1650px; margin: 0 auto; width: 100%; padding: 20px 30px; gap: 30px; }
+        .left-panel { flex: 1.2; background: white; border-radius: 8px; padding: 20px 25px 50vh 25px; border: 1px solid #e1e4e8; box-shadow: 0 1px 3px rgba(0,0,0,0.05); overflow-y: auto; overflow-x: hidden; max-height: calc(100vh - 145px); }
+        .right-panel { flex: 1; background: white; border-radius: 8px; padding: 20px 25px 50vh 25px; border: 1px solid #e1e4e8; box-shadow: 0 1px 3px rgba(0,0,0,0.05); overflow-y: auto; overflow-x: hidden; max-height: calc(100vh - 145px); }
         
         .left-panel-title { font-weight: 700; font-size: 16px; margin-bottom: 20px; color: #111; }
         .passage-content img { max-width: 100%; height: auto; border: 1px solid #ddd; margin-bottom: 15px; display: block; }
@@ -105,8 +105,8 @@
         .zoomable-img.zoomed { transform: scale(1.6); cursor: zoom-out; position: relative; z-index: 10; }
         .btn-transcript:hover { background: #d3d9df; }
 
-        .options { display: flex; flex-direction: column; gap: 4px; padding-right: 120px; }
-        .option-label { display: flex; align-items: center; padding: 6px 10px; cursor: pointer; transition: background 0.2s; border-radius: 4px; font-size: 16px; border: 1px solid transparent; }
+        .options { display: flex; flex-direction: column; gap: 2px; padding-right: 120px; }
+        .option-label { display: flex; align-items: center; padding: 4px 10px; cursor: pointer; transition: background 0.2s; border-radius: 4px; font-size: 15.5px; border: 1px solid transparent; }
         .option-label:hover { background: #f8f9fa; border-color: #e1e4e8;}
         .option-label input { margin-right: 15px; transform: scale(1.2); }
         
@@ -583,7 +583,7 @@
                     let markBtnDisplay = isSubmitted ? "display:none;" : "";
                     
                     rightHtml += `
-                        <div class="q-block" id="q-block-${qIdx}" style="padding-bottom: 12px; margin-bottom: 12px; border-bottom: 1px dashed #ccc;">
+                        <div class="q-block" id="q-block-${qIdx}" style="padding-bottom: 6px; margin-bottom: 8px; border-bottom: 1px dashed #ccc;">
                             <div class="q-title-wrap">
                                 <h3 class="q-title"><span class="q-number">${gSq.title}</span></h3>
                                 <div class="action-btns-wrap">
