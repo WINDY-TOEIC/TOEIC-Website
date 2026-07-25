@@ -42,7 +42,7 @@
         #test-screen { display: flex; flex-direction: column; height: 100vh; }
         
         /* Top Header */
-        .test-header { background-color: #003366; color: white; padding: 0 30px; height: 75px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; }
+        .test-header { background-color: #003366; color: white; padding: 0 30px; height: 75px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; flex-shrink: 0; }
         .header-left { display: flex; align-items: center; gap: 20px; font-size: 20px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;}
         .header-controls { display: flex; align-items: center; gap: 15px; }
         
@@ -68,7 +68,7 @@
         .swatch-rainbow { background: linear-gradient(45deg, red, orange, yellow, green, blue, indigo, violet); }
 
         /* Sub Header */
-        .sub-header { background: white; padding: 15px 30px; border-bottom: 1px solid #e1e4e8; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 75px; z-index: 999; }
+        .sub-header { background: white; padding: 15px 30px; border-bottom: 1px solid #e1e4e8; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 75px; z-index: 999; flex-shrink: 0; }
         #current-part-label { font-size: 22px; font-weight: 800; color: #043b5c; width: 150px; text-transform: uppercase;}
         
         .nav-buttons { display: flex; gap: 10px; flex: 1; justify-content: center;}
