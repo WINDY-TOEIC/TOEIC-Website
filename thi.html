@@ -259,16 +259,16 @@
                 <input type="file" id="bg-upload" accept="image/*" style="font-size: 12px; max-width: 160px; color: black;" onchange="uploadBannerImg(event)">
             </div>
             <div class="header-controls">
-                <div class="shortcut-tooltip">?</div>
-            <!-- CÔNG CỤ BÚT & TẨY -->
-            <button class="btn-grid" id="btn-draw" onclick="toggleDrawing()" title="Bấm Esc để thoát">🖍️</button>
-            <button class="btn-grid" onclick="clearCanvas()" title="Xóa toàn bộ nét vẽ">🧽</button>
-
-            <!-- CÔNG CỤ GHI CHÚ -->
-            <button class="btn-grid" onclick="saveNotes()" title="Lưu lại Ghi chú & Highlight">💾</button>
-            <button class="btn-grid" onclick="clearNotes()" title="Xóa sạch Ghi chú">🗑️</button>
-            
-            <button class="btn-exit" onclick="saveAndExit()">Thoát & Lưu</button>
+                <!-- KHU VỰC CÔNG CỤ (Sẽ bị ẩn khi chọn Thi thật) -->
+                <div id="practice-tools" style="display: flex; gap: 15px; align-items: center;">
+                    <div class="shortcut-tooltip">?</div>
+                    <button class="btn-grid" id="btn-draw" onclick="toggleDrawing()" title="Bấm Esc để thoát">🖍️</button>
+                    <button class="btn-grid" onclick="clearCanvas()" title="Xóa toàn bộ nét vẽ">🧽</button>
+                    <button class="btn-grid" onclick="saveNotes()" title="Lưu lại Ghi chú & Highlight">💾</button>
+                    <button class="btn-grid" onclick="clearNotes()" title="Xóa sạch Ghi chú">🗑️</button>
+                </div>
+                
+                <button class="btn-exit" onclick="saveAndExit()">Thoát & Lưu</button>
                 <button class="btn-submit" id="btn-submit" onclick="submitTest()">Nộp Bài</button>
                 <div class="timer-box" id="timer-display">00:00:00</div>
                 <div class="guest-text">Guest (Khách)</div>
@@ -610,6 +610,10 @@
             document.getElementById('setup-screen').classList.add('hidden');
             document.getElementById('test-screen').classList.remove('hidden');
             
+            // Ẩn nhóm công cụ hỗ trợ nếu đang ở chế độ thi thật
+            let practiceTools = document.getElementById('practice-tools');
+            if(practiceTools) practiceTools.style.display = (currentMode === 'exam') ? 'none' : 'flex';
+            
             buildNavGrid();
 
             // Load ghi chú cũ từ máy
@@ -752,6 +756,7 @@
                     let gSq = gItem.q.sq;
                     
                     let transcriptBtn = (ENABLE_TRANSCRIPT && currentMode === 'practice' && !isSubmitted) ? `<button class="btn-transcript" onclick="toggleTranscript(${gSq.index})">Hiện chữ</button>` : '';
+                    let expToggleBtn = isSubmitted ? `<button class="btn-transcript btn-exp-toggle" style="background:#e3f2fd; border-color:#5ba4e5; color:#043b5c;" onclick="toggleGlobalExp()">${(typeof isExpCollapsed !== 'undefined' && isExpCollapsed) ? 'Hiện giải thích' : 'Thu gọn'}</button>` : '';
 
                     let isMarked = markedQuestions[qIdx];
                     let markBtnText = isMarked ? "Bỏ Cờ" : "Gắn Cờ";
@@ -765,6 +770,7 @@
                                 <div class="action-btns-wrap">
                                     <button id="btn-mark-${qIdx}" class="btn-transcript" style="background: ${markBtnBg}; border-color: #ffc107; color: #333; ${markBtnDisplay}" onclick="toggleMark(${qIdx})">&#9873; <span id="mark-text-${qIdx}">${markBtnText}</span></button>
                                     ${transcriptBtn}
+                                    ${expToggleBtn}
                                 </div>
                             </div>
                             <div class="options">
@@ -791,7 +797,7 @@
                     rightHtml += `</div>`;
                     
                     // Nếu đã nộp bài: Bỏ class hidden (auto hiện), bỏ class ép màu đen (trả lại màu/bold gốc)
-                    let expClass = isSubmitted ? "" : "hidden";
+                    let expClass = isSubmitted ? ((typeof isExpCollapsed !== 'undefined' && isExpCollapsed) ? "hidden" : "") : "hidden";
                     let contentStyle = isSubmitted ? "" : "pre-submit-text";
                     let headerTitle = isSubmitted ? "Nội dung & Dịch nghĩa / Đáp án:" : "Transcript:";
                     
@@ -946,6 +952,23 @@
 
         function toggleNav() {
             document.getElementById('nav-modal').classList.toggle('active');
+        }
+
+        let isExpCollapsed = false; // Biến nhớ trạng thái thu gọn giải thích (mặc định mở)
+
+        function toggleGlobalExp() {
+            isExpCollapsed = !isExpCollapsed; // Đảo ngược trạng thái
+            
+            // Ẩn/Hiện ngay lập tức các phần giải thích đang có trên màn hình
+            document.querySelectorAll('.explanation').forEach(el => {
+                if (isExpCollapsed) el.classList.add('hidden');
+                else el.classList.remove('hidden');
+            });
+            
+            // Đổi tên nút thành "Hiện" hoặc "Thu gọn" cho đồng bộ
+            document.querySelectorAll('.btn-exp-toggle').forEach(btn => {
+                btn.innerText = isExpCollapsed ? 'Hiện giải thích' : 'Thu gọn';
+            });
         }
 
         function toggleTranscript(id) {
