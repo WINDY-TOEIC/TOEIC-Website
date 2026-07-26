@@ -472,6 +472,7 @@
                 let shareMode = urlParams.get('mode');
                 let shareParts = urlParams.get('parts');
                 let shareTime = urlParams.get('time');
+                let isResumeSignal = urlParams.get('resume');
 
                 if (autoRestartMode) {
                     sessionStorage.removeItem('win_auto_restart'); 
@@ -495,6 +496,15 @@
                         togglePartSelection();
                     }
                     startTest(shareMode); // Kích hoạt vào thi
+                } else if (isResumeSignal === '1') {
+                    // Nếu bấm nút LÀM TIẾP -> tự động chạy thẳng vào phòng thi, không cần hỏi
+                    let savedProgress = localStorage.getItem(`win_progress_${fileName}`);
+                    let resumeMode = 'practice';
+                    if (savedProgress) {
+                        let parsed = JSON.parse(savedProgress);
+                        if (parsed.currentMode) resumeMode = parsed.currentMode; // Trả về đúng chế độ thi/luyện tập
+                    }
+                    startTest(resumeMode);
                 } else {
                     document.getElementById('setup-form').classList.remove('hidden');
                 }
@@ -1095,7 +1105,8 @@
                         currentQIndex: currentQIndex,
                         answeredQuestions: answeredQuestions,
                         globalTimeInSeconds: globalTimeInSeconds,
-                        isCountDown: isCountDown
+                        isCountDown: isCountDown,
+                        currentMode: currentMode
                     };
                     localStorage.setItem(`win_progress_${fileName}`, JSON.stringify(progressData));
                 }
@@ -1116,7 +1127,8 @@
                     currentQIndex: currentQIndex,
                     answeredQuestions: answeredQuestions,
                     globalTimeInSeconds: globalTimeInSeconds,
-                    isCountDown: isCountDown
+                    isCountDown: isCountDown,
+                    currentMode: currentMode
                 };
                 localStorage.setItem(`win_progress_${fileName}`, JSON.stringify(progressData));
             }
