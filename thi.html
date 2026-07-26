@@ -200,14 +200,30 @@
                 <label>Thời gian làm bài:</label>
                 <select id="time-select">
                     <option value="0" selected>Không giới hạn</option>
-                    <option value="120">2 giờ (Thi thật)</option>
-                    <option value="105">1 giờ 45 phút</option>
-                    <option value="90">1 giờ 30 phút</option>
-                    <option value="75">1 giờ 15 phút</option>
+                    <option value="120">120 phút (2 giờ - Thi thật)</option>
+                    <option value="115">115 phút</option>
+                    <option value="110">110 phút</option>
+                    <option value="105">105 phút</option>
+                    <option value="100">100 phút</option>
+                    <option value="95">95 phút</option>
+                    <option value="90">90 phút</option>
+                    <option value="85">85 phút</option>
+                    <option value="80">80 phút</option>
+                    <option value="75">75 phút</option>
+                    <option value="70">70 phút</option>
+                    <option value="65">65 phút</option>
                     <option value="60">60 phút</option>
+                    <option value="55">55 phút</option>
+                    <option value="50">50 phút</option>
                     <option value="45">45 phút</option>
+                    <option value="40">40 phút</option>
+                    <option value="35">35 phút</option>
                     <option value="30">30 phút</option>
+                    <option value="25">25 phút</option>
+                    <option value="20">20 phút</option>
                     <option value="15">15 phút</option>
+                    <option value="10">10 phút</option>
+                    <option value="5">5 phút</option>
                 </select>
             </div>
 
@@ -776,10 +792,12 @@
                         leftHtml += `
                         <div class="speed-controls">
                             <span>Tốc độ: </span>
-                            <button class="speed-btn ${currentAudioSpeed === 1.0 ? 'active' : ''}" id="sp-1" onclick="setSpeed(1.0)">Chuẩn</button>
-                            <button class="speed-btn ${currentAudioSpeed === 0.9 ? 'active' : ''}" id="sp-09" onclick="setSpeed(0.9)">-10%</button>
-                            <button class="speed-btn ${currentAudioSpeed === 0.75 ? 'active' : ''}" id="sp-075" onclick="setSpeed(0.75)">-25%</button>
                             <button class="speed-btn ${currentAudioSpeed === 0.5 ? 'active' : ''}" id="sp-05" onclick="setSpeed(0.5)">-50%</button>
+                            <button class="speed-btn ${currentAudioSpeed === 0.75 ? 'active' : ''}" id="sp-075" onclick="setSpeed(0.75)">-25%</button>
+                            <button class="speed-btn ${currentAudioSpeed === 0.9 ? 'active' : ''}" id="sp-09" onclick="setSpeed(0.9)">-10%</button>
+                            <button class="speed-btn ${currentAudioSpeed === 1.0 ? 'active' : ''}" id="sp-1" onclick="setSpeed(1.0)">Chuẩn</button>
+                            <button class="speed-btn ${currentAudioSpeed === 1.1 ? 'active' : ''}" id="sp-11" onclick="setSpeed(1.1)">+10%</button>
+                            <button class="speed-btn ${currentAudioSpeed === 1.25 ? 'active' : ''}" id="sp-125" onclick="setSpeed(1.25)">+25%</button>
                         </div>`;
                     }
                 }
@@ -1053,10 +1071,12 @@
                 audioEl.playbackRate = rate;
             }
             document.querySelectorAll('.speed-btn').forEach(btn => btn.classList.remove('active'));
-            if(rate === 1.0) document.getElementById('sp-1').classList.add('active');
-            if(rate === 0.9) document.getElementById('sp-09').classList.add('active');
-            if(rate === 0.75) document.getElementById('sp-075').classList.add('active');
             if(rate === 0.5) document.getElementById('sp-05').classList.add('active');
+            if(rate === 0.75) document.getElementById('sp-075').classList.add('active');
+            if(rate === 0.9) document.getElementById('sp-09').classList.add('active');
+            if(rate === 1.0) document.getElementById('sp-1').classList.add('active');
+            if(rate === 1.1) document.getElementById('sp-11').classList.add('active');
+            if(rate === 1.25) document.getElementById('sp-125').classList.add('active');
         }
 
         // Chuyển câu thông minh cho chế độ Thi Thật
