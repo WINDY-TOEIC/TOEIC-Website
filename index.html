@@ -15,6 +15,7 @@
             padding: 0; 
             color: #333; 
             zoom: 1.25;
+            overflow-x: hidden;
         }
         
         header { 
@@ -583,6 +584,28 @@
         function toggleHistory() {
             document.getElementById('history-dropdown').classList.toggle('active');
         }
+
+        // Lắng nghe thao tác click chuột trên toàn trang để đóng các menu dropdown
+        document.addEventListener('click', function(event) {
+            let themePanel = document.getElementById('theme-panel');
+            let themeBtn = document.querySelector('.theme-btn');
+            let historyDropdown = document.getElementById('history-dropdown');
+            let historyBtn = document.querySelector('.btn-history-toggle');
+
+            // Đóng bảng màu nền
+            if (themePanel && themePanel.classList.contains('active')) {
+                if (!themePanel.contains(event.target) && !themeBtn.contains(event.target)) {
+                    themePanel.classList.remove('active');
+                }
+            }
+
+            // Đóng lịch sử làm bài
+            if (historyDropdown && historyDropdown.classList.contains('active')) {
+                if (!historyDropdown.contains(event.target) && !historyBtn.contains(event.target)) {
+                    historyDropdown.classList.remove('active');
+                }
+            }
+        });
 
         function deleteHistoryItem(index) {
             let historyData = JSON.parse(localStorage.getItem('win_history') || '[]');
