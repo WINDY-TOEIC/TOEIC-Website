@@ -33,15 +33,15 @@
         }
         
         .container { 
-            max-width: 1550px; /* Nới rộng toàn bộ trang web ra sát 2 bên mép màn hình */
+            max-width: 1150px; /* Kích thước trang web trở lại như cũ */
             margin: 40px auto; 
             padding: 0 20px; 
             display: flex;
-            gap: 35px;
+            gap: 20px;
             align-items: flex-start;
         }
         .left-col { flex: 1; }
-        .right-col { width: 550px; position: sticky; top: 20px; } /* Cho Bảng vàng rộng ra để chữ không bị rớt dòng */
+        .right-col { width: 330px; position: sticky; top: 20px; } /* Bảng vàng ép nhỏ gọn gàng */
         
         .year-section { 
             background: white; 
@@ -153,10 +153,10 @@
         .swatch-rainbow { background: linear-gradient(45deg, red, orange, yellow, green, blue, indigo, violet); }
         
         /* --- NÚT LÀM TIẾP --- */
-        .resume-floating-btn { position: fixed; bottom: 30px; right: 30px; background: #dc3545; color: white; padding: 15px 25px; border-radius: 50px; font-weight: bold; font-size: 16px; text-decoration: none; box-shadow: 0 4px 15px rgba(0,0,0,0.3); z-index: 1000; display: none; align-items: center; transition: 0.3s; border: 2px solid #fff; animation: pulseRed 1.5s infinite;}
+        .resume-floating-btn { position: absolute; top: 15px; left: 220px; background: #dc3545; color: white; padding: 8px 12px; border-radius: 4px; font-weight: bold; font-size: 14px; text-decoration: none; box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 100; display: none; align-items: center; transition: 0.3s; animation: pulseRed 1.5s infinite;}
         .resume-floating-btn:hover { background: #c82333; transform: scale(1.05); }
         @keyframes pulseRed { 0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); } 100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); } }
-        .resume-tooltip { position: absolute; right: 100%; margin-right: 15px; background: #333; color: #fff; padding: 8px 15px; border-radius: 6px; font-size: 14px; white-space: nowrap; opacity: 0; visibility: hidden; transition: 0.3s; font-weight: normal; pointer-events: none; }
+        .resume-tooltip { position: absolute; top: 100%; left: 0; margin-top: 10px; background: #333; color: #fff; padding: 8px 15px; border-radius: 6px; font-size: 13px; white-space: nowrap; opacity: 0; visibility: hidden; transition: 0.3s; font-weight: normal; pointer-events: none; }
         .resume-floating-btn:hover .resume-tooltip { opacity: 1; visibility: visible; }
 
         /* Giao diện Modal Báo cáo chi tiết Lịch sử */
@@ -185,9 +185,9 @@
         .lb-tooltip-icon::after { content: "LUẬT VINH DANH:\A 1. Phải đăng nhập Tên & Mã Lớp.\A 2. Chọn [Giao diện Thi Thật].\A 3. Thời gian: đúng 120 phút.\A 4. Tuyệt đối KHÔNG chuyển Tab hay mở app khác khi thi."; position: absolute; top: 30px; left: 0; background: #333; color: #fff; padding: 10px 15px; border-radius: 6px; white-space: pre; font-size: 13px; opacity: 0; visibility: hidden; transition: 0.2s; pointer-events: none; z-index: 100; box-shadow: 0 4px 6px rgba(0,0,0,0.3); font-weight: normal; line-height: 1.5; width: max-content;}
         .lb-tooltip-icon:hover::after { opacity: 1; visibility: visible; }
         
-        .lb-table { width: 100%; border-collapse: collapse; font-size: 15px; }
-        .lb-table th { background: #fdf2e9; color: #d35400; text-align: left; padding: 12px; font-weight: 700; border-bottom: 2px solid #e67e22; }
-        .lb-table td { padding: 12px; border-bottom: 1px solid #eee; color: #333; }
+        .lb-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .lb-table th { background: #fdf2e9; color: #d35400; text-align: left; padding: 8px 5px; font-weight: 700; border-bottom: 2px solid #e67e22; }
+        .lb-table td { padding: 8px 5px; border-bottom: 1px solid #eee; color: #333; }
         .lb-table tr:hover td { background: #fafafa; }
         .lb-rank { font-weight: bold; color: #e67e22; font-size: 16px; text-align: center; }
         .top-1 { color: #f1c40f; font-size: 20px; text-shadow: 1px 1px 0px #000; }
@@ -218,6 +218,12 @@
                 </div>
             </div>
         </div>
+
+        <!-- Nút Làm Tiếp -->
+        <a href="#" id="resume-btn" class="resume-floating-btn">
+            ⏳ LÀM TIẾP
+            <div class="resume-tooltip" id="resume-tooltip">Đang tải...</div>
+        </a>
         <div id="theme-panel" class="theme-panel">
             <span style="font-size: 13px; font-weight: 600; color: #333;">Chọn màu nền:</span>
             <div class="color-grid">
@@ -429,11 +435,7 @@
 
     </div>
     
-    <!-- Nút Làm Tiếp -->
-    <a href="#" id="resume-btn" class="resume-floating-btn">
-        ⏳ LÀM TIẾP
-        <div class="resume-tooltip" id="resume-tooltip">Đang tải...</div>
-    </a>
+    
 
 <!-- BẢNG CHI TIẾT LỊCH SỬ KHI BẤM VÀO -->
     <div id="history-modal-overlay" class="modal-overlay" onclick="if(event.target === this) document.getElementById('history-modal-overlay').classList.remove('active')">
