@@ -466,13 +466,35 @@
                 extractParts();
                 document.getElementById('loading-msg').classList.add('hidden');
                 
-                // KIỂM TRA TÍN HIỆU "LÀM LẠI"
+                // KIỂM TRA TÍN HIỆU "LÀM LẠI" HOẶC "LINK CHIA SẺ TỪ GIÁO VIÊN"
                 let autoRestartMode = sessionStorage.getItem('win_auto_restart');
+                
+                let shareMode = urlParams.get('mode');
+                let shareParts = urlParams.get('parts');
+                let shareTime = urlParams.get('time');
+
                 if (autoRestartMode) {
                     sessionStorage.removeItem('win_auto_restart'); 
-                    document.getElementById('chk-custom-parts').checked = false; // Tắt chọn từng Part
+                    document.getElementById('chk-custom-parts').checked = false;
                     togglePartSelection(); 
-                    startTest(autoRestartMode); // Chạy thẳng vào test luôn
+                    startTest(autoRestartMode); 
+                } else if (shareMode && shareParts) {
+                    // Bắt được link chia sẻ -> Ép thông số và chạy thẳng vào test
+                    if (shareTime) document.getElementById('time-select').value = shareTime;
+                    
+                    if (shareParts !== 'all') {
+                        document.getElementById('chk-custom-parts').checked = true;
+                        togglePartSelection(); // Mở khóa giao diện tick
+                        let partsArray = shareParts.split(',');
+                        availableParts.forEach(part => {
+                            let chk = document.getElementById(`chk-${part}`);
+                            if (chk) chk.checked = partsArray.includes(part); // Tick đúng part giáo viên giao
+                        });
+                    } else {
+                        document.getElementById('chk-custom-parts').checked = false;
+                        togglePartSelection();
+                    }
+                    startTest(shareMode); // Kích hoạt vào thi
                 } else {
                     document.getElementById('setup-form').classList.remove('hidden');
                 }
@@ -631,6 +653,19 @@
 
             totalQuestions = flatQuestions.length;
             if(totalQuestions === 0) return;
+
+            // --- CẬP NHẬT URL ĐỂ COPY CHIA SẺ ---
+            let timeVal = document.getElementById('time-select').value;
+            let currentParams = new URLSearchParams(window.location.search);
+            currentParams.set('mode', currentMode);
+            currentParams.set('time', timeVal);
+            if(isCustom && selectedParts.length > 0) {
+                currentParams.set('parts', selectedParts.join(','));
+            } else {
+                currentParams.set('parts', 'all');
+            }
+            window.history.replaceState(null, '', window.location.pathname + '?' + currentParams.toString());
+            // ------------------------------------
 
             document.getElementById('setup-screen').classList.add('hidden');
             document.getElementById('test-screen').classList.remove('hidden');
