@@ -267,7 +267,7 @@
                     
                     <!-- NÚT VIẾT CHỮ VÀ CHỌN MÀU -->
                     <button class="btn-grid" id="btn-text" onclick="toggleTextMode()" title="Viết chữ (A)" style="font-weight: bold; font-family: serif;">A</button>
-                    <input type="color" id="text-color-picker" value="#e74c3c" title="Chọn màu chữ" style="width: 25px; height: 35px; padding: 0; border: none; background: transparent; cursor: pointer; display: none;">
+                    <input type="color" id="text-color-picker" value="#e74c3c" title="Chọn màu chữ" style="width: 35px; height: 35px; padding: 0; border: none; background: transparent; cursor: pointer; display: none; border-radius: 4px;">
 
                     <button class="btn-grid" onclick="clearCanvas()" title="Xóa toàn bộ nét vẽ và chữ">🧽</button>
                 </div>
@@ -1568,10 +1568,12 @@
         function stampTextToCanvas() {
             let txtInput = document.getElementById('canvas-text-input');
             if (txtInput.style.display === 'block' && txtInput.value.trim() !== '') {
-                ctx.font = "bold 20px Arial";
+                // Tăng font lên 25px (để bù trừ cho độ lệch zoom 1.25 của trình duyệt)
+                ctx.font = "bold 25px Arial";
                 ctx.fillStyle = document.getElementById('text-color-picker').value;
-                ctx.fillText(txtInput.value, textPos.x, textPos.y + 18);
-                saveActionState(); // Lưu vào lịch sử Undo/Redo
+                // Cộng y thêm 24 để căn cho chữ khớp đúng với chiều cao của font bự
+                ctx.fillText(txtInput.value, textPos.x, textPos.y + 24);
+                saveActionState(); 
             }
             txtInput.style.display = 'none';
             txtInput.value = '';
