@@ -195,6 +195,10 @@
         .top-3 { color: #cd7f32; font-size: 18px; text-shadow: 1px 1px 0px #000; }
         .lb-score { font-weight: bold; color: #dc3545; }
         .lb-loading { text-align: center; padding: 20px; color: #666; font-style: italic; }
+
+        /* Style cho các đề chưa có dữ liệu */
+        .disabled-test { opacity: 0.4; pointer-events: none; filter: grayscale(100%); cursor: not-allowed; }
+        .disabled-test .test-tag::after { content: "(Chưa có data)"; display: block; color: #dc3545; font-size: 11px; margin-top: 3px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -472,7 +476,33 @@
             loadHistory();
             checkResumeTest();
             loadLeaderboardData(); // Tải Bảng Xếp Hạng
+            checkAvailableTests(); // Quét các đề chưa có data
         };
+
+        // Hàm đi đêm kiểm tra xem file txt có tồn tại trong thư mục Data không
+        function checkAvailableTests() {
+            document.querySelectorAll('.test-card').forEach(card => {
+                let url = card.getAttribute('href');
+                let testMatch = url.match(/\?test=([^&]+)/);
+                if (testMatch) {
+                    let testName = testMatch[1];
+                    let fileUrl = 'Data/' + testName + '.txt';
+                    
+                    // Gõ cửa file thử xem có ai ở nhà không
+                    fetch(fileUrl, { method: 'HEAD' })
+                    .then(res => {
+                        if (!res.ok) {
+                            card.classList.add('disabled-test');
+                            card.href = "javascript:void(0)";
+                        }
+                    }).catch(() => {
+                        // Lỗi mạng hoặc file không tồn tại
+                        card.classList.add('disabled-test');
+                        card.href = "javascript:void(0)";
+                    });
+                }
+            });
+        }
 
         function loadLeaderboardData() {
             fetch(GOOGLE_SCRIPT_URL + "?action=getLeaderboard")
