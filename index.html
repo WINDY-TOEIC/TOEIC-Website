@@ -516,27 +516,32 @@
                         return;
                     }
                     
-                    let tableHtml = '<table class="lb-table"><tr><th style="text-align:center; width:10%;">Top</th><th style="width:40%;">Học Viên</th><th style="width:25%;">Đề Thi</th><th style="text-align:center; width:10%;">Điểm</th><th style="width:15%;">Ngày Nộp</th></tr>';
+                    // Ép tất cả các tiêu đề cột ra giữa cho đồng bộ
+                    let tableHtml = '<table class="lb-table"><tr><th style="text-align:center; width:12%;">Top</th><th style="text-align:center; width:38%;">Học Viên</th><th style="text-align:center; width:25%;">Đề Thi</th><th style="text-align:center; width:10%;">Điểm</th><th style="text-align:center; width:15%;">Ngày Nộp</th></tr>';
                     
                     data.forEach((row, index) => {
                         let rankClass = "lb-rank";
+                        // Dùng &nbsp; (khoảng trắng cứng) để cúp và số dính chặt vào nhau, cấm rớt dòng
                         let rankTrophy = index + 1;
-                        if (index === 0) { rankClass += " top-1"; rankTrophy = "🏆 1"; }
-                        else if (index === 1) { rankClass += " top-2"; rankTrophy = "🥈 2"; }
-                        else if (index === 2) { rankClass += " top-3"; rankTrophy = "🥉 3"; }
+                        if (index === 0) { rankClass += " top-1"; rankTrophy = "🏆&nbsp;1"; }
+                        else if (index === 1) { rankClass += " top-2"; rankTrophy = "🥈&nbsp;2"; }
+                        else if (index === 2) { rankClass += " top-3"; rankTrophy = "🥉&nbsp;3"; }
                         
-                        // Rút gọn thời gian, chỉ lôi đúng chuỗi Ngày/Tháng/Năm ra để hiển thị
+                        // Rút gọn thời gian
                         let dateMatch = row.time.match(/\d{1,2}\/\d{1,2}\/\d{4}/);
                         let shortDate = dateMatch ? dateMatch[0] : row.time;
+                        // Biến 2026 thành 26
+                        shortDate = shortDate.replace(/\/20(\d{2})/, '/$1');
 
                         tableHtml += `<tr>
-                            <td class="${rankClass}">${rankTrophy}</td>
-                            <td style="font-weight:600; color:#003366;">${row.className} - ${row.name}</td>
-                            <td>${row.test}</td>
+                            <td class="${rankClass}" style="white-space: nowrap;">${rankTrophy}</td>
+                            <td style="font-weight:600; color:#003366; text-align:center; line-height:1.4;">${row.className}<br>${row.name}</td>
+                            <td style="text-align:center; line-height:1.4;">${row.test}</td>
                             <td class="lb-score" style="text-align:center;">${row.score}</td>
-                            <td style="font-size:13.5px; color:#777;">${shortDate}</td>
+                            <td style="font-size:13.5px; color:#777; text-align:center;">${shortDate}</td>
                         </tr>`;
                     });
+
                     tableHtml += '</table>';
                     container.innerHTML = tableHtml;
                 })
