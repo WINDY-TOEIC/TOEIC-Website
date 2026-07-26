@@ -33,10 +33,15 @@
         }
         
         .container { 
-            max-width: 1000px; 
+            max-width: 1300px; 
             margin: 40px auto; 
             padding: 0 20px; 
+            display: flex;
+            gap: 30px;
+            align-items: flex-start;
         }
+        .left-col { flex: 1; }
+        .right-col { width: 380px; position: sticky; top: 20px; }
         
         .year-section { 
             background: white; 
@@ -253,12 +258,8 @@
 
     <div class="container">
 
-        <div class="leaderboard-section">
-            <h2>🏆 BẢNG VÀNG THÀNH TÍCH (TOP 20) <span class="lb-tooltip-icon">?</span></h2>
-            <div id="lb-container">
-                <div class="lb-loading">Đang tải dữ liệu từ máy chủ... ⏳</div>
-            </div>
-        </div>
+        <!-- CỘT TRÁI: CHỨA DANH SÁCH ĐỀ THI -->
+        <div class="left-col">
 
         <div class="year-section">
             <h2>📚 Bộ Đề ETS 2026</h2>
@@ -407,6 +408,18 @@
                 <a href="thi.html?test=hacker-2-test-8" class="test-card"><span class="test-number">Test 8</span><span class="test-tag">Hackers 2</span></a>
                 <a href="thi.html?test=hacker-2-test-9" class="test-card"><span class="test-number">Test 9</span><span class="test-tag">Hackers 2</span></a>
                 <a href="thi.html?test=hacker-2-test-10" class="test-card"><span class="test-number">Test 10</span><span class="test-tag">Hackers 2</span></a>
+            </div>
+        </div>
+
+        </div> <!-- KẾT THÚC CỘT TRÁI -->
+
+        <!-- CỘT PHẢI: CHỨA BẢNG XẾP HẠNG -->
+        <div class="right-col">
+            <div class="leaderboard-section">
+                <h2>🏆 BẢNG VÀNG (TOP 20) <span class="lb-tooltip-icon">?</span></h2>
+                <div id="lb-container">
+                    <div class="lb-loading">Đang tải dữ liệu từ máy chủ... ⏳</div>
+                </div>
             </div>
         </div>
 
