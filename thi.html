@@ -1602,8 +1602,12 @@
                 stampTextToCanvas(); // Chốt chữ cũ nếu đang gõ dở mà bấm chỗ khác
                 textPos = getMousePos(e);
                 let txtInput = document.getElementById('canvas-text-input');
-                txtInput.style.left = e.clientX + 'px';
-                txtInput.style.top = (e.clientY - 12) + 'px';
+                
+                // Chia tọa độ cho 1.25 để bù trừ lại CSS Zoom, ép hộp chữ nằm đúng chỗ click
+                let zoomLevel = 1.25;
+                txtInput.style.left = (e.clientX / zoomLevel) + 'px';
+                txtInput.style.top = ((e.clientY - 12) / zoomLevel) + 'px';
+                
                 txtInput.style.color = document.getElementById('text-color-picker').value;
                 txtInput.style.display = 'block';
                 setTimeout(() => txtInput.focus(), 10);
