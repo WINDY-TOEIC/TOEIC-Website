@@ -1159,7 +1159,28 @@
         document.addEventListener('visibilitychange', function() {
             if (document.hidden && !isSubmitted && isValidForLeaderboard) {
                 isValidForLeaderboard = false; // Tước quyền lên bảng vàng
-                alert("CẢNH BÁO GIAN LẬN!\n\nHệ thống phát hiện bạn vừa chuyển Tab hoặc mở ứng dụng khác.\nKết quả của bài thi này sẽ KHÔNG được ghi nhận lên Bảng Xếp Hạng!");
+                
+                // Hiển thị thông báo nổi (Fade in / Fade out)
+                let toast = document.getElementById('cheat-toast');
+                if (!toast) {
+                    toast = document.createElement('div');
+                    toast.id = 'cheat-toast';
+                    toast.style.cssText = 'position:fixed; top:-50px; left:50%; transform:translateX(-50%); background:#dc3545; color:white; padding:12px 25px; border-radius:50px; font-weight:bold; font-size:15px; box-shadow:0 4px 15px rgba(0,0,0,0.3); z-index:99999; opacity:0; transition:all 0.4s ease; pointer-events:none;';
+                    document.body.appendChild(toast);
+                }
+                toast.innerText = "Kết quả sẽ không được lưu BXH";
+                
+                // Hiệu ứng trượt xuống và hiện rõ (Fade in)
+                setTimeout(() => {
+                    toast.style.opacity = '1';
+                    toast.style.top = '90px';
+                }, 100);
+                
+                // Tự động trượt lên và mờ dần sau 4 giây (Fade out)
+                setTimeout(() => {
+                    toast.style.opacity = '0';
+                    toast.style.top = '-50px';
+                }, 4000);
             }
         });
 
