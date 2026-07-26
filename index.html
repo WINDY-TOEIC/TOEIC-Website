@@ -33,7 +33,7 @@
         }
         
         .container { 
-            max-width: 96%; /* Tràn màn hình, chỉ chừa 4% khoảng trống 2 bên mép */
+            max-width: 96%; 
             margin: 40px auto; 
             padding: 0 20px; 
             display: flex;
@@ -41,7 +41,7 @@
             align-items: flex-start;
         }
         .left-col { flex: 1; } 
-        .right-col { width: 580px; position: sticky; top: 20px; flex-shrink: 0; } /* Bảng vàng mập ra */
+        .right-col { width: 420px; position: sticky; top: 20px; flex-shrink: 0; } /* Trả lại không gian tối đa cho các bộ đề thi */
         
         .year-section { 
             background: white; 
@@ -185,9 +185,9 @@
         .lb-tooltip-icon::after { content: "LUẬT VINH DANH:\A 1. Phải đăng nhập Tên & Mã Lớp.\A 2. Chọn [Giao diện Thi Thật].\A 3. Thời gian: đúng 120 phút.\A 4. Tuyệt đối KHÔNG chuyển Tab hay mở app khác khi thi."; position: absolute; top: 30px; left: 0; background: #333; color: #fff; padding: 10px 15px; border-radius: 6px; white-space: pre; font-size: 13px; opacity: 0; visibility: hidden; transition: 0.2s; pointer-events: none; z-index: 100; box-shadow: 0 4px 6px rgba(0,0,0,0.3); font-weight: normal; line-height: 1.5; width: max-content;}
         .lb-tooltip-icon:hover::after { opacity: 1; visibility: visible; }
         
-        .lb-table { width: 100%; border-collapse: collapse; font-size: 14.5px; }
-        .lb-table th { background: #fdf2e9; color: #d35400; text-align: left; padding: 10px 8px; font-weight: 700; border-bottom: 2px solid #e67e22; white-space: nowrap; }
-        .lb-table td { padding: 10px 8px; border-bottom: 1px solid #eee; color: #333; }
+        .lb-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+        .lb-table th { background: #fdf2e9; color: #d35400; text-align: left; padding: 8px 5px; font-weight: 700; border-bottom: 2px solid #e67e22; white-space: nowrap; }
+        .lb-table td { padding: 8px 5px; border-bottom: 1px solid #eee; color: #333; }
         .lb-table tr:hover td { background: #fafafa; }
         .lb-rank { font-weight: bold; color: #e67e22; font-size: 16px; text-align: center; }
         .top-1 { color: #f1c40f; font-size: 20px; text-shadow: 1px 1px 0px #000; }
