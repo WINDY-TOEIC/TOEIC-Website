@@ -638,14 +638,15 @@
             
             // XÁC ĐỊNH ĐIỀU KIỆN LÊN BẢNG XẾP HẠNG
             let selectedTime = document.getElementById('time-select').value;
-            // Phải thi thật, đủ 120 phút, đã đăng nhập và KHÔNG PHẢI đang làm tiếp bài dở
-            if (currentMode === 'exam' && selectedTime === '120' && classCode !== "GUEST" && !resumeData) {
+            let isCustom = document.getElementById('chk-custom-parts').checked;
+            
+            // Phải thi thật, đủ 120 phút, đã đăng nhập, làm TOÀN BỘ Part, và KHÔNG PHẢI đang làm tiếp bài dở
+            if (currentMode === 'exam' && selectedTime === '120' && classCode !== "GUEST" && !isCustom && !resumeData) {
                 isValidForLeaderboard = true;
             } else {
                 isValidForLeaderboard = false;
             }
 
-            let isCustom = document.getElementById('chk-custom-parts').checked;
             let selectedParts = [];
             
             if(isCustom) {
