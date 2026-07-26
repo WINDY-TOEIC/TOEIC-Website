@@ -153,6 +153,25 @@
         @keyframes pulseRed { 0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); } 100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); } }
         .resume-tooltip { position: absolute; right: 100%; margin-right: 15px; background: #333; color: #fff; padding: 8px 15px; border-radius: 6px; font-size: 14px; white-space: nowrap; opacity: 0; visibility: hidden; transition: 0.3s; font-weight: normal; pointer-events: none; }
         .resume-floating-btn:hover .resume-tooltip { opacity: 1; visibility: visible; }
+
+        /* Giao diện Modal Báo cáo chi tiết Lịch sử */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 9999; display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: 0.3s; }
+        .modal-overlay.active { opacity: 1; visibility: visible; }
+        .score-modal { background: white; padding: 15px 25px; border-radius: 8px; width: 550px; max-width: 95%; box-shadow: 0 10px 30px rgba(0,0,0,0.3); transform: translateY(-30px); transition: 0.3s; }
+        .modal-overlay.active .score-modal { transform: translateY(0); }
+        .score-modal h2 { margin: 0 0 5px 0; color: #003366; font-size: 18px; text-transform: uppercase; font-weight: 700;}
+        .score-modal p.sub { font-size: 14px; color: #555; margin-bottom: 12px; line-height: 1.4; border-bottom: 1px solid #eee; padding-bottom: 10px;}
+        .score-row { font-size: 15px; font-weight: 600; margin-bottom: 8px; color: #333; display: flex; align-items: center;}
+        .score-total { font-size: 16px; font-weight: 700; color: #111; margin-top: 10px; padding-top: 10px; border-top: 1px dashed #ddd;}
+        .modal-buttons { display: flex; justify-content: flex-end; margin-top: 15px; border-top: 1px solid #eee; padding-top: 15px;}
+        .btn-modal-red { background: #dc3545; color: white; padding: 8px 20px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 14px; transition: 0.2s;}
+        .btn-modal-red:hover { background: #c82333; }
+        .part-stats-btn { background: #f4f6f9; border: 1px solid #ddd; width: 100%; padding: 10px; text-align: left; font-weight: 600; cursor: pointer; border-radius: 4px; margin-top: 15px; color: #333; display: flex; justify-content: space-between; transition: 0.2s; font-size: 16px;}
+        .part-stats-btn:hover { background: #e9ecef; }
+        .part-stats-container { display: none; background: #fafafa; border: 1px solid #eee; border-top: none; padding: 15px; border-radius: 0 0 4px 4px; font-size: 16px; }
+        .part-stats-container.active { display: block; }
+        .stat-row { display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px dashed #e1e4e8; padding-bottom: 4px; color: #111;}
+        .stat-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
     </style>
 </head>
 <body>
@@ -272,7 +291,28 @@
         <div class="resume-tooltip" id="resume-tooltip">Đang tải...</div>
     </a>
 
-<script>
+<!-- BẢNG CHI TIẾT LỊCH SỬ KHI BẤM VÀO -->
+    <div id="history-modal-overlay" class="modal-overlay" onclick="if(event.target === this) document.getElementById('history-modal-overlay').classList.remove('active')">
+        <div class="score-modal">
+            <h2 id="hm-title">CHI TIẾT KẾT QUẢ</h2>
+            <p class="sub" id="hm-date">Thời gian làm bài:</p>
+            <div class="score-row">Số câu đúng: <span id="hm-total-correct" style="margin-left:5px;"></span></div>
+            <div class="score-row">Listening: <span id="hm-list-detail" style="margin-left:5px;"></span></div>
+            <div class="score-row">Reading: <span id="hm-read-detail" style="margin-left:5px;"></span></div>
+            <div class="score-total">Tổng điểm: <span id="hm-final-score" style="color: #dc3545; margin-left: 5px;"></span></div>
+            
+            <button class="part-stats-btn" onclick="document.getElementById('hm-part-stats-box').classList.toggle('active')">
+                Thống kê chi tiết từng Part <span>▼</span>
+            </button>
+            <div id="hm-part-stats-box" class="part-stats-container"></div>
+            
+            <div class="modal-buttons">
+                <button class="btn-modal-red" onclick="document.getElementById('history-modal-overlay').classList.remove('active')">ĐÓNG</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
         window.onload = function() {
             let savedClass = localStorage.getItem('win_classCode');
             let savedName = localStorage.getItem('win_studentName');
@@ -341,11 +381,14 @@
             }
             let html = '';
             historyData.forEach((item, index) => {
+                let detailBtn = item.details ? `<button onclick="openHistoryDetail(${index})" style="background:none; border:none; color:#0037f4; padding:0; font-size:13px; font-weight:600; cursor:pointer; text-decoration:underline; margin-top:4px;">👁️ Xem chi tiết báo cáo</button>` : `<span style="font-size:12px; color:#999; display:block; margin-top:4px;">(Dữ liệu cũ - không có chi tiết)</span>`;
+
                 html += `
                 <div class="history-item">
                     <div>
                         <div class="h-test">${item.test}</div>
                         <div class="h-date">${item.date}</div>
+                        ${detailBtn}
                     </div>
                     <div style="display: flex; align-items: center;">
                         <div class="h-score">${item.score} Điểm</div>
@@ -354,6 +397,32 @@
                 </div>`;
             });
             container.innerHTML = html;
+        }
+
+        function openHistoryDetail(index) {
+            let historyData = JSON.parse(localStorage.getItem('win_history') || '[]');
+            let item = historyData[index];
+            if (!item || !item.details) return;
+
+            let d = item.details;
+            document.getElementById('hm-title').innerText = item.test;
+            document.getElementById('hm-date').innerText = "Thời gian nộp: " + item.date;
+            document.getElementById('hm-total-correct').innerText = `${d.totalCorrect}/${d.totalQuestions}`;
+            document.getElementById('hm-list-detail').innerText = `${d.listCorrect}/100 – ${d.finalL} điểm`;
+            document.getElementById('hm-read-detail').innerText = `${d.readCorrect}/100 – ${d.finalR} điểm`;
+            document.getElementById('hm-final-score').innerText = `${item.score} điểm`;
+
+            let statsHtml = '';
+            if (d.partStats) {
+                Object.keys(d.partStats).sort().forEach(p => {
+                    let totalStr = d.partStats[p].total < 10 ? "0" + d.partStats[p].total : d.partStats[p].total;
+                    statsHtml += `<div class="stat-row"><span>${p}</span> <span><b>${d.partStats[p].correct}</b> / ${totalStr}</span></div>`;
+                });
+            }
+            document.getElementById('hm-part-stats-box').innerHTML = statsHtml;
+            document.getElementById('hm-part-stats-box').classList.remove('active'); // Mặc định thu gọn
+
+            document.getElementById('history-modal-overlay').classList.add('active');
         }
 
         // --- HÀM XỬ LÝ ĐỔI MÀU NỀN ---

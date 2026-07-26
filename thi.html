@@ -270,8 +270,6 @@
                     <input type="color" id="text-color-picker" value="#e74c3c" title="Chọn màu chữ" style="width: 25px; height: 35px; padding: 0; border: none; background: transparent; cursor: pointer; display: none;">
 
                     <button class="btn-grid" onclick="clearCanvas()" title="Xóa toàn bộ nét vẽ và chữ">🧽</button>
-                    <button class="btn-grid" onclick="saveNotes()" title="Lưu lại Ghi chú & Highlight">💾</button>
-                    <button class="btn-grid" onclick="clearNotes()" title="Xóa sạch Ghi chú">🗑️</button>
                 </div>
                 
                 <button class="btn-exit" onclick="saveAndExit()">Thoát & Lưu</button>
@@ -1216,8 +1214,16 @@
             let historyData = JSON.parse(localStorage.getItem('win_history') || '[]');
             let testName = document.getElementById('setup-title').innerText;
             let dateStr = new Date().toLocaleString("vi-VN");
-            historyData.unshift({ test: testName, score: finalTotal, date: dateStr }); // Đẩy lên đầu danh sách
-            if (historyData.length > 30) historyData.pop(); // Chỉ giữ lại 30 lần gần nhất cho nhẹ máy
+            
+            // Đóng gói data chi tiết để truyền ra trang chủ
+            let detailData = {
+                totalCorrect: totalCorrect, totalQuestions: totalQuestions,
+                listCorrect: listCorrect, readCorrect: readCorrect,
+                finalL: finalL, finalR: finalR, partStats: partStats
+            };
+            
+            historyData.unshift({ test: testName, score: finalTotal, date: dateStr, details: detailData }); 
+            if (historyData.length > 30) historyData.pop(); 
             localStorage.setItem('win_history', JSON.stringify(historyData));
 
             // Pháo giấy Confetti
