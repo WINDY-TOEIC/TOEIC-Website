@@ -1568,11 +1568,13 @@
         function stampTextToCanvas() {
             let txtInput = document.getElementById('canvas-text-input');
             if (txtInput.style.display === 'block' && txtInput.value.trim() !== '') {
-                // Tăng font lên 25px (để bù trừ cho độ lệch zoom 1.25 của trình duyệt)
                 ctx.font = "bold 25px Arial";
                 ctx.fillStyle = document.getElementById('text-color-picker').value;
-                // Cộng y thêm 24 để căn cho chữ khớp đúng với chiều cao của font bự
-                ctx.fillText(txtInput.value, textPos.x, textPos.y + 24);
+                
+                // Cộng thêm 6px để đẩy chữ sang phải (bù cho viền hộp)
+                // Cộng thêm 32px để đẩy chữ xuống dưới cho khớp nét
+                ctx.fillText(txtInput.value, textPos.x + 6, textPos.y + 32);
+                
                 saveActionState(); 
             }
             txtInput.style.display = 'none';
