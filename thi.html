@@ -390,6 +390,7 @@
         let isCountDown = false;      
         let currentAudioSpeed = 1.0;  
         let savedNotes = {};
+        let isValidForLeaderboard = false; // Biến đánh giá xem bài này có được lên Bảng xếp hạng không
 
         // CÔNG TẮC BẬT/TẮT NÚT HIỆN CHỮ
         // Chỉnh thành "true" nếu bạn muốn nó hiện lại, hiện tại đang "false" (tắt)
@@ -586,6 +587,16 @@
             }
 
             currentMode = mode;
+            
+            // XÁC ĐỊNH ĐIỀU KIỆN LÊN BẢNG XẾP HẠNG
+            let selectedTime = document.getElementById('time-select').value;
+            // Phải thi thật, đủ 120 phút, đã đăng nhập và KHÔNG PHẢI đang làm tiếp bài dở
+            if (currentMode === 'exam' && selectedTime === '120' && classCode !== "GUEST" && !resumeData) {
+                isValidForLeaderboard = true;
+            } else {
+                isValidForLeaderboard = false;
+            }
+
             let isCustom = document.getElementById('chk-custom-parts').checked;
             let selectedParts = [];
             
@@ -1077,6 +1088,14 @@
             window.location.href = "index.html";
         }
 
+        // GIÁM SÁT CHỐNG GIAN LẬN CHUYỂN TAB (Cho Bảng Xếp Hạng)
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden && !isSubmitted && isValidForLeaderboard) {
+                isValidForLeaderboard = false; // Tước quyền lên bảng vàng
+                alert("CẢNH BÁO GIAN LẬN!\n\nHệ thống phát hiện bạn vừa chuyển Tab hoặc mở ứng dụng khác.\nKết quả của bài thi này sẽ KHÔNG được ghi nhận lên Bảng Xếp Hạng!");
+            }
+        });
+
         // Lắng nghe phím tắt (Thêm Ctrl Z, Ctrl Y, Esc)
         document.addEventListener('keydown', function(event) {
             if (document.activeElement.tagName === 'TEXTAREA' || (document.activeElement.tagName === 'INPUT' && document.activeElement.type !== 'radio' && document.activeElement.id !== 'tb-note-input')) return;
@@ -1251,11 +1270,14 @@
             // Gửi dữ liệu về Google Sheets (CHỈ GỬI KHI ĐÃ ĐĂNG NHẬP, KHÁCH THÌ KHÔNG GỬI ĐỂ SẠCH EXCEL)
             if (GOOGLE_SCRIPT_URL !== "" && classCode !== "GUEST") {
                 let testDisplayName = document.getElementById('setup-title').innerText;
+                let isLB = isValidForLeaderboard ? "YES" : "NO";
+                
                 let submitUrl = GOOGLE_SCRIPT_URL + 
                     "?name=" + encodeURIComponent(studentName) +
                     "&classcode=" + encodeURIComponent(classCode) +
                     "&test=" + encodeURIComponent(testDisplayName) +
-                    "&score=" + encodeURIComponent(finalTotal);
+                    "&score=" + encodeURIComponent(finalTotal) +
+                    "&leaderboard=" + isLB;
 
                 fetch(submitUrl, { mode: 'no-cors' }).then(() => {
                     console.log("Đã gửi điểm về hệ thống thành công!");

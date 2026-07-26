@@ -172,6 +172,24 @@
         .part-stats-container.active { display: block; }
         .stat-row { display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px dashed #e1e4e8; padding-bottom: 4px; color: #111;}
         .stat-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        
+        /* --- BẢNG XẾP HẠNG --- */
+        .leaderboard-section { background: white; border-radius: 8px; padding: 25px; margin-bottom: 40px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); border: 2px solid #f1c40f; position: relative; }
+        .leaderboard-section h2 { margin-top: 0; color: #d35400; border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 20px; font-size: 22px; display: flex; align-items: center; gap: 10px; }
+        .lb-tooltip-icon { background: #d35400; color: white; border-radius: 50%; width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; cursor: help; position: relative; }
+        .lb-tooltip-icon::after { content: "LUẬT VINH DANH:\A 1. Phải đăng nhập Tên & Mã Lớp.\A 2. Chọn [Giao diện Thi Thật].\A 3. Thời gian: đúng 120 phút.\A 4. Tuyệt đối KHÔNG chuyển Tab hay mở app khác khi thi."; position: absolute; top: 30px; left: 0; background: #333; color: #fff; padding: 10px 15px; border-radius: 6px; white-space: pre; font-size: 13px; opacity: 0; visibility: hidden; transition: 0.2s; pointer-events: none; z-index: 100; box-shadow: 0 4px 6px rgba(0,0,0,0.3); font-weight: normal; line-height: 1.5; width: max-content;}
+        .lb-tooltip-icon:hover::after { opacity: 1; visibility: visible; }
+        
+        .lb-table { width: 100%; border-collapse: collapse; font-size: 15px; }
+        .lb-table th { background: #fdf2e9; color: #d35400; text-align: left; padding: 12px; font-weight: 700; border-bottom: 2px solid #e67e22; }
+        .lb-table td { padding: 12px; border-bottom: 1px solid #eee; color: #333; }
+        .lb-table tr:hover td { background: #fafafa; }
+        .lb-rank { font-weight: bold; color: #e67e22; font-size: 16px; text-align: center; }
+        .top-1 { color: #f1c40f; font-size: 20px; text-shadow: 1px 1px 0px #000; }
+        .top-2 { color: #bdc3c7; font-size: 18px; text-shadow: 1px 1px 0px #000; }
+        .top-3 { color: #cd7f32; font-size: 18px; text-shadow: 1px 1px 0px #000; }
+        .lb-score { font-weight: bold; color: #dc3545; }
+        .lb-loading { text-align: center; padding: 20px; color: #666; font-style: italic; }
     </style>
 </head>
 <body>
@@ -234,6 +252,13 @@
     </div>
 
     <div class="container">
+
+        <div class="leaderboard-section">
+            <h2>🏆 BẢNG VÀNG THÀNH TÍCH (TOP 20) <span class="lb-tooltip-icon">?</span></h2>
+            <div id="lb-container">
+                <div class="lb-loading">Đang tải dữ liệu từ máy chủ... ⏳</div>
+            </div>
+        </div>
 
         <div class="year-section">
             <h2>📚 Bộ Đề ETS 2026</h2>
@@ -415,6 +440,8 @@
     </div>
 
     <script>
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzWAINM3W5jAJA0Jhv4Ha_kPPApcrbVi4ANAY0gQ6oB2gUuLv4loTglWov4dwEXTQdz/exec";
+
         window.onload = function() {
             let savedClass = localStorage.getItem('win_classCode');
             let savedName = localStorage.getItem('win_studentName');
@@ -431,7 +458,43 @@
             loadBannerBg();
             loadHistory();
             checkResumeTest();
+            loadLeaderboardData(); // Tải Bảng Xếp Hạng
         };
+
+        function loadLeaderboardData() {
+            fetch(GOOGLE_SCRIPT_URL + "?action=getLeaderboard")
+                .then(res => res.json())
+                .then(data => {
+                    let container = document.getElementById('lb-container');
+                    if (data.length === 0) {
+                        container.innerHTML = '<div class="lb-loading">Chưa có ai ghi danh lên bảng vàng. Hãy là người đầu tiên!</div>';
+                        return;
+                    }
+                    
+                    let tableHtml = '<table class="lb-table"><tr><th style="text-align:center; width:60px;">Top</th><th>Học Viên</th><th>Đề Thi</th><th>Điểm Số</th><th>Thời Gian Nộp</th></tr>';
+                    
+                    data.forEach((row, index) => {
+                        let rankClass = "lb-rank";
+                        let rankTrophy = index + 1;
+                        if (index === 0) { rankClass += " top-1"; rankTrophy = "🥇 1"; }
+                        else if (index === 1) { rankClass += " top-2"; rankTrophy = "🥈 2"; }
+                        else if (index === 2) { rankClass += " top-3"; rankTrophy = "🥉 3"; }
+                        
+                        tableHtml += `<tr>
+                            <td class="${rankClass}">${rankTrophy}</td>
+                            <td style="font-weight:600; color:#003366;">${row.className} - ${row.name}</td>
+                            <td>${row.test}</td>
+                            <td class="lb-score">${row.score}</td>
+                            <td style="font-size:13px; color:#777;">${row.time}</td>
+                        </tr>`;
+                    });
+                    tableHtml += '</table>';
+                    container.innerHTML = tableHtml;
+                })
+                .catch(err => {
+                    document.getElementById('lb-container').innerHTML = '<div class="lb-loading" style="color:red;">Lỗi tải dữ liệu Bảng xếp hạng. Vui lòng thử lại sau!</div>';
+                });
+        }
 
         function checkResumeTest() {
             let latestProgress = null;
