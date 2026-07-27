@@ -87,12 +87,12 @@
         .passage-content img { max-width: 100%; height: auto; border: 1px solid #ddd; margin-bottom: 15px; display: block; }
         
         /* Chỉnh thanh Audio và Hướng dẫn phím tắt */
-        .audio-wrapper { margin-bottom: 15px; }
-        .audio-wrapper audio { width: 100%; outline: none; margin-bottom: 10px; }
+        .audio-wrapper { margin-bottom: 5px; }
+        .audio-wrapper audio { width: 100%; outline: none; margin-bottom: 5px; height: 40px; }
         .shortcut-hints { background: #e3f2fd; color: #043b5c; padding: 10px 15px; border-radius: 6px; font-size: 13px; font-weight: 600; border: 1px dashed #5ba4e5; line-height: 1.6; text-align: center; }
 
         /* Tùy chỉnh tốc độ Audio */
-        .speed-controls { display: flex; gap: 8px; margin-bottom: 20px; align-items: center; font-size: 14px; font-weight: 600; background: #f4f6f9; padding: 8px; border-radius: 6px;}
+        .speed-controls { display: flex; gap: 8px; margin-bottom: 12px; align-items: center; font-size: 13px; font-weight: 600; background: #f4f6f9; padding: 6px 8px; border-radius: 6px;}
         .speed-btn { border: 1px solid #ccc; background: white; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 600; color: #333;}
         .speed-btn.active { background: #043b5c; color: white; border-color: #043b5c;}
 
@@ -102,7 +102,7 @@
         .btn-transcript { background: #e2e6ea; border: 1px solid #ccc; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: 600; color: #333; transition: 0.2s; width: 100%;}
         
         /* Chức năng Zoom & Nâng cao độ sắc nét ảnh */
-        .zoomable-img { width: 100%; max-width: 100%; border: 1px solid #ccc; margin-bottom: 15px; cursor: zoom-in; transition: transform 0.3s ease; display: block; image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges; pointer-events: auto; position: relative; z-index: 1; }
+        .zoomable-img { width: 100%; max-height: 55vh; object-fit: contain; max-width: 100%; border: 1px solid #ccc; margin-bottom: 15px; cursor: zoom-in; transition: transform 0.3s ease; display: block; image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges; pointer-events: auto; position: relative; z-index: 1; }
         .zoomable-img.zoomed { transform: scale(1.3); cursor: zoom-out; z-index: 9999; box-shadow: 0 5px 30px rgba(0,0,0,0.4); }
         
         /* Dropdown Thống kê chi tiết từng Part */
