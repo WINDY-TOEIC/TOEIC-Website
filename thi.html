@@ -1224,15 +1224,30 @@
 
         // Lắng nghe phím tắt (Thêm Ctrl Z, Ctrl Y, Esc)
         document.addEventListener('keydown', function(event) {
-            if (document.activeElement.tagName === 'TEXTAREA' || (document.activeElement.tagName === 'INPUT' && document.activeElement.type !== 'radio')) return;
-
+            
+            // 1. ƯU TIÊN SỐ 1: BẮT PHÍM ESC TRƯỚC (Cho phép ấn Esc kể cả khi đang ở trong ô gõ chữ)
             if (event.key === 'Escape') {
                 if (isDrawingMode) toggleDrawing();
                 if (typeof isTextMode !== 'undefined' && isTextMode) toggleTextMode();
                 let txtInput = document.getElementById('canvas-text-input');
                 if (txtInput) { txtInput.style.display = 'none'; txtInput.value = ''; }
+                
+                // Ẩn bảng Ghi chú
+                let toolbar = document.getElementById('selection-toolbar');
+                if (toolbar && toolbar.classList.contains('active')) {
+                    window.getSelection().removeAllRanges();
+                    toolbar.classList.remove('active');
+                }
+                
+                if (document.activeElement) document.activeElement.blur(); // Hủy trỏ chuột
                 return;
             }
+
+            // 2. BẢO VỆ Ô GÕ CHỮ: Nếu đang trong ô gõ chữ thì chặn lại ngay!
+            // Tuyệt đối không cho chạy xuống dưới để phím Space ra khoảng trắng, không bị bật Audio.
+            if (document.activeElement.tagName === 'TEXTAREA' || (document.activeElement.tagName === 'INPUT' && document.activeElement.type !== 'radio')) return;
+
+            // 3. Các phím tắt khác
             if (event.ctrlKey && (event.key === 'z' || event.key === 'Z')) {
                 event.preventDefault(); undoAction(); return;
             }
