@@ -607,7 +607,8 @@
             }
         });
 
-        function deleteHistoryItem(index) {
+        function deleteHistoryItem(event, index) {
+            event.stopPropagation(); // Ngăn sự kiện click truyền ra ngoài, tránh làm đóng bảng lịch sử
             let historyData = JSON.parse(localStorage.getItem('win_history') || '[]');
             historyData.splice(index, 1); // Xóa phần tử tại vị trí index
             localStorage.setItem('win_history', JSON.stringify(historyData)); // Lưu lại vào máy
@@ -634,7 +635,7 @@
                     </div>
                     <div style="display: flex; align-items: center;">
                         <div class="h-score">${item.score} Điểm</div>
-                        <button class="btn-delete-history" onclick="deleteHistoryItem(${index})" title="Xóa lịch sử này">&times;</button>
+                        <button class="btn-delete-history" onclick="deleteHistoryItem(event, ${index})" title="Xóa lịch sử này">&times;</button>
                     </div>
                 </div>`;
             });
