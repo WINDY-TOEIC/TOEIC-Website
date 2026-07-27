@@ -228,32 +228,29 @@
 
         /* --- GIAO DIỆN ĐIỆN THOẠI (MOBILE RESPONSIVE) --- */
         @media (max-width: 768px) {
-            body { zoom: 1 !important; }
-            .container { flex-direction: column; padding: 0 10px; margin: 15px auto; }
-            .right-col { width: 100%; position: static; margin-top: 20px; }
-            .left-col { width: 100%; }
-            header { padding: 40px 0 60px 0; }
+            body { zoom: 1 !important; transform: none !important; overflow-x: hidden; }
+            header { padding: 15px 0 70px 0; display: flex; flex-direction: column; align-items: center; position: relative; }
             
-            /* Gom gọn các nút trên banner */
-            .theme-btn { top: 10px; left: 10px; padding: 5px 8px; font-size: 14px; }
-            .dark-mode-btn { top: 10px; left: 45px; padding: 5px 8px; font-size: 14px; }
-            .history-wrapper { top: 10px; left: 85px; }
-            .btn-history-toggle { padding: 5px 8px; font-size: 12px; }
-            .resume-floating-btn { top: 40px; left: 10px; padding: 5px 8px; font-size: 12px; }
-            
-            /* Form Đăng nhập & Box Lịch sử */
-            .login-wrapper { top: auto; bottom: 10px; left: 50%; right: auto; transform: translateX(-50%); width: 95%; display: flex; justify-content: center; }
-            .login-box { flex-wrap: wrap; justify-content: center; padding: 8px; width: 100%; }
-            .history-dropdown { width: 300px; left: -10px; }
-            
-            /* Lưới bộ đề */
-            .test-grid { grid-template-columns: repeat(3, 1fr); gap: 10px; }
-            .year-section { padding: 15px; }
-            .year-section h2 { font-size: 16px; }
-            .test-number { font-size: 14px; }
-            .test-tag { font-size: 11px; }
+            /* ÉP BUỘC CHIA DỌC 100% */
+            .container { display: block !important; padding: 0 10px; margin: 15px auto; }
+            .left-col, .right-col { width: 100% !important; max-width: 100%; display: block !important; position: static !important; margin-top: 15px; margin-left: 0; }
+
+            /* Định vị lại các nút trên cùng nằm ngang 1 hàng */
+            .theme-btn { top: 15px; left: 10px; }
+            .dark-mode-btn { top: 15px; left: 55px; }
+            .history-wrapper { top: 15px; left: 100px; }
+            .resume-floating-btn { top: 15px; left: auto; right: 10px; font-size: 11px; padding: 6px 8px; }
+
+            /* Định vị khu vực đăng nhập xuống đáy banner */
+            .login-wrapper { position: absolute; bottom: 10px; left: 0; width: 100%; display: flex; justify-content: center; }
+            .login-box { width: 95%; justify-content: center; flex-wrap: wrap; }
+
+            /* Lưới đề thi */
+            .test-grid { grid-template-columns: repeat(2, 1fr); }
+            .history-dropdown { width: 95vw; left: -90px; }
         }
     </style>
+
 </head>
 <body>
 
