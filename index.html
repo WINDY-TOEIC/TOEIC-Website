@@ -159,8 +159,12 @@
         .resume-floating-btn { position: absolute; top: 15px; left: 300px; background: #dc3545; color: white; padding: 8px 12px; border-radius: 4px; font-weight: bold; font-size: 14px; text-decoration: none; box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 100; display: none; align-items: center; transition: 0.3s; animation: pulseRed 1.5s infinite;}
         .resume-floating-btn:hover { background: #c82333; transform: scale(1.05); }
         @keyframes pulseRed { 0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); } 100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); } }
-        .resume-tooltip { position: absolute; top: 100%; left: 0; margin-top: 10px; background: #333; color: #fff; padding: 8px 15px; border-radius: 6px; font-size: 13px; white-space: nowrap; opacity: 0; visibility: hidden; transition: 0.3s; font-weight: normal; pointer-events: none; }
+        .resume-tooltip { position: absolute; top: 100%; left: 0; margin-top: 10px; background: #333; color: #fff; padding: 8px 15px; border-radius: 6px; font-size: 13px; white-space: nowrap; opacity: 0; visibility: hidden; transition: 0.3s; font-weight: normal; pointer-events: auto; text-align: left; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        @media (max-width: 768px) { .resume-tooltip { left: auto; right: 0; } } /* Tránh tràn viền trên điện thoại */
         .resume-floating-btn:hover .resume-tooltip { opacity: 1; visibility: visible; }
+        .resume-item-link { display: block; color: #fff; text-decoration: none; padding: 8px 0; border-bottom: 1px dashed #555; transition: 0.2s; }
+        .resume-item-link:last-child { border-bottom: none; }
+        .resume-item-link:hover { color: #f1c40f; }
 
         /* Giao diện Modal Báo cáo chi tiết Lịch sử */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 9999; display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: 0.3s; }
@@ -608,32 +612,51 @@
         }
 
         function checkResumeTest() {
-            let latestProgress = null;
-            let latestFile = "";
+            let resumeList = [];
             
-            // Tìm bài test đang làm dở
+            // Tìm TẤT CẢ các bài test đang làm dở
             for (let i = 0; i < localStorage.length; i++) {
                 let key = localStorage.key(i);
                 if (key.startsWith('win_progress_')) {
                     let data = JSON.parse(localStorage.getItem(key));
                     let fileName = key.replace('win_progress_', '');
-                    latestProgress = data;
-                    latestFile = fileName;
-                    break; 
+                    resumeList.push({ file: fileName, data: data });
                 }
             }
             
-            // Nếu có, hiện nút LÀM TIẾP
-            if (latestProgress) {
-                let resumeBtn = document.getElementById('resume-btn');
-                let tooltip = document.getElementById('resume-tooltip');
-                let testName = latestFile.replace('.txt', '').replace('.json', '').toUpperCase();
-                let currentQ = latestProgress.currentQIndex + 1;
+            let resumeBtn = document.getElementById('resume-btn');
+            
+            if (resumeList.length === 0) {
+                resumeBtn.style.display = 'none';
+                return;
+            }
+
+            // Lấy tối đa 5 bài
+            resumeList = resumeList.slice(0, 5);
+
+            if (resumeList.length === 1) {
+                // TRƯỜNG HỢP 1 BÀI: Nút "LÀM TIẾP" bình thường
+                let testName = resumeList[0].file.replace('.txt', '').replace('.json', '').replace(/-/g, ' ').toUpperCase();
+                let currentQ = resumeList[0].data.currentQIndex + 1;
                 
-                // Truyền thêm param resume=1 vào URL
-                resumeBtn.href = `thi.html?file=${encodeURIComponent(latestFile)}&resume=1`;
+                resumeBtn.innerHTML = `⏳ LÀM TIẾP <div class="resume-tooltip">Đang làm câu ${currentQ} của đề ${testName}</div>`;
+                resumeBtn.href = `thi.html?file=${encodeURIComponent(resumeList[0].file)}&resume=1`;
                 resumeBtn.style.display = 'flex';
-                tooltip.innerText = `Đang làm câu ${currentQ} của đề ${testName}`;
+            } else {
+                // TRƯỜNG HỢP NHIỀU BÀI (TỪ 2 ĐẾN 5): Đổi thành biểu tượng đồng hồ, thả menu danh sách
+                let tooltipHtml = '<div style="font-weight:bold; margin-bottom:5px; border-bottom:1px solid #555; padding-bottom:5px; color:#f1c40f;">DANH SÁCH ĐANG DỞ:</div>';
+                
+                resumeList.forEach(item => {
+                    let testName = item.file.replace('.txt', '').replace('.json', '').replace(/-/g, ' ').toUpperCase();
+                    let currentQ = item.data.currentQIndex + 1;
+                    let url = `thi.html?file=${encodeURIComponent(item.file)}&resume=1`;
+                    
+                    tooltipHtml += `<a href="${url}" class="resume-item-link">▶ ${testName} (Đang làm câu ${currentQ})</a>`;
+                });
+                
+                resumeBtn.innerHTML = `⏳ <div class="resume-tooltip">${tooltipHtml}</div>`;
+                resumeBtn.href = "javascript:void(0)"; 
+                resumeBtn.style.display = 'flex';
             }
         }
 
