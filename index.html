@@ -229,25 +229,29 @@
         /* --- GIAO DIỆN ĐIỆN THOẠI (MOBILE RESPONSIVE) --- */
         @media (max-width: 768px) {
             body { zoom: 1 !important; transform: none !important; overflow-x: hidden; }
-            header { padding: 15px 0 70px 0; display: flex; flex-direction: column; align-items: center; position: relative; }
+            
+            /* Cấp thêm không gian phía trên Banner cho các nút */
+            header { padding: 50px 10px 20px 10px !important; display: flex; flex-direction: column; align-items: center; position: relative; }
             
             /* ÉP BUỘC CHIA DỌC 100% */
-            .container { display: block !important; padding: 0 10px; margin: 15px auto; }
+            .container { display: block !important; padding: 0 10px; margin: 10px auto; }
             .left-col, .right-col { width: 100% !important; max-width: 100%; display: block !important; position: static !important; margin-top: 15px; margin-left: 0; }
 
-            /* Định vị lại các nút trên cùng nằm ngang 1 hàng */
-            .theme-btn { top: 15px; left: 10px; }
-            .dark-mode-btn { top: 15px; left: 55px; }
-            .history-wrapper { top: 15px; left: 100px; }
-            .resume-floating-btn { top: 15px; left: auto; right: 10px; font-size: 11px; padding: 6px 8px; }
+            /* Tinh chỉnh nhỏ lại các nút trên cùng để không đè nhau */
+            .theme-btn { top: 10px; left: 5px; padding: 6px 8px; font-size: 13px; }
+            .dark-mode-btn { top: 10px; left: 45px; padding: 6px 8px; font-size: 13px; }
+            .history-wrapper { top: 10px; left: 85px; }
+            .btn-history-toggle { font-size: 11px; padding: 6px 8px; }
+            .resume-floating-btn { top: 10px; left: auto; right: 5px; font-size: 11px; padding: 6px 8px; }
 
-            /* Định vị khu vực đăng nhập xuống đáy banner */
-            .login-wrapper { position: absolute; bottom: 10px; left: 0; width: 100%; display: flex; justify-content: center; }
-            .login-box { width: 95%; justify-content: center; flex-wrap: wrap; }
+            /* ĐƯA FORM ĐĂNG NHẬP VỀ LUỒNG TĨNH, NẰM NGAY DƯỚI BANNER XANH */
+            .login-wrapper { position: static !important; transform: none !important; width: 100%; display: flex; justify-content: center; margin: 15px 0 0 0; padding: 0 10px; }
+            .login-box { width: 100%; justify-content: center; flex-wrap: wrap; gap: 8px; padding: 10px; }
+            .tooltip-icon { flex-shrink: 0; }
 
             /* Lưới đề thi */
-            .test-grid { grid-template-columns: repeat(2, 1fr); }
-            .history-dropdown { width: 95vw; left: -90px; }
+            .test-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+            .history-dropdown { width: 95vw; left: -80px; }
         }
     </style>
 
