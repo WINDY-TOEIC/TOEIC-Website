@@ -781,7 +781,7 @@
                 // 1. RENDER BÊN TRÁI (MEDIA)
                 let leftHtml = '';
                 if (item.audio_url && item.audio_url !== "false" && item.audio_url !== "") {
-                    let displayStyle = currentMode === 'exam' ? 'style="display:none;"' : '';
+                    let displayStyle = (currentMode === 'exam' && !isSubmitted) ? 'style="display:none;"' : '';
                     let autoPlayAttr = isSubmitted ? '' : 'autoplay'; // Tắt tự động phát nếu đã nộp bài
                     
                     leftHtml += `
@@ -890,14 +890,48 @@
                     let contentStyle = isSubmitted ? "" : "pre-submit-text";
                     let headerTitle = isSubmitted ? "Nội dung & Dịch nghĩa / Đáp án:" : "Transcript:";
                     
-                    if (gSq.explanation) {
+                    let finalExplanation = gSq.explanation;
+                    let extractedTranscript = "";
+                    
+                    if (finalExplanation) {
+                        let currentPartName = (document.getElementById('current-part-label').innerText || "").toUpperCase();
+                        
+                        // Chỉ lấy Transcript ở câu cuối cùng của nhóm trong Part 3 hoặc 4
+                        if ((currentPartName.includes("PART 3") || currentPartName.includes("PART 4")) && gItem.idx === groupItems[groupItems.length - 1].idx) {
+                            // Tìm đoạn chứa đáp án D (ví dụ: "D. Một vị trí..." hoặc "(D) Một vị trí...")
+                            let match = finalExplanation.match(/(?:\([Dd]\)|[Dd]\.).*?(?:<br\s*\/?>|<\/p>|<\/div>|\n|$)/i);
+                            if (match) {
+                                let splitIndex = match.index + match[0].length;
+                                extractedTranscript = finalExplanation.substring(splitIndex).trim(); // Phần sau D là Transcript
+                                finalExplanation = finalExplanation.substring(0, splitIndex).trim(); // Phần trước giữ lại bên phải
+                            }
+                        }
+
                         rightHtml += `<div class="explanation ${expClass}" id="exp-${gSq.index}">
                                         <h4 style="margin-top:0; color:#003366;">${headerTitle}</h4>
-                                        <div class="${contentStyle}">${gSq.explanation}</div>
+                                        <div class="${contentStyle}">${finalExplanation}</div>
                                      </div>`;
                     }
                     rightHtml += `</div>`;
+                    
+                    // Gom transcript vào một div ẩn để lát bốc sang trái
+                    if (extractedTranscript !== "") {
+                        rightHtml += `<div id="temp-transcript" class="explanation ${expClass}" style="display:none;">
+                                        <h4 style="margin-top:0; color:#003366;">Transcript & Lời dịch:</h4>
+                                        <div class="${contentStyle}">${extractedTranscript}</div>
+                                      </div>`;
+                    }
                 });
+
+                document.getElementById('question-content').innerHTML = rightHtml;
+
+                // Bốc Transcript sang cột trái (Dưới audio/hình ảnh)
+                let tempTranscript = document.getElementById('temp-transcript');
+                if (tempTranscript) {
+                    tempTranscript.style.display = "block"; // Hiện lại
+                    document.getElementById('media-content').appendChild(tempTranscript);
+                    tempTranscript.id = "left-transcript"; // Đổi tên ID
+                }
 
                 document.getElementById('question-content').innerHTML = rightHtml;
 
@@ -1064,6 +1098,8 @@
         function toggleTranscript(id) {
             let expBox = document.getElementById(`exp-${id}`);
             if(expBox) expBox.classList.toggle('hidden');
+            let leftT = document.getElementById('left-transcript');
+            if(leftT) leftT.classList.toggle('hidden');
         }
 
         function setSpeed(rate) {
@@ -1204,8 +1240,9 @@
                 event.preventDefault(); redoAction(); return;
             }
 
-            // NẾU LÀ THI THẬT: Cấm phím Cách (Nghe lại). Cấm Mũi tên nếu đang ở Listening (<100). Reading thì cho qua lại.
-            if (currentMode === 'exam') {
+            // NẾU LÀ THI THẬT VÀ CHƯA NỘP BÀI: Cấm phím Cách. Cấm Mũi tên nếu đang ở Listening (<100). 
+            // Nếu đã nộp bài thì mở khóa thoải mái để xem lại.
+            if (currentMode === 'exam' && !isSubmitted) {
                 if (event.code === 'Space' || event.keyCode === 32) return; 
                 if (currentQIndex < 100) return; 
             }
