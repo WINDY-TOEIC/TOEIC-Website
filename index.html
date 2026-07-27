@@ -225,6 +225,34 @@
         body.dark-mode .stat-row { color: #e0e0e0; border-bottom-color: #444; }
         body.dark-mode .login-input { background: #333; color: #fff; border-color: #555; }
         body.dark-mode #display-user-name { color: #5ba4e5 !important; }
+
+        /* --- GIAO DIỆN ĐIỆN THOẠI (MOBILE RESPONSIVE) --- */
+        @media (max-width: 768px) {
+            body { zoom: 1 !important; }
+            .container { flex-direction: column; padding: 0 10px; margin: 15px auto; }
+            .right-col { width: 100%; position: static; margin-top: 20px; }
+            .left-col { width: 100%; }
+            header { padding: 40px 0 60px 0; }
+            
+            /* Gom gọn các nút trên banner */
+            .theme-btn { top: 10px; left: 10px; padding: 5px 8px; font-size: 14px; }
+            .dark-mode-btn { top: 10px; left: 45px; padding: 5px 8px; font-size: 14px; }
+            .history-wrapper { top: 10px; left: 85px; }
+            .btn-history-toggle { padding: 5px 8px; font-size: 12px; }
+            .resume-floating-btn { top: 40px; left: 10px; padding: 5px 8px; font-size: 12px; }
+            
+            /* Form Đăng nhập & Box Lịch sử */
+            .login-wrapper { top: auto; bottom: 10px; left: 50%; right: auto; transform: translateX(-50%); width: 95%; display: flex; justify-content: center; }
+            .login-box { flex-wrap: wrap; justify-content: center; padding: 8px; width: 100%; }
+            .history-dropdown { width: 300px; left: -10px; }
+            
+            /* Lưới bộ đề */
+            .test-grid { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+            .year-section { padding: 15px; }
+            .year-section h2 { font-size: 16px; }
+            .test-number { font-size: 14px; }
+            .test-tag { font-size: 11px; }
+        }
     </style>
 </head>
 <body>
