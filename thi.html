@@ -1224,7 +1224,7 @@
 
         // Lắng nghe phím tắt (Thêm Ctrl Z, Ctrl Y, Esc)
         document.addEventListener('keydown', function(event) {
-            if (document.activeElement.tagName === 'TEXTAREA' || (document.activeElement.tagName === 'INPUT' && document.activeElement.type !== 'radio' && document.activeElement.id !== 'tb-note-input')) return;
+            if (document.activeElement.tagName === 'TEXTAREA' || (document.activeElement.tagName === 'INPUT' && document.activeElement.type !== 'radio')) return;
 
             if (event.key === 'Escape') {
                 if (isDrawingMode) toggleDrawing();
