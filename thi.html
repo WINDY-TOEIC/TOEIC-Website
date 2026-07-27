@@ -845,7 +845,7 @@
                     let gSq = gItem.q.sq;
                     
                     let transcriptBtn = (ENABLE_TRANSCRIPT && currentMode === 'practice' && !isSubmitted) ? `<button class="btn-transcript" onclick="toggleTranscript(${gSq.index})">Hiện chữ</button>` : '';
-                    let expToggleBtn = isSubmitted ? `<button class="btn-transcript btn-exp-toggle" style="background:#e3f2fd; border-color:#5ba4e5; color:#043b5c;" onclick="toggleGlobalExp()">${(typeof isExpCollapsed !== 'undefined' && isExpCollapsed) ? 'Hiện giải thích' : 'Thu gọn'}</button>` : '';
+                    let expToggleBtn = isSubmitted ? `<button class="btn-transcript btn-exp-toggle" style="background:#e3f2fd; border-color:#5ba4e5; color:#043b5c;" onclick="toggleGlobalExp()">${(typeof isExpCollapsed !== 'undefined' && isExpCollapsed) ? 'Giải thích' : 'Thu gọn'}</button>` : '';
 
                     let isMarked = markedQuestions[qIdx];
                     let markBtnText = isMarked ? "Bỏ Cờ" : "Gắn Cờ";
@@ -901,7 +901,18 @@
 
                 document.getElementById('question-content').innerHTML = rightHtml;
 
+                // CHUYỂN TRANSCRIPT CỦA PART 3 VÀ PART 4 SANG CỘT TRÁI (DƯỚI AUDIO/ẢNH)
+                let partNameCheck = (sq.term_name || "").toUpperCase();
+                if (partNameCheck.includes("PART 3") || partNameCheck.includes("PART 4")) {
+                    let leftPanelMedia = document.getElementById('media-content');
+                    let allExps = document.getElementById('question-content').querySelectorAll('.explanation');
+                    allExps.forEach(expBox => {
+                        leftPanelMedia.appendChild(expBox); // Lệnh này bốc hộp giải thích từ bên phải gắn vào cuối bên trái
+                    });
+                }
+
                 // KIỂM TRA VÀ PHỤC HỒI GHI CHÚ (NẾU CÓ LƯU)
+
                 if (savedNotes && savedNotes[currentGroupId]) {
                     document.getElementById('media-content').innerHTML = savedNotes[currentGroupId].left;
                     document.getElementById('question-content').innerHTML = savedNotes[currentGroupId].right;
@@ -1056,7 +1067,7 @@
             
             // Đổi tên nút thành "Hiện" hoặc "Thu gọn" cho đồng bộ
             document.querySelectorAll('.btn-exp-toggle').forEach(btn => {
-                btn.innerText = isExpCollapsed ? 'Hiện giải thích' : 'Thu gọn';
+                btn.innerText = isExpCollapsed ? 'Giải thích' : 'Thu gọn';
             });
         }
 
