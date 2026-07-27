@@ -881,6 +881,14 @@
 
             // Nếu qua NHÓM MỚI (Bài đọc mới hoặc Audio mới), Render lại từ đầu
             if (item.groupId !== currentGroupId || index === 0) {
+                
+                // --- NGẮT AUDIO CŨ TRƯỚC KHI CHUYỂN SANG CÂU MỚI ---
+                let oldAudio = document.getElementById('q-audio');
+                if (oldAudio) {
+                    oldAudio.pause();
+                    oldAudio.src = ""; // Xóa luôn luồng dữ liệu để tắt triệt để
+                }
+
                 currentGroupId = item.groupId;
                 
                 // 1. RENDER BÊN TRÁI (MEDIA)
