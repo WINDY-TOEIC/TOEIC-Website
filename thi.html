@@ -1440,6 +1440,7 @@
                 let gridBtn = document.getElementById(`grid-btn-${index}`);
                 if (userChoice && userChoice === correctChoice) {
                     totalCorrect++;
+                    partStats[partName].correct++; // Lệnh đếm số câu đúng cho thống kê từng Part
                     if (index < 100) listCorrect++; else readCorrect++; // 100 câu đầu là LC, còn lại là RC
                     if (gridBtn) gridBtn.className = "grid-btn correct-ans";
                 } else {
