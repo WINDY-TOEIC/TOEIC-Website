@@ -899,100 +899,7 @@
                     rightHtml += `</div>`;
                 });
 
-                let groupTranscript = "";
-                let rightHtml = '';
-                groupItems.forEach(gItem => {
-                    let qIdx = gItem.idx;
-                    let gSq = gItem.q.sq;
-                    
-                    let transcriptBtn = (ENABLE_TRANSCRIPT && currentMode === 'practice' && !isSubmitted) ? `<button class="btn-transcript" onclick="toggleTranscript(${gSq.index})">Hiện chữ</button>` : '';
-                    let expToggleBtn = isSubmitted ? `<button class="btn-transcript btn-exp-toggle" style="background:#e3f2fd; border-color:#5ba4e5; color:#043b5c;" onclick="toggleGlobalExp()">${(typeof isExpCollapsed !== 'undefined' && isExpCollapsed) ? 'Hiện giải thích' : 'Thu gọn'}</button>` : '';
-
-                    let isMarked = markedQuestions[qIdx];
-                    let markBtnText = isMarked ? "Bỏ Cờ" : "Gắn Cờ";
-                    let markBtnBg = isMarked ? "#ffc107" : "#fff3cd";
-                    let markBtnDisplay = isSubmitted ? "display:none;" : "";
-                    
-                    rightHtml += `
-                        <div class="q-block" id="q-block-${qIdx}" style="padding-bottom: 6px; margin-bottom: 8px; border-bottom: 1px dashed #ccc;">
-                            <div class="q-title-wrap">
-                                <h3 class="q-title"><span class="q-number">${gSq.title}</span></h3>
-                                <div class="action-btns-wrap">
-                                    <button id="btn-mark-${qIdx}" class="btn-transcript" style="background: ${markBtnBg}; border-color: #ffc107; color: #333; ${markBtnDisplay}" onclick="toggleMark(${qIdx})">&#9873; <span id="mark-text-${qIdx}">${markBtnText}</span></button>
-                                    ${transcriptBtn}
-                                    ${expToggleBtn}
-                                </div>
-                            </div>
-                            <div class="options">
-                    `;
-                    
-                    gSq.choices.forEach(c => {
-                        let isCorrect = c.choice_right_answer ? "true" : "false";
-                        let isChecked = userAnswers[qIdx] === c.choice ? 'checked' : '';
-                        let isDisabled = isSubmitted ? 'disabled' : '';
-
-                        let labelClass = "option-label";
-                        if (isSubmitted) {
-                            if (isCorrect === "true") labelClass += " correct";
-                            else if (userAnswers[qIdx] === c.choice) labelClass += " wrong";
-                        }
-
-                        rightHtml += `
-                        <label class="${labelClass}" onclick="selectAnswer(${qIdx}, '${c.choice}')">
-                            <input type="radio" name="q-${qIdx}" value="${c.choice}" ${isChecked} ${isDisabled} style="pointer-events: none;">
-                            <span style="font-weight:600; margin-right:5px;">${c.choice}.</span> ${c.choice_answer || ""}
-                        </label>`;
-                    });
-                    
-                    rightHtml += `</div>`;
-                    
-                    let expClass = isSubmitted ? ((typeof isExpCollapsed !== 'undefined' && isExpCollapsed) ? "hidden" : "") : "hidden";
-                    let contentStyle = isSubmitted ? "" : "pre-submit-text";
-                    let headerTitle = isSubmitted ? "Nội dung & Dịch nghĩa / Đáp án:" : "Transcript:";
-                    
-                    if (gSq.explanation) {
-                        let finalExp = gSq.explanation;
-                        let partNameCheck = (document.getElementById('current-part-label').innerText || "").toUpperCase();
-                        
-                        if (partNameCheck.includes("PART 3") || partNameCheck.includes("PART 4")) {
-                            // Tách Dịch Câu Hỏi và Transcript
-                            let regex = /((?:<[^>]+>|\s)*(?:Câu\s+)?\d{1,3}[\.\:]?\s+.*?(?:\(A\)|A\.).*?(?:\(B\)|B\.).*?(?:\(C\)|C\.).*?(?:\(D\)|D\.)[^\n<]*(?:<br\s*\/?>|<\/p>|<\/div>|\n|$))/is;
-                            let match = finalExp.match(regex);
-                            
-                            if (match) {
-                                let qaBlock = match[1];
-                                let tBlock = finalExp.replace(qaBlock, '').trim();
-                                finalExp = qaBlock.trim(); // Bên phải chỉ giữ lại câu hỏi và ABCD
-                                
-                                // Nếu có transcript thừa ra thì lưu lại đưa qua trái
-                                let cleanT = tBlock.replace(/(<br\s*\/?>|<\/?p>|\s)+/g, '').trim();
-                                if (cleanT.length > 20 && groupTranscript.length < 20) {
-                                    groupTranscript = tBlock;
-                                }
-                            }
-                        }
-
-                        rightHtml += `<div class="explanation ${expClass}" id="exp-${gSq.index}">
-                                        <h4 style="margin-top:0; color:#003366;">${headerTitle}</h4>
-                                        <div class="${contentStyle}">${finalExp}</div>
-                                     </div>`;
-                    }
-                    rightHtml += `</div>`;
-                });
-
                 document.getElementById('question-content').innerHTML = rightHtml;
-
-                // NẾU CÓ TRANSCRIPT THÌ GẮN QUA BÊN TRÁI
-                if (groupTranscript !== "") {
-                    let leftPanelMedia = document.getElementById('media-content');
-                    let tDiv = document.createElement('div');
-                    let expClass = isSubmitted ? ((typeof isExpCollapsed !== 'undefined' && isExpCollapsed) ? "hidden" : "") : "hidden";
-                    let contentStyle = isSubmitted ? "" : "pre-submit-text";
-                    tDiv.className = `explanation ${expClass}`;
-                    tDiv.id = 'left-transcript';
-                    tDiv.innerHTML = `<h4 style="margin-top:0; color:#003366;">Transcript & Lời dịch:</h4><div class="${contentStyle}">${groupTranscript}</div>`;
-                    leftPanelMedia.appendChild(tDiv);
-                }
 
                 // KIỂM TRA VÀ PHỤC HỒI GHI CHÚ (NẾU CÓ LƯU)
 
@@ -1157,8 +1064,6 @@
         function toggleTranscript(id) {
             let expBox = document.getElementById(`exp-${id}`);
             if(expBox) expBox.classList.toggle('hidden');
-            let leftT = document.getElementById('left-transcript');
-            if(leftT) leftT.classList.toggle('hidden');
         }
 
         function setSpeed(rate) {
