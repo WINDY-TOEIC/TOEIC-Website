@@ -182,6 +182,38 @@
         .hl-note-text { color: #e74c3c; font-size: 14px; margin-left: 5px; font-style: italic; border: 1px dashed #e74c3c; padding: 2px 4px; border-radius: 4px; cursor: pointer;}
         .hl-note-text .del-note { color: #999; margin-left: 5px; cursor: pointer; font-weight: normal; }
         .hl-note-text .del-note:hover { color: red; }
+
+        /* --- DARK MODE THI --- */
+        body.dark-mode { background-color: #121212; color: #e0e0e0; }
+        body.dark-mode #setup-screen { background: #1e1e1e; box-shadow: none; }
+        body.dark-mode .setup-header h1 { color: #5ba4e5; }
+        body.dark-mode .form-group select { background: #333; color: #fff; border-color: #555; }
+        body.dark-mode .part-selection { border-color: #333; }
+        body.dark-mode .part-item { background: #2a2a2a; border-color: #444; }
+        body.dark-mode .sub-header { background: #1e1e1e; border-bottom-color: #333; }
+        body.dark-mode #current-part-label { color: #5ba4e5; }
+        body.dark-mode .left-panel, body.dark-mode .right-panel { background: #1e1e1e; border-color: #333; box-shadow: none; }
+        body.dark-mode .left-panel-title, body.dark-mode .q-title { color: #e0e0e0; }
+        body.dark-mode .q-block { border-bottom-color: #444 !important; }
+        body.dark-mode .speed-controls { background: #2a2a2a; }
+        body.dark-mode .speed-btn { background: #333; color: #e0e0e0; border-color: #555; }
+        body.dark-mode .speed-btn.active { background: #5ba4e5; border-color: #5ba4e5; color: #111; }
+        body.dark-mode .option-label:hover { background: #2a2a2a; border-color: #444; }
+        body.dark-mode .explanation { background: #2a2a2a; border-left-color: #5ba4e5; }
+        body.dark-mode .pre-submit-text, body.dark-mode .pre-submit-text * { color: #e0e0e0 !important; }
+        body.dark-mode #nav-modal { background: #1e1e1e; border-left-color: #333; }
+        body.dark-mode .nav-modal-header { color: #e0e0e0; border-bottom-color: #444; }
+        body.dark-mode .nav-part-title { color: #aaa; }
+        body.dark-mode .score-modal { background: #1e1e1e; }
+        body.dark-mode .score-modal h2, body.dark-mode .score-row, body.dark-mode .score-total { color: #e0e0e0; }
+        body.dark-mode .part-stats-btn { background: #333; color: #e0e0e0; border-color: #444; }
+        body.dark-mode .part-stats-container { background: #2a2a2a; border-color: #444; }
+        body.dark-mode .stat-row { color: #e0e0e0; border-bottom-color: #444; }
+        body.dark-mode .theme-panel { background: #1e1e1e; color: #e0e0e0; }
+        body.dark-mode .btn-transcript { background: #333; color: #e0e0e0; border-color: #555; }
+        body.dark-mode .btn-transcript:hover { background: #444; }
+        body.dark-mode .btn-exp-toggle { background: #1e3a5f !important; color: #90caf9 !important; border-color: #1e3a5f !important; }
+        body.dark-mode #tb-note-input { background: #333; color: #fff; border-color: #555; }
     </style>
 </head>
 <body>
@@ -249,6 +281,7 @@
         <header class="test-header" id="main-banner" style="background-size: cover; background-position: center; transition: background 0.3s;">
             <div class="header-left">
                 <button class="theme-btn" onclick="toggleThemePanel()" style="margin-right: 10px;" title="Đổi màu nền">🎨</button>
+                <button class="theme-btn" id="dark-mode-btn-thi" onclick="toggleDarkMode()" style="margin-right: 10px;" title="Bật/Tắt Chế độ tối">🌙</button>
                 <img src="logo.png" alt="Windy TOEIC" style="height: 40px; border-radius: 4px; background: white; padding: 2px;">
                 WINDY TOEIC
             </div>
@@ -428,8 +461,32 @@
             }
         };
 
-        // --- XỬ LÝ ĐỔI MÀU NỀN BANNER ---
-        window.addEventListener('DOMContentLoaded', loadBannerBg);
+        // --- XỬ LÝ ĐỔI MÀU NỀN VÀ DARK MODE ---
+        window.addEventListener('DOMContentLoaded', function() {
+            loadBannerBg();
+            loadDarkMode();
+        });
+
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            let isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('win_dark_mode', isDark ? '1' : '0');
+            updateDarkModeIcon(isDark);
+        }
+
+        function loadDarkMode() {
+            let isDark = localStorage.getItem('win_dark_mode') === '1';
+            if (isDark) document.body.classList.add('dark-mode');
+            else document.body.classList.remove('dark-mode');
+            updateDarkModeIcon(isDark);
+        }
+
+        function updateDarkModeIcon(isDark) {
+            let btnIndex = document.getElementById('dark-mode-btn-index');
+            let btnThi = document.getElementById('dark-mode-btn-thi');
+            if (btnIndex) btnIndex.innerText = isDark ? "☀️" : "🌙";
+            if (btnThi) btnThi.innerText = isDark ? "☀️" : "🌙";
+        }
 
         function toggleThemePanel() {
             document.getElementById('theme-panel').classList.toggle('active');
