@@ -1040,10 +1040,29 @@
                     
                     // Gom transcript vào một div ẩn để lát bốc sang trái
                     if (extractedTranscript !== "") {
-                        rightHtml += `<div id="temp-transcript" class="explanation ${expClass}" style="display:none;">
-                                        <h4 style="margin-top:0; color:#003366;">Transcript & Lời dịch:</h4>
-                                        <div class="${contentStyle}">${extractedTranscript}</div>
-                                      </div>`;
+                        let isNewTest = !fileName.includes('ets-2018') && !fileName.includes('ets-2019') && !fileName.includes('ets-2020');
+                        let transMatch = extractedTranscript.match(/Lời dịch/i);
+
+                        if (isNewTest && transMatch) {
+                            let splitTransIdx = transMatch.index;
+                            let engPart = extractedTranscript.substring(0, splitTransIdx).trim();
+                            let viPart = extractedTranscript.substring(splitTransIdx).trim();
+
+                            rightHtml += `<div id="temp-transcript" style="display:none;">
+                                            <div class="explanation always-show" style="margin-bottom:10px;">
+                                                <h4 style="margin-top:0; color:#003366;">Transcript:</h4>
+                                                <div class="${contentStyle}">${engPart}</div>
+                                            </div>
+                                            <div class="explanation ${expClass}" id="left-transcript-vi">
+                                                <div class="${contentStyle}">${viPart}</div>
+                                            </div>
+                                          </div>`;
+                        } else {
+                            rightHtml += `<div id="temp-transcript" class="explanation ${expClass}" style="display:none;">
+                                            <h4 style="margin-top:0; color:#003366;">Transcript & Lời dịch:</h4>
+                                            <div class="${contentStyle}">${extractedTranscript}</div>
+                                          </div>`;
+                        }
                     }
                 });
 
@@ -1054,7 +1073,11 @@
                 if (tempTranscript) {
                     tempTranscript.style.display = "block"; // Hiện lại
                     document.getElementById('media-content').appendChild(tempTranscript);
-                    tempTranscript.id = "left-transcript"; // Đổi tên ID
+                    if (tempTranscript.classList.contains('explanation')) {
+                        tempTranscript.id = "left-transcript"; 
+                    } else {
+                        tempTranscript.id = "left-transcript-container"; 
+                    }
                 }
 
                 document.getElementById('question-content').innerHTML = rightHtml;
@@ -1215,8 +1238,8 @@
         function toggleGlobalExp() {
             isExpCollapsed = !isExpCollapsed; // Đảo ngược trạng thái
             
-            // Ẩn/Hiện ngay lập tức các phần giải thích đang có trên màn hình
-            document.querySelectorAll('.explanation').forEach(el => {
+            // Ẩn/Hiện ngay lập tức các phần giải thích đang có trên màn hình (Bỏ qua phần tiếng Anh luôn hiện)
+            document.querySelectorAll('.explanation:not(.always-show)').forEach(el => {
                 if (isExpCollapsed) el.classList.add('hidden');
                 else el.classList.remove('hidden');
             });
@@ -1230,8 +1253,12 @@
         function toggleTranscript(id) {
             let expBox = document.getElementById(`exp-${id}`);
             if(expBox) expBox.classList.toggle('hidden');
+            
             let leftT = document.getElementById('left-transcript');
             if(leftT) leftT.classList.toggle('hidden');
+            
+            let leftTVi = document.getElementById('left-transcript-vi');
+            if(leftTVi) leftTVi.classList.toggle('hidden');
         }
 
         function setSpeed(rate) {
