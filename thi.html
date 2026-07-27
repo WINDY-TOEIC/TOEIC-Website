@@ -879,7 +879,7 @@
                         rightHtml += `
                         <label class="${labelClass}" onclick="selectAnswer(${qIdx}, '${c.choice}')">
                             <input type="radio" name="q-${qIdx}" value="${c.choice}" ${isChecked} ${isDisabled} style="pointer-events: none;">
-                            <span style="font-weight:600; margin-right:5px;">${c.choice}.</span> ${c.choice_answer || ""}
+                            <span style="font-weight:600; margin-right:5px;">${c.choice}.</span> <span style="flex: 1;">${c.choice_answer || ""}</span>
                         </label>`;
                     });
                     
@@ -1477,9 +1477,16 @@
 
         function saveActionState() {
             let qContent = document.getElementById('question-content');
+            let mContent = document.getElementById('media-content');
             if(!qContent) return;
             if(historyStep < actionHistory.length - 1) actionHistory = actionHistory.slice(0, historyStep + 1);
-            actionHistory.push({ canvas: canvas.toDataURL(), dom: qContent.innerHTML });
+            
+            // Lưu trạng thái của cả bên trái (Transcript) và bên phải (Câu hỏi)
+            actionHistory.push({ 
+                canvas: canvas.toDataURL(), 
+                dom: qContent.innerHTML,
+                mediaDom: mContent ? mContent.innerHTML : ""
+            });
             historyStep++;
         }
 
@@ -1490,7 +1497,31 @@
                 ctx.drawImage(img, 0, 0);
             };
             img.src = state.canvas;
+            
             document.getElementById('question-content').innerHTML = state.dom;
+            
+            // Khôi phục lại trạng thái bôi vàng bên trái (Transcript) mà không làm Audio bị ngắt/reset về 0
+            if (state.mediaDom !== undefined) {
+                let mContent = document.getElementById('media-content');
+                let oldAudio = document.getElementById('q-audio');
+                
+                // Ghi nhớ trạng thái Audio trước khi Ctrl Z
+                let wasPlaying = oldAudio && !oldAudio.paused;
+                let currentTime = oldAudio ? oldAudio.currentTime : 0;
+                let currentSpeed = oldAudio ? oldAudio.playbackRate : 1;
+                
+                mContent.innerHTML = state.mediaDom;
+                
+                let newAudio = document.getElementById('q-audio');
+                if (newAudio && oldAudio) {
+                    newAudio.currentTime = currentTime;
+                    newAudio.playbackRate = currentSpeed;
+                    if (wasPlaying) {
+                        let playPromise = newAudio.play();
+                        if (playPromise !== undefined) playPromise.catch(e => {});
+                    }
+                }
+            }
         }
 
         function undoAction() {
