@@ -438,6 +438,8 @@
                 <button class="tb-btn" id="tb-strike" title="Gạch ngang">abc</button>
                 <button class="tb-btn color-red" id="tb-under" title="Gạch chân đỏ">__</button>
                 <button class="tb-btn" id="tb-search" title="Tra từ điển">🔍</button>
+                <button class="tb-btn" id="tb-ipa" title="Tra phiên âm IPA" style="font-weight:bold;">IPA</button>
+                <button class="tb-btn" id="tb-speak" title="Đọc phát âm">🔊</button>
             </div>
             <!-- Khu vực nhập Ghi chú (ẩn mặc định, chỉ hiện khi bấm icon Note) -->
             <div id="tb-note-input-wrap" style="display: none; align-items: center; gap: 5px;">
@@ -1737,6 +1739,8 @@
                 document.getElementById('tb-under').style.display = 'none';
                 document.getElementById('tb-note').style.display = 'none';
                 document.getElementById('tb-search').style.display = 'none';
+                document.getElementById('tb-ipa').style.display = 'none';
+                document.getElementById('tb-speak').style.display = 'none';
             } else {
                 document.getElementById('tb-trash').style.display = 'none';
                 document.getElementById('tb-yellow').style.display = 'block';
@@ -1744,6 +1748,8 @@
                 document.getElementById('tb-under').style.display = 'block';
                 document.getElementById('tb-note').style.display = 'block';
                 document.getElementById('tb-search').style.display = 'block';
+                document.getElementById('tb-ipa').style.display = 'block';
+                document.getElementById('tb-speak').style.display = 'block';
             }
         }
 
@@ -1801,6 +1807,75 @@
             } finally {
                 btnSearch.innerHTML = oldIcon; 
             }
+        };
+
+        // --- TÍNH NĂNG TRA IPA (FREE DICTIONARY - ƯU TIÊN ANH-ANH) ---
+        document.getElementById('tb-ipa').onclick = async () => {
+            if(!currentSelectionRange) return;
+            let text = currentSelectionRange.toString().trim();
+            if(!text) return;
+
+            let btnIpa = document.getElementById('tb-ipa');
+            let oldIcon = btnIpa.innerHTML;
+            btnIpa.innerHTML = "⏳";
+
+            try {
+                let res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(text)}`);
+                if(!res.ok) throw new Error("Not found");
+                let data = await res.json();
+                
+                let phonetics = data[0]?.phonetics || [];
+                let ipaItem = phonetics.find(p => p.audio && p.audio.includes('-uk')) || phonetics.find(p => p.text) || {text: data[0]?.phonetic};
+                let ipaText = ipaItem.text || "Không có IPA";
+
+                let noteSpan = document.createElement('span');
+                noteSpan.className = 'hl-note-text';
+                noteSpan.style.color = '#8e44ad'; 
+                noteSpan.style.borderColor = '#8e44ad'; 
+                noteSpan.innerHTML = `[${ipaText}] <span class="del-note" onclick="this.parentElement.remove(); saveActionState();">❌</span>`;
+                
+                let range = currentSelectionRange;
+                range.collapse(false);
+                range.insertNode(noteSpan);
+
+                saveActionState();
+                window.getSelection().removeAllRanges();
+                toolbar.classList.remove('active');
+            } catch (err) {
+                alert("Từ điển không có phiên âm cho từ này!");
+            } finally {
+                btnIpa.innerHTML = oldIcon; 
+            }
+        };
+
+        // --- TÍNH NĂNG ĐỌC TỪ VỰNG (WEB SPEECH API) ---
+        document.getElementById('tb-speak').onclick = () => {
+            if(!currentSelectionRange) return;
+            let text = currentSelectionRange.toString().trim();
+            if(!text) return;
+
+            let textToRead = text.replace(/[\(\[].*?[\)\]]/g, '').replace(/=/g, ',').trim();
+            let utterance = new SpeechSynthesisUtterance(textToRead);
+            
+            let voices = window.speechSynthesis.getVoices();
+            
+            let maleVoice = voices.find(v => v.lang.includes('en') && v.name.includes('Male')) 
+                         || voices.find(v => v.lang.includes('en') && v.name.includes('David'))
+                         || voices.find(v => v.lang.includes('en') && v.name.includes('Guy'))
+                         || voices.find(v => v.lang.includes('en-GB')) 
+                         || voices.find(v => v.lang === 'en-US');
+                         
+            if (maleVoice) {
+                utterance.voice = maleVoice;
+            } else {
+                utterance.lang = 'en-US';
+            }
+            
+            utterance.rate = 0.9;     
+            window.speechSynthesis.speak(utterance);
+            
+            window.getSelection().removeAllRanges();
+            toolbar.classList.remove('active');
         };
 
         document.getElementById('tb-note').onclick = () => {
