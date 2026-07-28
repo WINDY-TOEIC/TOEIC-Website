@@ -556,7 +556,7 @@
     </div>
     
     <!-- MODAL THỬ THÁCH PART 5 CHƠI GAME -->
-    <div id="challenge-modal" class="c-modal">
+    <div id="challenge-modal" class="c-modal" onclick="if(event.target === this) closeChallenge()">
         <button class="btn-close-c" onclick="closeChallenge()">×</button>
         <div class="c-loading" id="c-loading">Đang nạp dữ liệu câu hỏi... ⏳</div>
         
@@ -575,12 +575,20 @@
         </div>
 
         <!-- Khu vực xem lại kết quả (Hiện sau khi hết giờ) -->
-        <div id="c-review-area" style="display: none; width: 100%; height: 90vh; flex-direction: column; align-items: center; overflow-y: auto; padding-bottom: 50px;">
-            <div class="c-header" style="justify-content: center; margin-bottom: 20px; margin-top: 20px;">
+        <div id="c-review-area" style="display: none; width: 100%; height: 90vh; flex-direction: column; align-items: center; justify-content: center; overflow-y: auto; padding-bottom: 20px;">
+            <div class="c-header" style="justify-content: center; margin-bottom: 15px;">
                 <div class="c-score" style="font-size: 26px;">Thành tích: <b id="c-final-score-ui">0</b> câu đúng</div>
             </div>
+            
+            <!-- Khu vực điều hướng câu hỏi -->
+            <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px; width: 700px; max-width: 95%; justify-content: space-between;">
+                <button onclick="changeReviewQuestion(-1)" id="c-btn-prev" style="background: #0037f4; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 16px; transition: 0.2s;">&#8592; Trước</button>
+                <div id="c-review-counter" style="color: white; font-weight: bold; font-size: 18px;">Câu 0 / 0</div>
+                <button onclick="changeReviewQuestion(1)" id="c-btn-next" style="background: #0037f4; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 16px; transition: 0.2s;">Tiếp &#8594;</button>
+            </div>
+
             <div id="c-review-list" style="width: 700px; max-width: 95%; display: flex; flex-direction: column; gap: 20px;">
-                <!-- Danh sách câu hỏi đã làm sẽ chèn vào đây -->
+                <!-- 1 Câu hỏi sẽ chèn vào đây -->
             </div>
         </div>
     </div>
@@ -726,6 +734,7 @@
         let cIndex = 0;
         let isAnswered = false;
         let cHistory = []; // Thêm biến lưu lịch sử các câu đã làm
+        let cReviewIndex = 0; // Lưu vị trí câu đang xem lại
 
         function startChallenge() {
             let classCode = document.getElementById('home-class-code').value.trim();
@@ -738,6 +747,7 @@
             document.getElementById('challenge-modal').classList.add('active');
             document.getElementById('c-loading').style.display = 'block';
             document.getElementById('c-game-area').style.display = 'none';
+            document.getElementById('c-review-area').style.display = 'none'; 
             
             // Bốc ngẫu nhiên 1 đề từ kho dữ liệu (Bạn có thể thêm các đề khác vào mảng này)
             let testFiles = ['ets-2026-test-1','ets-2026-test-2','ets-2026-test-3','ets-2026-test-4','ets-2026-test-5'];
@@ -851,7 +861,6 @@
 
             // Delay báo Alert 0.5 giây để hiệu ứng kịp chạy
             setTimeout(() => {
-                alert(`🔥 HẾT GIỜ! \nThành tích của bạn: ${cScore} câu đúng trong 30 giây.`);
                 
                 let name = document.getElementById('home-student-name').value.trim();
                 let classCode = document.getElementById('home-class-code').value.trim();
@@ -876,41 +885,61 @@
             }, 500);
         }
 
-        // HÀM TẠO GIAO DIỆN XEM LẠI KẾT QUẢ
+        // HÀM TẠO GIAO DIỆN XEM LẠI KẾT QUẢ (1 Câu / 1 Trang)
         function showChallengeReview() {
             document.getElementById('c-game-area').style.display = 'none';
             document.getElementById('c-review-area').style.display = 'flex';
             document.getElementById('c-final-score-ui').innerText = cScore;
 
-            let reviewHtml = '';
-            cHistory.forEach((item, i) => {
-                let sq = item.question;
-                let cleanTitle = sq.title.replace(/^(\d+\.|Câu\s+\d+\:?)\s*/i, '');
-                
-                let optsHtml = '';
-                sq.choices.forEach(c => {
-                    let btnClass = "c-opt-btn";
-                    if (c.choice_right_answer) btnClass += " correct"; // Tô xanh đáp án đúng
-                    else if (item.userChoice === c.choice && !item.isRight) btnClass += " wrong"; // Tô đỏ nếu học viên chọn sai
-                    
-                    optsHtml += `<div class="${btnClass}" style="pointer-events:none; margin-bottom:8px;"><span style="font-weight:bold; margin-right:8px; width:20px;">${c.choice}.</span> <span>${c.choice_answer}</span></div>`;
-                });
-
-                let expHtml = sq.explanation ? `<div class="c-review-exp"><b>Giải thích:</b><br>${sq.explanation}</div>` : '';
-
-                reviewHtml += `
-                <div class="c-question-box" style="margin-bottom: 20px;">
-                    <div class="c-q-text">Câu ${i+1}: ${cleanTitle}</div>
-                    <div class="c-options">${optsHtml}</div>
-                    ${expHtml}
-                </div>`;
-            });
-            
             if(cHistory.length === 0) {
-                reviewHtml = `<div class="c-question-box" style="text-align:center; font-weight:bold;">Bạn chưa kịp trả lời câu nào!</div>`;
+                document.getElementById('c-review-counter').innerText = "0 / 0";
+                document.getElementById('c-btn-prev').style.display = 'none';
+                document.getElementById('c-btn-next').style.display = 'none';
+                document.getElementById('c-review-list').innerHTML = `<div class="c-question-box" style="text-align:center; font-weight:bold;">Bạn chưa kịp trả lời câu nào!</div>`;
+                return;
             }
 
+            cReviewIndex = 0;
+            renderReviewQuestion();
+        }
+
+        function renderReviewQuestion() {
+            let item = cHistory[cReviewIndex];
+            let sq = item.question;
+            let cleanTitle = sq.title.replace(/^(\d+\.|Câu\s+\d+\:?)\s*/i, '');
+            
+            let optsHtml = '';
+            sq.choices.forEach(c => {
+                let btnClass = "c-opt-btn";
+                if (c.choice_right_answer) btnClass += " correct"; 
+                else if (item.userChoice === c.choice && !item.isRight) btnClass += " wrong"; 
+                
+                optsHtml += `<div class="${btnClass}" style="pointer-events:none; margin-bottom:8px;"><span style="font-weight:bold; margin-right:8px; width:20px;">${c.choice}.</span> <span>${c.choice_answer}</span></div>`;
+            });
+
+            let expHtml = sq.explanation ? `<div class="c-review-exp">${sq.explanation}</div>` : '';
+
+            let reviewHtml = `
+            <div class="c-question-box" style="margin-bottom: 20px;">
+                <div class="c-q-text">Câu ${cReviewIndex + 1}: ${cleanTitle}</div>
+                <div class="c-options">${optsHtml}</div>
+                ${expHtml}
+            </div>`;
+
             document.getElementById('c-review-list').innerHTML = reviewHtml;
+            document.getElementById('c-review-counter').innerText = `Câu ${cReviewIndex + 1} / ${cHistory.length}`;
+
+            // Ẩn/Hiện nút Trước, Tiếp
+            document.getElementById('c-btn-prev').style.visibility = cReviewIndex === 0 ? 'hidden' : 'visible';
+            document.getElementById('c-btn-next').style.visibility = cReviewIndex === cHistory.length - 1 ? 'hidden' : 'visible';
+        }
+
+        function changeReviewQuestion(step) {
+            let newIndex = cReviewIndex + step;
+            if (newIndex >= 0 && newIndex < cHistory.length) {
+                cReviewIndex = newIndex;
+                renderReviewQuestion();
+            }
         }
 
         function closeChallenge() {
@@ -1139,6 +1168,20 @@ function toggleThemePanel() {
             document.getElementById('logged-in-view').style.display = 'flex';
             document.getElementById('display-user-name').innerText = "WIN " + classCode + " - " + name;
         }
+
+        // Bắt phím tắt cho Game Modal
+        document.addEventListener('keydown', function(event) {
+            let modal = document.getElementById('challenge-modal');
+            if (modal && modal.classList.contains('active')) {
+                if (event.key === 'Escape') {
+                    closeChallenge();
+                } else if (event.code === 'ArrowRight' || event.keyCode === 39) {
+                    if (document.getElementById('c-review-area').style.display === 'flex') changeReviewQuestion(1);
+                } else if (event.code === 'ArrowLeft' || event.keyCode === 37) {
+                    if (document.getElementById('c-review-area').style.display === 'flex') changeReviewQuestion(-1);
+                }
+            }
+        });
     </script>
 </body>
 </html>
