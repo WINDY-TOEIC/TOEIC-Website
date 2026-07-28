@@ -625,6 +625,9 @@
                         if (parsed.currentMode) resumeMode = parsed.currentMode; // Trả về đúng chế độ thi/luyện tập
                     }
                     startTest(resumeMode);
+                } else if (urlParams.get('historyIndex') !== null) {
+                    // BỎ QUA MÀN HÌNH SETUP NẾU ĐANG BẤM TỪ LỊCH SỬ
+                    startTest('exam');
                 } else {
                     document.getElementById('setup-form').classList.remove('hidden');
                 }

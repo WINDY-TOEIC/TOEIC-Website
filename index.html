@@ -1090,7 +1090,7 @@
                 // Nếu là dữ liệu mới (có lưu fileName) -> Hiện link mở thẳng vào thi.html
                 if (item.details && item.details.fileName) {
                     let reviewUrl = `thi.html?test=${item.details.fileName.replace('.txt','')}&historyIndex=${actualIndex}`;
-                    detailBtn = `<a href="${reviewUrl}" style="color:#0037f4; font-size:14px; font-weight:700; text-decoration:underline; display:inline-block; margin-top:4px;">👁️ Xem lại bài làm chi tiết</a>`;
+                    detailBtn = `<a href="${reviewUrl}" style="color:#0037f4; font-size:14px; font-weight:700; text-decoration:underline; display:inline-block; margin-top:4px;">Xem lại bài làm chi tiết</a>`;
                 } 
                 // Nếu là dữ liệu cũ (chỉ có detail điểm, ko có fileName) -> Mở modal cũ
                 else if (item.details) {
