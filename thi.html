@@ -716,6 +716,18 @@
                     };
                     isSubmitted = true; // Ép hệ thống hiểu là bài đã nộp để hiện màu đúng/sai
                     
+                    // Tô màu Xanh/Đỏ cho các nút ở danh sách bên phải
+                    setTimeout(() => {
+                        flatQuestions.forEach((item, index) => {
+                            let gridBtn = document.getElementById(`grid-btn-${index}`);
+                            if (gridBtn) {
+                                let correctObj = item.sq.choices.find(c => c.choice_right_answer);
+                                let isCorrect = (resumeData.userAnswers[index] === (correctObj ? correctObj.choice : null));
+                                gridBtn.className = isCorrect ? "grid-btn correct-ans" : "grid-btn wrong-ans";
+                            }
+                        });
+                    }, 200);
+
                     // Sửa lại nút Nộp bài thành nút Xem Bảng Điểm
                     setTimeout(() => {
                         let btnSubmit = document.getElementById('btn-submit');
@@ -900,7 +912,7 @@
             if (item.groupId !== currentGroupId || index === 0) {
                 
                 // --- TỰ ĐỘNG LƯU GHI CHÚ TRƯỚC KHI CHUYỂN SANG NHÓM CÂU HỎI KHÁC ---
-                if (currentGroupId !== -1) {
+                if (currentGroupId !== -1 && !isSubmitted) {
                     let oldMContent = document.getElementById('media-content');
                     let oldQContent = document.getElementById('question-content');
                     if (oldMContent && oldQContent && oldMContent.innerHTML.trim() !== '') {
@@ -1728,7 +1740,7 @@
             historyStep++;
             
             // --- TỰ ĐỘNG LƯU GHI CHÚ NGAY LẬP TỨC (Tránh mất khi F5) ---
-            if (currentGroupId !== -1 && mContent) {
+            if (currentGroupId !== -1 && mContent && !isSubmitted) {
                 savedNotes[currentGroupId] = {
                     left: mContent.innerHTML,
                     right: qContent.innerHTML
