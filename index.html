@@ -684,7 +684,8 @@
                     
                     // Hàm tạo code HTML chung cho 2 bảng
                     function buildTableHtml(dataArray, isChallenge = false) {
-                        let tableHtml = '<table class="lb-table"><tr><th style="text-align:center; width:12%;">Top</th><th style="text-align:center; width:38%;">Học Viên</th><th style="text-align:center; width:25%;">Đề Thi</th><th style="text-align:center; width:10%;">Điểm</th><th style="text-align:center; width:15%;">Ngày Nộp</th></tr>';
+                        let scoreHeader = isChallenge ? "Số câu" : "Điểm";
+                        let tableHtml = `<table class="lb-table"><tr><th style="text-align:center; width:12%;">Top</th><th style="text-align:center; width:38%;">Thí sinh</th><th style="text-align:center; width:25%;">Đề Thi</th><th style="text-align:center; width:10%;">${scoreHeader}</th><th style="text-align:center; width:15%;">Ngày</th></tr>`;
                         dataArray.forEach((row, index) => {
                             let rankClass = "lb-rank";
                             let rankTrophy = index + 1;
@@ -696,7 +697,7 @@
                             let shortDate = dateMatch ? dateMatch[0] : row.time;
                             shortDate = shortDate.replace(/\/20(\d{2})/, '/$1');
                             
-                            let testName = isChallenge ? "Speed 30s" : row.test;
+                            let testName = isChallenge ? "30s Part 5" : row.test;
 
                             tableHtml += `<tr>
                                 <td class="${rankClass}" style="white-space: nowrap;">${rankTrophy}</td>
