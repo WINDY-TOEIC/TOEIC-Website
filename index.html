@@ -230,6 +230,34 @@
         body.dark-mode .login-input { background: #333; color: #fff; border-color: #555; }
         body.dark-mode #display-user-name { color: #5ba4e5 !important; }
 
+        /* --- THỬ THÁCH PART 5 --- */
+        .challenge-banner { background: linear-gradient(45deg, #0037f4, #00ced1); color: white; padding: 25px; border-radius: 8px; margin-bottom: 40px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 5px 15px rgba(0, 55, 244, 0.3); }
+        .challenge-banner h2 { margin: 0; font-size: 22px; text-transform: uppercase; text-shadow: 1px 1px 2px rgba(0,0,0,0.2); }
+        .btn-play-challenge { background: white; color: #0037f4; border: none; padding: 12px 30px; border-radius: 50px; font-weight: bold; font-size: 16px; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
+        .btn-play-challenge:hover { transform: scale(1.05); box-shadow: 0 6px 15px rgba(0,0,0,0.2); }
+        
+        .c-modal { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:99999; display: flex; flex-direction:column; align-items:center; justify-content:center; opacity:0; visibility:hidden; transition:0.3s; backdrop-filter: blur(5px); }
+        .c-modal.active { opacity: 1; visibility: visible; }
+        .btn-close-c { position: absolute; top: 20px; right: 30px; font-size: 35px; color: white; background: transparent; border: none; cursor: pointer; font-weight: 300; transition: 0.2s; }
+        .btn-close-c:hover { color: #ff6b6b; transform: scale(1.2); }
+        .c-header { display: flex; justify-content: space-between; width: 700px; max-width: 95%; margin-bottom: 20px; font-size: 24px; font-weight: bold; color: white; align-items: center; }
+        .c-timer { color: #f1c40f; font-size: 35px; background: rgba(0,0,0,0.5); padding: 5px 20px; border-radius: 50px; border: 2px solid #f1c40f; }
+        .c-score { color: #2ecc71; font-size: 22px; }
+        .c-question-box { background: white; color: #333; width: 700px; max-width: 95%; padding: 30px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .c-q-text { font-weight: bold; margin-bottom: 25px; font-size: 19px; line-height: 1.6; }
+        .c-options { display: grid; grid-template-columns: 1fr; gap: 12px; }
+        .c-opt-btn { background: #f8f9fa; border: 2px solid #e1e4e8; padding: 15px 20px; border-radius: 8px; text-align: left; font-size: 16px; cursor: pointer; transition: 0.2s; font-weight: 500; display: flex; align-items: center; }
+        .c-opt-btn:hover { background: #e2e6ea; border-color: #ccc; }
+        .c-opt-btn.correct { background: #2ecc71 !important; color: white !important; border-color: #27ae60 !important; }
+        .c-opt-btn.wrong { background: #e74c3c !important; color: white !important; border-color: #c0392b !important; }
+        .c-loading { color: white; font-size: 22px; font-weight: bold; display: none; text-align: center; }
+        
+        body.dark-mode .c-question-box { background: #1e1e1e; color: #e0e0e0; }
+        body.dark-mode .c-opt-btn { background: #2a2a2a; border-color: #444; color: #e0e0e0; }
+        body.dark-mode .c-opt-btn:hover { background: #333; }
+        body.dark-mode .challenge-banner { background: linear-gradient(45deg, #111, #333); border: 1px solid #5ba4e5; box-shadow: none; }
+        body.dark-mode .btn-play-challenge { background: #5ba4e5; color: #111; }
+
         /* --- GIAO DIỆN ĐIỆN THOẠI  (MOBILE RESPONSIVE) --- */
         @media (max-width: 768px) {
             body { zoom: 1 !important; transform: none !important; overflow-x: hidden; }
@@ -256,6 +284,15 @@
             /* Lưới đề thi */
             .test-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
             .history-dropdown { width: 95vw; left: -80px; }
+            
+            /* Giao diện Mobile cho Game Thử Thách */
+            .challenge-banner { flex-direction: column; text-align: center; gap: 15px; padding: 20px 15px; }
+            .c-header { flex-direction: column; gap: 10px; }
+            .c-timer { font-size: 28px; }
+            .c-question-box { padding: 20px 15px; }
+            .c-q-text { font-size: 16px; margin-bottom: 15px; }
+            .c-opt-btn { padding: 12px 15px; font-size: 14px; }
+            .btn-close-c { top: 10px; right: 15px; }
         }
     </style>
 
@@ -330,6 +367,15 @@
 
         <!-- CỘT TRÁI: CHỨA DANH SÁCH ĐỀ THI -->
         <div class="left-col">
+        
+        <!-- BANNER THỬ THÁCH PART 5 -->
+        <div class="challenge-banner">
+            <div>
+                <h2>⚡ THỬ THÁCH PART 5 (30 GIÂY)</h2>
+                <p style="margin: 5px 0 0 0; font-size: 14px; opacity: 0.9;">Trả lời nhanh ngẫu nhiên Part 5. Đăng nhập để đua TOP!</p>
+            </div>
+            <button class="btn-play-challenge" onclick="startChallenge()">CHƠI NGAY ▶</button>
+        </div>
 
         <div class="year-section">
             <h2>📚 Bộ Đề ETS 2026</h2>
@@ -491,8 +537,35 @@
                     <div class="lb-loading">Đang tải dữ liệu từ máy chủ... ⏳</div>
                 </div>
             </div>
+            
+            <!-- BẢNG XẾP HẠNG THỬ THÁCH PART 5 -->
+            <div class="leaderboard-section" style="border-color: #00ced1;">
+                <h2 style="color: #009ba0; gap: 5px;">⚡ TOP 10 THỬ THÁCH</h2>
+                <div id="lb-challenge-container">
+                    <div class="lb-loading">Đang tải dữ liệu từ máy chủ... ⏳</div>
+                </div>
+            </div>
         </div>
 
+    </div>
+    
+    <!-- MODAL THỬ THÁCH PART 5 CHƠI GAME -->
+    <div id="challenge-modal" class="c-modal">
+        <button class="btn-close-c" onclick="closeChallenge()">×</button>
+        <div class="c-loading" id="c-loading">Đang nạp dữ liệu câu hỏi... ⏳</div>
+        
+        <div id="c-game-area" style="display: none; width: 100%; display: flex; flex-direction: column; align-items: center;">
+            <div class="c-header">
+                <div class="c-score">Điểm: <b id="c-score-ui">0</b></div>
+                <div class="c-timer" id="c-timer-ui">30s</div>
+            </div>
+            <div class="c-question-box">
+                <div class="c-q-text" id="c-q-text">Đang tải câu hỏi...</div>
+                <div class="c-options" id="c-options-ui">
+                    <!-- Nút bấm sẽ chèn vào đây -->
+                </div>
+            </div>
+        </div>
     </div>
     
     
@@ -567,48 +640,187 @@
             });
         }
 
-        function loadLeaderboardData() {
-            fetch(GOOGLE_SCRIPT_URL + "?action=getLeaderboard")
-                .then(res => res.json())
-                .then(data => {
-                    let container = document.getElementById('lb-container');
-                    if (data.length === 0) {
-                        container.innerHTML = '<div class="lb-loading">Chưa có ai ghi danh lên bảng vàng.</div>';
+        
+                        mainContainer.innerHTML = '<div class="lb-loading">Chưa có ai ghi danh lên bảng vàng.</div>';
+                        chalContainer.innerHTML = '<div class="lb-loading">Chưa có ai tham gia thử thách.</div>';
                         return;
                     }
                     
-                    // Ép tất cả các tiêu đề cột ra giữa cho đồng bộ
-                    let tableHtml = '<table class="lb-table"><tr><th style="text-align:center; width:12%;">Top</th><th style="text-align:center; width:38%;">Học Viên</th><th style="text-align:center; width:25%;">Đề Thi</th><th style="text-align:center; width:10%;">Điểm</th><th style="text-align:center; width:15%;">Ngày Nộp</th></tr>';
+                    // Lọc dữ liệu ra 2 bảng khác nhau dựa vào Tên bài Test
+                    let mainData = data.filter(r => r.test !== "THỬ THÁCH PART 5");
+                    let chalData = data.filter(r => r.test === "THỬ THÁCH PART 5");
                     
-                    data.forEach((row, index) => {
-                        let rankClass = "lb-rank";
-                        // Dùng &nbsp; (khoảng trắng cứng) để cúp và số dính chặt vào nhau, cấm rớt dòng
-                        let rankTrophy = index + 1;
-                        if (index === 0) { rankClass += " top-1"; rankTrophy = "🏆&nbsp;1"; }
-                        else if (index === 1) { rankClass += " top-2"; rankTrophy = "🥈&nbsp;2"; }
-                        else if (index === 2) { rankClass += " top-3"; rankTrophy = "🥉&nbsp;3"; }
-                        
-                        // Rút gọn thời gian
-                        let dateMatch = row.time.match(/\d{1,2}\/\d{1,2}\/\d{4}/);
-                        let shortDate = dateMatch ? dateMatch[0] : row.time;
-                        // Biến 2026 thành 26
-                        shortDate = shortDate.replace(/\/20(\d{2})/, '/$1');
+                    // Hàm tạo code HTML chung cho 2 bảng
+                    function buildTableHtml(dataArray, isChallenge = false) {
+                        let tableHtml = '<table class="lb-table"><tr><th style="text-align:center; width:12%;">Top</th><th style="text-align:center; width:38%;">Học Viên</th><th style="text-align:center; width:25%;">Đề Thi</th><th style="text-align:center; width:10%;">Điểm</th><th style="text-align:center; width:15%;">Ngày Nộp</th></tr>';
+                        dataArray.forEach((row, index) => {
+                            let rankClass = "lb-rank";
+                            let rankTrophy = index + 1;
+                            if (index === 0) { rankClass += " top-1"; rankTrophy = "🏆&nbsp;1"; }
+                            else if (index === 1) { rankClass += " top-2"; rankTrophy = "🥈&nbsp;2"; }
+                            else if (index === 2) { rankClass += " top-3"; rankTrophy = "🥉&nbsp;3"; }
+                            
+                            let dateMatch = row.time.match(/\d{1,2}\/\d{1,2}\/\d{4}/);
+                            let shortDate = dateMatch ? dateMatch[0] : row.time;
+                            shortDate = shortDate.replace(/\/20(\d{2})/, '/$1');
+                            
+                            let testName = isChallenge ? "Speed 30s" : row.test;
 
-                        tableHtml += `<tr>
-                            <td class="${rankClass}" style="white-space: nowrap;">${rankTrophy}</td>
-                            <td style="font-weight:600; color:#003366; text-align:center; line-height:1.4;">${row.className}<br>${row.name}</td>
-                            <td style="text-align:center; line-height:1.4;">${row.test}</td>
-                            <td class="lb-score" style="text-align:center;">${row.score}</td>
-                            <td style="font-size:13.5px; color:#777; text-align:center;">${shortDate}</td>
-                        </tr>`;
-                    });
-
-                    tableHtml += '</table>';
-                    container.innerHTML = tableHtml;
+                            tableHtml += `<tr>
+                                <td class="${rankClass}" style="white-space: nowrap;">${rankTrophy}</td>
+                                <td style="font-weight:600; color:#003366; text-align:center; line-height:1.4;">${row.className}<br>${row.name}</td>
+                                <td style="text-align:center; line-height:1.4; font-size:12px;">${testName}</td>
+                                <td class="lb-score" style="text-align:center;">${row.score}</td>
+                                <td style="font-size:13.5px; color:#777; text-align:center;">${shortDate}</td>
+                            </tr>`;
+                        });
+                        return tableHtml + '</table>';
+                    }
+                    
+                    // Trải dữ liệu ra giao diện
+                    if(mainData.length === 0) mainContainer.innerHTML = '<div class="lb-loading">Chưa có ai ghi danh lên bảng vàng.</div>';
+                    else mainContainer.innerHTML = buildTableHtml(mainData);
+                    
+                    if(chalData.length === 0) chalContainer.innerHTML = '<div class="lb-loading">Chưa có ai tham gia thử thách.</div>';
+                    else {
+                        // Tự động xếp hạng riêng cho nhóm Thử thách (Từ cao xuống thấp)
+                        chalData.sort((a, b) => parseInt(b.score) - parseInt(a.score));
+                        chalData = chalData.slice(0, 10); // Lấy Top 10
+                        chalContainer.innerHTML = buildTableHtml(chalData, true);
+                    }
                 })
                 .catch(err => {
-                    document.getElementById('lb-container').innerHTML = '<div class="lb-loading" style="color:red;">Lỗi tải dữ liệu Bảng xếp hạng. Vui lòng thử lại sau!</div>';
+                    document.getElementById('lb-container').innerHTML = '<div class="lb-loading" style="color:red;">Lỗi tải dữ liệu. Vui lòng thử lại sau!</div>';
                 });
+        }
+
+        // --- LOGIC GAME THỬ THÁCH PART 5 ---
+        let cTimer;
+        let cTimeLeft = 30;
+        let cScore = 0;
+        let cQuestions = [];
+        let cIndex = 0;
+        let isAnswered = false;
+
+        function startChallenge() {
+            let classCode = document.getElementById('home-class-code').value.trim();
+            let name = document.getElementById('home-student-name').value.trim();
+            if (classCode === "" || name === "") {
+                alert("Vui lòng nhập Mã lớp và Họ tên ở góc phải phía trên để được ghi danh Đua TOP nhé!");
+                return;
+            }
+            
+            document.getElementById('challenge-modal').classList.add('active');
+            document.getElementById('c-loading').style.display = 'block';
+            document.getElementById('c-game-area').style.display = 'none';
+            
+            // Bốc ngẫu nhiên 1 đề từ kho dữ liệu (Bạn có thể thêm các đề khác vào mảng này)
+            let testFiles = ['ets-2026-test-1','ets-2026-test-2','ets-2026-test-3','ets-2026-test-4','ets-2026-test-5'];
+            let randomTest = testFiles[Math.floor(Math.random() * testFiles.length)];
+            
+            fetch('Data/' + randomTest + '.txt')
+            .then(res => res.json())
+            .then(json => {
+                // Lọc nguyên cụm Part 5 ra
+                let p5Groups = json.data.data.questions.filter(q => q.sub_questions && q.sub_questions.length > 0 && q.sub_questions[0].term_name.trim().toUpperCase() === 'PART 5');
+                cQuestions = [];
+                p5Groups.forEach(g => { g.sub_questions.forEach(sq => cQuestions.push(sq)); });
+                
+                // Shuffle: Trộn xáo trộn vị trí câu hỏi
+                cQuestions.sort(() => Math.random() - 0.5);
+                
+                cIndex = 0;
+                cScore = 0;
+                cTimeLeft = 30;
+                
+                document.getElementById('c-loading').style.display = 'none';
+                document.getElementById('c-game-area').style.display = 'flex';
+                
+                loadNextCQuestion();
+                
+                // Đồng hồ đếm ngược 30 giây
+                cTimer = setInterval(() => {
+                    cTimeLeft--;
+                    document.getElementById('c-timer-ui').innerText = cTimeLeft + "s";
+                    if (cTimeLeft <= 0) endChallenge();
+                }, 1000);
+            })
+            .catch(err => {
+                alert("Lỗi kết nối dữ liệu. Vui lòng thử lại!");
+                closeChallenge();
+            });
+        }
+
+        function loadNextCQuestion() {
+            if (cIndex >= cQuestions.length) { endChallenge(); return; }
+            isAnswered = false;
+            document.getElementById('c-score-ui').innerText = cScore;
+            
+            let sq = cQuestions[cIndex];
+            let cleanTitle = sq.title.replace(/^(\d+\.|Câu\s+\d+\:?)\s*/i, ''); // Xóa chữ "Câu 101." ở đầu cho đẹp
+            document.getElementById('c-q-text').innerHTML = cleanTitle;
+            
+            let optsHtml = '';
+            sq.choices.forEach(c => {
+                let isRight = c.choice_right_answer ? 1 : 0;
+                optsHtml += `<button class="c-opt-btn" onclick="selectCAnswer(this, ${isRight})"><span style="font-weight:bold; margin-right:8px; width:20px;">${c.choice}.</span> <span>${c.choice_answer}</span></button>`;
+            });
+            document.getElementById('c-options-ui').innerHTML = optsHtml;
+        }
+
+        function selectCAnswer(btn, isRight) {
+            if (isAnswered) return;
+            isAnswered = true;
+            
+            // Khóa tất cả các nút để tránh người chơi spam click
+            let allBtns = document.querySelectorAll('.c-opt-btn');
+            allBtns.forEach(b => b.style.pointerEvents = 'none');
+            
+            if (isRight) {
+                btn.classList.add('correct');
+                cScore++;
+                document.getElementById('c-score-ui').innerText = cScore;
+            } else {
+                btn.classList.add('wrong');
+                // Tìm nút đúng để bôi màu xanh lá cho học viên biết
+                allBtns.forEach(b => { if (b.getAttribute('onclick').includes(', 1)')) b.classList.add('correct'); });
+            }
+            
+            // Dừng 0.6 giây để nhìn đáp án rồi chuyển sang câu mới
+            setTimeout(() => {
+                cIndex++;
+                if (cTimeLeft > 0) loadNextCQuestion();
+            }, 600);
+        }
+
+        function endChallenge() {
+            clearInterval(cTimer);
+            document.getElementById('c-timer-ui').innerText = "0s";
+            
+            alert(`🔥 HẾT GIỜ! \nThành tích của bạn: ${cScore} câu đúng trong 30 giây.`);
+            
+            let name = document.getElementById('home-student-name').value.trim();
+            let classCode = document.getElementById('home-class-code').value.trim();
+            
+            if (cScore > 0 && classCode !== "GUEST" && classCode !== "" && name !== "") {
+                // Đóng gói data gửi về Google Sheets chung một đường dẫn
+                let submitUrl = GOOGLE_SCRIPT_URL + 
+                    "?name=" + encodeURIComponent(name) +
+                    "&classcode=" + encodeURIComponent(classCode) +
+                    "&test=" + encodeURIComponent("THỬ THÁCH PART 5") +
+                    "&score=" + encodeURIComponent(cScore) +
+                    "&leaderboard=YES";
+
+                fetch(submitUrl, { mode: 'no-cors' }).then(() => {
+                    setTimeout(loadLeaderboardData, 1500); // Tải lại 2 Bảng Vàng sau 1.5s
+                });
+            }
+            closeChallenge();
+        }
+
+        function closeChallenge() {
+            clearInterval(cTimer);
+            document.getElementById('challenge-modal').classList.remove('active');
         }
 
         function checkResumeTest() {
