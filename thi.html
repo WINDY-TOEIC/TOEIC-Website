@@ -1923,8 +1923,18 @@
                 let data = await res.json();
                 
                 let phonetics = data[0]?.phonetics || [];
-                let ipaItem = phonetics.find(p => p.audio && p.audio.includes('-uk')) || phonetics.find(p => p.text) || {text: data[0]?.phonetic};
-                let ipaText = ipaItem.text || "Không có IPA";
+                let ipaText = data[0]?.phonetic; 
+
+                // Tìm bản UK có chứa Text, nếu không có thì lấy Text bất kỳ có trong API bù vào
+                let ukItem = phonetics.find(p => p.text && p.audio && p.audio.includes('-uk'));
+                if (ukItem) {
+                    ipaText = ukItem.text;
+                } else {
+                    let textItem = phonetics.find(p => p.text);
+                    if (textItem) ipaText = textItem.text;
+                }
+
+                if (!ipaText) ipaText = "Không có IPA";
 
                 let noteSpan = document.createElement('span');
                 noteSpan.className = 'hl-note-text';
