@@ -722,10 +722,10 @@
                     mainData = mainData.slice(0, 20); // Top 20 Bảng Vàng
                     chalData = chalData.slice(0, 10); // Top 10 Thử Thách
                     
-                    // Hàm tạo code HTML chung cho 2 bảng
+                    // Hàm tạo code HTML chung cho 2 bảng (Đã tách cột Lớp & bỏ cột Ngày)
                     function buildTableHtml(dataArray, isChallenge = false) {
                         let scoreHeader = isChallenge ? "Số câu" : "Điểm";
-                        let tableHtml = `<table class="lb-table"><tr><th style="text-align:center; width:12%;">Top</th><th style="text-align:center; width:38%;">Thí sinh</th><th style="text-align:center; width:25%;">Đề Thi</th><th style="text-align:center; width:10%;">${scoreHeader}</th><th style="text-align:center; width:15%;">Ngày</th></tr>`;
+                        let tableHtml = `<table class="lb-table"><tr><th style="text-align:center; width:12%;">Top</th><th style="text-align:center; width:15%;">Lớp</th><th style="text-align:center; width:35%;">Thí sinh</th><th style="text-align:center; width:26%;">Đề Thi</th><th style="text-align:center; width:12%;">${scoreHeader}</th></tr>`;
                         dataArray.forEach((row, index) => {
                             let rankClass = "lb-rank";
                             let rankTrophy = index + 1;
@@ -733,18 +733,16 @@
                             else if (index === 1) { rankClass += " top-2"; rankTrophy = "🥈&nbsp;2"; }
                             else if (index === 2) { rankClass += " top-3"; rankTrophy = "🥉&nbsp;3"; }
                             
-                            let dateMatch = row.time.match(/\d{1,2}\/\d{1,2}\/\d{4}/);
-                            let shortDate = dateMatch ? dateMatch[0] : row.time;
-                            shortDate = shortDate.replace(/\/20(\d{2})/, '/$1');
-                            
+                            // Tách bỏ chữ "WIN" chỉ lấy số lớp (ví dụ: "WIN 171" -> "171")
+                            let cleanClass = (row.className || '').replace(/^WIN\s*/i, '').trim();
                             let testName = isChallenge ? "30s Part 5" : row.test;
 
                             tableHtml += `<tr>
                                 <td class="${rankClass}" style="white-space: nowrap;">${rankTrophy}</td>
-                                <td style="font-weight:600; color:#003366; text-align:center; line-height:1.4;">${row.className}<br>${row.name}</td>
+                                <td style="text-align:center; font-weight:600; color:#555;">${cleanClass}</td>
+                                <td style="font-weight:600; color:#003366; text-align:center;">${row.name}</td>
                                 <td style="text-align:center; line-height:1.4; font-size:12px;">${testName}</td>
                                 <td class="lb-score" style="text-align:center;">${row.score}</td>
-                                <td style="font-size:13.5px; color:#777; text-align:center;">${shortDate}</td>
                             </tr>`;
                         });
                         return tableHtml + '</table>';
