@@ -1124,7 +1124,9 @@
 
                 // KIỂM TRA VÀ PHỤC HỒI GHI CHÚ (NẾU CÓ LƯU)
 
-                if (savedNotes && savedNotes[currentGroupId]) {
+                // Chỉ phục hồi ghi chú nếu CHƯA NỘP BÀI (!isSubmitted)
+                // Đã nộp rồi thì tuyệt đối không được đè lại giao diện cũ
+                if (savedNotes && savedNotes[currentGroupId] && !isSubmitted) {
                     document.getElementById('media-content').innerHTML = savedNotes[currentGroupId].left;
                     document.getElementById('question-content').innerHTML = savedNotes[currentGroupId].right;
                     
