@@ -1190,10 +1190,12 @@
                 document.getElementById('right-panel').scrollTop = 0;
             } // Hết khối Render
 
-            // Tự động cuộn ĐỈNH CÂU HỎI lên trên cùng (Đổi nearest thành start để không bị kẹt ở đáy giải thích)
+            // Tự động cuộn ĐỈNH CÂU HỎI lên trên cùng (Khóa chặt chỉ cuộn ô bên phải, tuyệt đối KHÔNG kéo trang web)
             let targetBlock = document.getElementById(`q-block-${index}`);
-            if (targetBlock && item.groupId === currentGroupId) {
-                targetBlock.scrollIntoView({ behavior: "smooth", block: "start" });
+            let rightPanel = document.getElementById('right-panel');
+            if (targetBlock && rightPanel) {
+                let scrollPos = targetBlock.getBoundingClientRect().top - rightPanel.getBoundingClientRect().top + rightPanel.scrollTop - 15;
+                rightPanel.scrollTo({ top: scrollPos, behavior: "smooth" });
             }
 
             let currentPartStr = (sq.term_name || "").toUpperCase();
