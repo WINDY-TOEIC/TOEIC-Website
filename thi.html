@@ -1190,10 +1190,10 @@
                 document.getElementById('right-panel').scrollTop = 0;
             } // Hết khối Render
 
-            // Tự động cuộn tới câu hỏi (Đổi center thành nearest để không bị giật khi hiện đáp án dài)
+            // Tự động cuộn ĐỈNH CÂU HỎI lên trên cùng (Đổi nearest thành start để không bị kẹt ở đáy giải thích)
             let targetBlock = document.getElementById(`q-block-${index}`);
             if (targetBlock && item.groupId === currentGroupId) {
-                targetBlock.scrollIntoView({ behavior: "smooth", block: "nearest" });
+                targetBlock.scrollIntoView({ behavior: "smooth", block: "start" });
             }
 
             let currentPartStr = (sq.term_name || "").toUpperCase();
