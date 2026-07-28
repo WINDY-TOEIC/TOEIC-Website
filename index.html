@@ -1017,6 +1017,7 @@ function toggleThemePanel() {
         function signIn() {
             let classCode = document.getElementById('home-class-code').value.trim();
             let name = document.getElementById('home-student-name').value.trim();
+            
             if (classCode !== "" && name !== "") {
                 localStorage.setItem('win_classCode', classCode);
                 localStorage.setItem('win_studentName', name);
@@ -1026,6 +1027,8 @@ function toggleThemePanel() {
                 localStorage.setItem('win_last_name', name);
                 
                 showLoggedIn(classCode, name);
+            } else {
+                alert("Vui lòng nhập đầy đủ Mã lớp và Họ tên để đăng nhập!");
             }
         }
 
@@ -1041,6 +1044,6 @@ function toggleThemePanel() {
             document.getElementById('logged-in-view').style.display = 'flex';
             document.getElementById('display-user-name').innerText = "WIN " + classCode + " - " + name;
         }
-    </script>
+
 </body>
 </html>
