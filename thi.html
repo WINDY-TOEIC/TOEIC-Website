@@ -308,12 +308,8 @@
             </div>
 
             <div class="form-group part-selection">
-                <div class="master-checkbox" style="justify-content: space-between;">
-                    <div style="display: flex; align-items: center;">
-                        <input type="checkbox" id="chk-custom-parts" onchange="togglePartSelection()">
-                        <label for="chk-custom-parts" style="margin:0; cursor:pointer;">Chọn từng Part</label>
-                    </div>
-                    <button type="button" id="btn-toggle-all-parts" onclick="toggleAllParts()" style="display:none; background: #e2e6ea; border: 1px solid #ccc; padding: 4px 12px; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: 600; color: #333; transition: 0.2s;">Bỏ chọn tất cả</button>
+                <div class="master-checkbox">
+                    <button type="button" id="btn-toggle-all-parts" onclick="toggleAllParts()" style="background: #e2e6ea; border: 1px solid #ccc; padding: 6px 15px; border-radius: 4px; cursor: pointer; font-size: 14px; font-weight: 600; color: #333; transition: 0.2s;">Bỏ chọn tất cả</button>
                 </div>
                 <div class="part-grid" id="part-checkboxes"></div>
             </div>
@@ -605,16 +601,16 @@
                     if (shareTime) document.getElementById('time-select').value = shareTime;
                     
                     if (shareParts !== 'all') {
-                        document.getElementById('chk-custom-parts').checked = true;
-                        togglePartSelection(); // Mở khóa giao diện tick
                         let partsArray = shareParts.split(',');
                         availableParts.forEach(part => {
                             let chk = document.getElementById(`chk-${part}`);
                             if (chk) chk.checked = partsArray.includes(part); // Tick đúng part giáo viên giao
                         });
                     } else {
-                        document.getElementById('chk-custom-parts').checked = false;
-                        togglePartSelection();
+                        availableParts.forEach(part => {
+                            let chk = document.getElementById(`chk-${part}`);
+                            if (chk) chk.checked = true;
+                        });
                     }
                     startTest(shareMode); // Kích hoạt vào thi
                 } else if (isResumeSignal === '1') {
@@ -647,8 +643,8 @@
             let gridHtml = '';
             availableParts.forEach(part => {
                 gridHtml += `
-                    <div class="part-item disabled" id="part-wrap-${part}">
-                        <input type="checkbox" id="chk-${part}" value="${part}" checked disabled>
+                    <div class="part-item" id="part-wrap-${part}">
+                        <input type="checkbox" id="chk-${part}" value="${part}" checked>
                         <label for="chk-${part}" style="margin:0; cursor:pointer;">${part.toUpperCase()}</label>
                     </div>
                 `;
@@ -658,34 +654,6 @@
 
         let isAllChecked = true; // Ghi nhớ trạng thái đang tick hay bỏ tick
 
-        function togglePartSelection() {
-            let isCustom = document.getElementById('chk-custom-parts').checked;
-            let btnToggleAll = document.getElementById('btn-toggle-all-parts');
-            
-            // Xử lý hiện/ẩn nút Bỏ chọn tất cả
-            if (isCustom) {
-                btnToggleAll.style.display = 'block';
-                isAllChecked = true;
-                btnToggleAll.innerText = 'Bỏ chọn tất cả';
-            } else {
-                btnToggleAll.style.display = 'none';
-            }
-
-            availableParts.forEach(part => {
-                let wrap = document.getElementById(`part-wrap-${part}`);
-                let chk = document.getElementById(`chk-${part}`);
-                if(isCustom) {
-                    wrap.classList.remove('disabled');
-                    chk.disabled = false;
-                    chk.checked = true; // Mặc định hiện ra là tick sẵn hết
-                } else {
-                    wrap.classList.add('disabled');
-                    chk.disabled = true;
-                    chk.checked = true;
-                }
-            });
-        }
-
         // Hàm xử lý khi bấm nút "Bỏ chọn tất cả" / "Chọn tất cả"
         function toggleAllParts() {
             isAllChecked = !isAllChecked; // Đảo ngược trạng thái
@@ -694,7 +662,7 @@
             
             availableParts.forEach(part => {
                 let chk = document.getElementById(`chk-${part}`);
-                if (chk && !chk.disabled) {
+                if (chk) {
                     chk.checked = isAllChecked;
                 }
             });
@@ -741,27 +709,29 @@
 
             currentMode = mode;
             
-            // XÁC ĐỊNH ĐIỀU KIỆN LÊN BẢNG XẾP HẠNG
             let selectedTime = document.getElementById('time-select').value;
-            let isCustom = document.getElementById('chk-custom-parts').checked;
+            let selectedParts = [];
             
+            // Gom các Part đã tick
+            availableParts.forEach(part => {
+                let chk = document.getElementById(`chk-${part}`);
+                if(chk && chk.checked) selectedParts.push(part);
+            });
+
+            if(selectedParts.length === 0) {
+                alert("Vui lòng chọn ít nhất 1 Part.");
+                return;
+            }
+
+            // Nếu số Part tick ít hơn tổng số Part có sẵn -> Tức là học viên đã bỏ tick vài phần (Custom)
+            let isCustom = (selectedParts.length < availableParts.length);
+            
+            // XÁC ĐỊNH ĐIỀU KIỆN LÊN BẢNG XẾP HẠNG
             // Phải thi thật, đủ 120 phút, đã đăng nhập, làm TOÀN BỘ Part, và KHÔNG PHẢI đang làm tiếp bài dở
             if (currentMode === 'exam' && selectedTime === '120' && classCode !== "GUEST" && !isCustom && !resumeData) {
                 isValidForLeaderboard = true;
             } else {
                 isValidForLeaderboard = false;
-            }
-
-            let selectedParts = [];
-            
-            if(isCustom) {
-                availableParts.forEach(part => {
-                    if(document.getElementById(`chk-${part}`).checked) selectedParts.push(part);
-                });
-                if(selectedParts.length === 0) {
-                    alert("Vui lòng chọn ít nhất 1 Part.");
-                    return;
-                }
             }
 
             flatQuestions = [];
@@ -1047,9 +1017,10 @@
                             let splitTransIdx = transMatch.index;
                             let engPart = extractedTranscript.substring(0, splitTransIdx).trim();
                             let viPart = extractedTranscript.substring(splitTransIdx).trim();
+                            let engClass = isSubmitted ? "always-show" : "always-show hidden"; // Ép ẩn nếu chưa nộp bài
 
                             rightHtml += `<div id="temp-transcript" style="display:none;">
-                                            <div class="explanation always-show" style="margin-bottom:10px;">
+                                            <div class="explanation ${engClass}" id="left-transcript-eng" style="margin-bottom:10px;">
                                                 <h4 style="margin-top:0; color:#003366;">Transcript:</h4>
                                                 <div class="${contentStyle}">${engPart}</div>
                                             </div>
@@ -1256,6 +1227,9 @@
             
             let leftT = document.getElementById('left-transcript');
             if(leftT) leftT.classList.toggle('hidden');
+
+            let leftTEng = document.getElementById('left-transcript-eng');
+            if(leftTEng) leftTEng.classList.toggle('hidden');
             
             let leftTVi = document.getElementById('left-transcript-vi');
             if(leftTVi) leftTVi.classList.toggle('hidden');
