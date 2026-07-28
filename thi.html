@@ -701,6 +701,11 @@
             let isResume = urlParams2.get('resume');
             let isHistoryView = urlParams2.get('historyIndex');
             
+            // --- CHỐT CHẶN: DỌN SẠCH RÁC NGAY TỪ CỬA ---
+            if (isResume !== '1' && isHistoryView === null) {
+                localStorage.removeItem(`win_notes_${fileName}`);
+            }
+
             // XỬ LÝ NẾU LÀ CLICK TỪ LỊCH SỬ BÀI LÀM
             if (isHistoryView !== null) {
                 let histData = JSON.parse(localStorage.getItem('win_history') || '[]');
