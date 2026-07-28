@@ -1196,7 +1196,9 @@
                 targetBlock.scrollIntoView({ behavior: "smooth", block: "nearest" });
             }
 
-            let isListening = (index < 100); // 100 câu đầu là Listening
+            let currentPartStr = (sq.term_name || "").toUpperCase();
+            let isListening = currentPartStr.includes("PART 1") || currentPartStr.includes("PART 2") || currentPartStr.includes("PART 3") || currentPartStr.includes("PART 4");
+            
             let btnPrev = document.getElementById('btn-prev');
             let btnNext = document.getElementById('btn-next');
 
@@ -1280,7 +1282,10 @@
             }
 
             if (newIndex >= 0 && newIndex < totalQuestions) {
-                if (currentMode === 'exam' && !isSubmitted && newIndex < 100) {
+                let partName = flatQuestions[newIndex].sq.term_name ? flatQuestions[newIndex].sq.term_name.trim().toUpperCase() : "";
+                let isListening = partName.includes("PART 1") || partName.includes("PART 2") || partName.includes("PART 3") || partName.includes("PART 4");
+
+                if (currentMode === 'exam' && !isSubmitted && isListening) {
                     alert("Listening thi thật không qua lại câu trước được!");
                     return;
                 }
@@ -1289,7 +1294,10 @@
         }
 
         function jumpToQuestion(index) {
-            if (currentMode === 'exam' && !isSubmitted && index < 100) {
+            let partName = flatQuestions[index].sq.term_name ? flatQuestions[index].sq.term_name.trim().toUpperCase() : "";
+            let isListening = partName.includes("PART 1") || partName.includes("PART 2") || partName.includes("PART 3") || partName.includes("PART 4");
+            
+            if (currentMode === 'exam' && !isSubmitted && isListening) {
                 alert("Listening thi thật không qua lại câu trước được!");
                 return; // Chặn đứng, không cho nhảy câu
             }
@@ -1501,11 +1509,14 @@
                 event.preventDefault(); redoAction(); return;
             }
 
-            // NẾU LÀ THI THẬT VÀ CHƯA NỘP BÀI: Cấm phím Cách. Cấm Mũi tên nếu đang ở Listening (<100). 
+            // NẾU LÀ THI THẬT VÀ CHƯA NỘP BÀI: Cấm phím Cách. Cấm Mũi tên nếu đang ở Listening. 
             // Nếu đã nộp bài thì mở khóa thoải mái để xem lại.
             if (currentMode === 'exam' && !isSubmitted) {
                 if (event.code === 'Space' || event.keyCode === 32) return; 
-                if (currentQIndex < 100) return; 
+                
+                let currentPartStr = (flatQuestions[currentQIndex].sq.term_name || "").toUpperCase();
+                let isListening = currentPartStr.includes("PART 1") || currentPartStr.includes("PART 2") || currentPartStr.includes("PART 3") || currentPartStr.includes("PART 4");
+                if (isListening) return; 
             }
 
             if (event.code === 'Space' || event.keyCode === 32) {
@@ -1565,7 +1576,10 @@
                 if (userChoice && userChoice === correctChoice) {
                     totalCorrect++;
                     partStats[partName].correct++; // Lệnh đếm số câu đúng cho thống kê từng Part
-                    if (index < 100) listCorrect++; else readCorrect++; // 100 câu đầu là LC, còn lại là RC
+                    
+                    let isLC = partName.includes("PART 1") || partName.includes("PART 2") || partName.includes("PART 3") || partName.includes("PART 4");
+                    if (isLC) listCorrect++; else readCorrect++; // Phân loại điểm chuẩn xác theo tên Part
+                    
                     if (gridBtn) gridBtn.className = "grid-btn correct-ans";
                 } else {
                     if (gridBtn) gridBtn.className = "grid-btn wrong-ans";
