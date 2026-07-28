@@ -696,8 +696,42 @@
             // Kiểm tra xem URL có chứa lệnh resume=1 (từ nút Làm Tiếp truyền sang không)
             let urlParams2 = new URLSearchParams(window.location.search);
             let isResume = urlParams2.get('resume');
+            let isHistoryView = urlParams2.get('historyIndex');
             
-            if (savedProgress) {
+            // XỬ LÝ NẾU LÀ CLICK TỪ LỊCH SỬ BÀI LÀM
+            if (isHistoryView !== null) {
+                let histData = JSON.parse(localStorage.getItem('win_history') || '[]');
+                let pastTest = histData[parseInt(isHistoryView)];
+                if (pastTest && pastTest.details && pastTest.details.userAnswers) {
+                    resumeData = {
+                        userAnswers: pastTest.details.userAnswers,
+                        markedQuestions: {}, 
+                        currentQIndex: 0,
+                        answeredQuestions: pastTest.details.totalQuestions,
+                        currentMode: 'exam',
+                        selectedParts: availableParts
+                    };
+                    isSubmitted = true; // Ép hệ thống hiểu là bài đã nộp để hiện màu đúng/sai
+                    
+                    // Sửa lại nút Nộp bài thành nút Xem Bảng Điểm
+                    setTimeout(() => {
+                        let btnSubmit = document.getElementById('btn-submit');
+                        if (btnSubmit) {
+                            btnSubmit.innerText = "XEM LẠI BẢNG ĐIỂM";
+                            btnSubmit.style.backgroundColor = "#f27127";
+                            btnSubmit.onclick = function() {
+                                document.getElementById('m-total-correct').innerText = `${pastTest.details.totalCorrect}/${pastTest.details.totalQuestions}`;
+                                document.getElementById('m-list-detail').innerText = `${pastTest.details.listCorrect}/100 – ${pastTest.details.finalL} điểm`;
+                                document.getElementById('m-read-detail').innerText = `${pastTest.details.readCorrect}/100 – ${pastTest.details.finalR} điểm`;
+                                document.getElementById('m-final-score').innerText = `${pastTest.score} điểm`;
+                                document.getElementById('score-overlay').classList.add('active');
+                            };
+                        }
+                        // Dừng đồng hồ
+                        document.getElementById('timer-display').innerText = "ĐÃ NỘP";
+                    }, 500);
+                }
+            } else if (savedProgress) {
                 if (isResume === '1') {
                     // Nếu bấm từ nút Làm Tiếp -> Load dữ liệu cũ
                     resumeData = JSON.parse(savedProgress);
@@ -812,7 +846,7 @@
                 
                 document.getElementById('answered-count').innerText = answeredQuestions;
                 showQuestion(resumeData.currentQIndex || 0);
-                startTimer(true);
+                if (!isSubmitted) startTimer(true);
             } else {
                 showQuestion(0);
                 startTimer(false);
@@ -1526,11 +1560,13 @@
             let detailData = {
                 totalCorrect: totalCorrect, totalQuestions: totalQuestions,
                 listCorrect: listCorrect, readCorrect: readCorrect,
-                finalL: finalL, finalR: finalR, partStats: partStats
+                finalL: finalL, finalR: finalR, partStats: partStats,
+                userAnswers: userAnswers, 
+                fileName: fileName 
             };
             
             historyData.unshift({ test: testName, score: finalTotal, date: dateStr, details: detailData }); 
-            if (historyData.length > 30) historyData.pop(); 
+            if (historyData.length > 100) historyData.pop();
             localStorage.setItem('win_history', JSON.stringify(historyData));
 
             // Pháo giấy Confetti

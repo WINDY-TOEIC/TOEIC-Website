@@ -1062,6 +1062,9 @@
             loadHistory(); // Cập nhật lại giao diện
         }
 
+        let currentHistoryPage = 1;
+        const historyPerPage = 10; // Số bài trên 1 trang
+
         function loadHistory() {
             let historyData = JSON.parse(localStorage.getItem('win_history') || '[]');
             let container = document.getElementById('history-container');
@@ -1069,9 +1072,33 @@
                 container.innerHTML = '<div class="no-history">Chưa có lịch sử làm bài nào trên máy này.</div>';
                 return;
             }
+
+            // Tính toán trang
+            let totalPages = Math.ceil(historyData.length / historyPerPage);
+            if (currentHistoryPage > totalPages) currentHistoryPage = totalPages;
+            if (currentHistoryPage < 1) currentHistoryPage = 1;
+
+            let startIndex = (currentHistoryPage - 1) * historyPerPage;
+            let endIndex = startIndex + historyPerPage;
+            let pageData = historyData.slice(startIndex, endIndex);
+
             let html = '';
-            historyData.forEach((item, index) => {
-                let detailBtn = item.details ? `<button onclick="openHistoryDetail(${index})" style="background:none; border:none; color:#0037f4; padding:0; font-size:13px; font-weight:600; cursor:pointer; text-decoration:underline; margin-top:4px;">Xem chi tiết báo cáo</button>` : `<span style="font-size:12px; color:#999; display:block; margin-top:4px;">(Dữ liệu cũ - không có chi tiết)</span>`;
+            pageData.forEach((item, pageIndex) => {
+                let actualIndex = startIndex + pageIndex; // Vị trí thật trong mảng gốc
+                let detailBtn = "";
+                
+                // Nếu là dữ liệu mới (có lưu fileName) -> Hiện link mở thẳng vào thi.html
+                if (item.details && item.details.fileName) {
+                    let reviewUrl = `thi.html?test=${item.details.fileName.replace('.txt','')}&historyIndex=${actualIndex}`;
+                    detailBtn = `<a href="${reviewUrl}" style="color:#0037f4; font-size:14px; font-weight:700; text-decoration:underline; display:inline-block; margin-top:4px;">👁️ Xem lại bài làm chi tiết</a>`;
+                } 
+                // Nếu là dữ liệu cũ (chỉ có detail điểm, ko có fileName) -> Mở modal cũ
+                else if (item.details) {
+                    detailBtn = `<button onclick="openHistoryDetail(${actualIndex})" style="background:none; border:none; color:#0037f4; padding:0; font-size:13px; font-weight:600; cursor:pointer; text-decoration:underline; margin-top:4px;">Xem bảng điểm cũ</button>`;
+                } 
+                else {
+                    detailBtn = `<span style="font-size:12px; color:#999; display:block; margin-top:4px;">(Dữ liệu quá cũ)</span>`;
+                }
 
                 html += `
                 <div class="history-item">
@@ -1082,11 +1109,27 @@
                     </div>
                     <div style="display: flex; align-items: center;">
                         <div class="h-score">${item.score} Điểm</div>
-                        <button class="btn-delete-history" onclick="deleteHistoryItem(event, ${index})" title="Xóa lịch sử này">&times;</button>
+                        <button class="btn-delete-history" onclick="deleteHistoryItem(event, ${actualIndex})" title="Xóa lịch sử này">&times;</button>
                     </div>
                 </div>`;
             });
+
+            // Giao diện Nút bấm Phân trang
+            if (totalPages > 1) {
+                html += `
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:15px; padding-top:10px; border-top:1px solid #eee;">
+                    <button onclick="changeHistoryPage(-1)" style="padding:6px 12px; border-radius:4px; border:1px solid #ccc; background:#fff; cursor:pointer; font-weight:bold;" ${currentHistoryPage === 1 ? 'disabled style="opacity:0.5"' : ''}>&laquo; Trang trước</button>
+                    <span style="font-size:14px; font-weight:bold; color:#003366;">Trang ${currentHistoryPage} / ${totalPages}</span>
+                    <button onclick="changeHistoryPage(1)" style="padding:6px 12px; border-radius:4px; border:1px solid #ccc; background:#fff; cursor:pointer; font-weight:bold;" ${currentHistoryPage === totalPages ? 'disabled style="opacity:0.5"' : ''}>Trang sau &raquo;</button>
+                </div>`;
+            }
+
             container.innerHTML = html;
+        }
+
+        function changeHistoryPage(step) {
+            currentHistoryPage += step;
+            loadHistory();
         }
 
         function openHistoryDetail(index) {
