@@ -746,17 +746,14 @@
                         document.getElementById('timer-display').innerText = "ĐÃ NỘP";
                     }, 500);
                 }
-            } else if (savedProgress) {
-                if (isResume === '1') {
-                    // Nếu bấm từ nút Làm Tiếp -> Load dữ liệu cũ
-                    resumeData = JSON.parse(savedProgress);
-                } else {
-                    // Nếu click thẳng vào tên Đề (không bấm Làm tiếp) -> Xóa tiến trình cũ, làm lại từ đầu
-                    localStorage.removeItem(saveKey);
-                    
-                    // Xóa luôn cả nét vẽ bút đỏ của test đó (nếu có)
-                    localStorage.removeItem(`win_draw_${fileName}`); 
-                }
+            } else if (isResume === '1' && savedProgress) {
+                // Nếu bấm từ nút Làm Tiếp -> Load dữ liệu cũ
+                resumeData = JSON.parse(savedProgress);
+            } else {
+                // NẾU CLICK THẲNG VÀO ĐỀ HOẶC BẤM LÀM LẠI -> XÓA SẠCH
+                localStorage.removeItem(saveKey);
+                localStorage.removeItem(`win_draw_${fileName}`); 
+                localStorage.removeItem(`win_notes_${fileName}`); 
             }
 
             currentMode = mode;
@@ -1528,6 +1525,8 @@
 
             clearInterval(timerInterval);
             localStorage.removeItem(`win_progress_${fileName}`); 
+            localStorage.removeItem(`win_draw_${fileName}`); 
+            localStorage.removeItem(`win_notes_${fileName}`); 
 
             let audioEl = document.getElementById('q-audio');
             if(audioEl) audioEl.pause();
