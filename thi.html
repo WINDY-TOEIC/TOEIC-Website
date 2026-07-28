@@ -744,6 +744,18 @@
                                 document.getElementById('m-list-detail').innerText = `${pastTest.details.listCorrect}/100 – ${pastTest.details.finalL} điểm`;
                                 document.getElementById('m-read-detail').innerText = `${pastTest.details.readCorrect}/100 – ${pastTest.details.finalR} điểm`;
                                 document.getElementById('m-final-score').innerText = `${pastTest.score} điểm`;
+                                
+                                // Bổ sung in dữ liệu Thống kê từng Part
+                                let statsHtml = '';
+                                if (pastTest.details.partStats) {
+                                    Object.keys(pastTest.details.partStats).sort().forEach(p => {
+                                        let totalStr = pastTest.details.partStats[p].total < 10 ? "0" + pastTest.details.partStats[p].total : pastTest.details.partStats[p].total;
+                                        statsHtml += `<div class="stat-row"><span>${p}</span> <span><b>${pastTest.details.partStats[p].correct}</b> / ${totalStr}</span></div>`;
+                                    });
+                                }
+                                document.getElementById('part-stats-box').innerHTML = statsHtml;
+                                document.getElementById('part-stats-box').classList.remove('active'); // Đảm bảo luôn thu gọn khi mới mở bảng điểm lên
+
                                 document.getElementById('score-overlay').classList.add('active');
                             };
                         }
