@@ -1509,7 +1509,20 @@
                 event.preventDefault(); redoAction(); return;
             }
 
-            // NẾU LÀ THI THẬT VÀ CHƯA NỘP BÀI: Cấm phím Cách. Cấm Mũi tên nếu đang ở Listening. 
+            // --- PHÍM TẮT MỚI: CTRL + SPACE ĐỂ GẠCH CHÂN ĐỎ ---
+            if (event.ctrlKey && (event.code === 'Space' || event.keyCode === 32)) {
+                event.preventDefault(); // Chặn hành vi mặc định của trình duyệt
+                if (currentMode === 'exam' && !isSubmitted) return; // Thi thật chưa nộp thì cấm dùng
+                
+                let selection = window.getSelection();
+                if (selection.toString().trim() !== '') {
+                    currentSelectionRange = selection.getRangeAt(0).cloneRange();
+                    applyWrap('hl-underline'); // Kích hoạt hàm gạch chân đỏ
+                }
+                return; // Xử lý xong thì thoát, không cho chạy xuống lệnh Play Audio bên dưới
+            }
+
+            // NẾU LÀ THI THẬT VÀ CHƯA NỘP BÀI: Cấm phím Cách. Cấm Mũi tên nếu đang ở Listening.
             // Nếu đã nộp bài thì mở khóa thoải mái để xem lại.
             if (currentMode === 'exam' && !isSubmitted) {
                 if (event.code === 'Space' || event.keyCode === 32) return; 
@@ -1789,6 +1802,34 @@
             
             document.getElementById('question-content').innerHTML = state.dom;
             
+            // --- ĐỒNG BỘ LẠI CÁC NÚT BẤM SAU KHI CTRL+Z (Bảo vệ nút Giải Thích, Gắn Cờ, Đáp Án) ---
+            // 1. Phục hồi đúng trạng thái Thu gọn / Giải thích hiện tại
+            if (typeof isExpCollapsed !== 'undefined') {
+                document.querySelectorAll('.explanation:not(.always-show)').forEach(el => {
+                    if (isExpCollapsed) el.classList.add('hidden');
+                    else el.classList.remove('hidden');
+                });
+                document.querySelectorAll('.btn-exp-toggle').forEach(btn => {
+                    btn.innerText = isExpCollapsed ? 'Giải thích' : 'Thu gọn';
+                });
+            }
+
+            // 2. Phục hồi đúng Radio Button & Nút Gắn Cờ (Tránh việc Undo làm mất tick chọn)
+            for (let i = 0; i < flatQuestions.length; i++) {
+                if (flatQuestions[i].groupId === currentGroupId) {
+                    document.querySelectorAll(`input[name="q-${i}"]`).forEach(input => {
+                        input.checked = (input.value === userAnswers[i]);
+                    });
+                    let markBtn = document.getElementById(`btn-mark-${i}`);
+                    let markText = document.getElementById(`mark-text-${i}`);
+                    if (markBtn && markText) {
+                        markText.innerText = markedQuestions[i] ? "Bỏ Cờ" : "Gắn Cờ";
+                        markBtn.style.background = markedQuestions[i] ? "#ffc107" : "#fff3cd";
+                    }
+                }
+            }
+            // ---------------------------------------------------------------------------------
+
             // Khôi phục lại trạng thái bôi vàng bên trái (Transcript) mà không làm Audio bị ngắt/reset về 0
             if (state.mediaDom !== undefined) {
                 let mContent = document.getElementById('media-content');
