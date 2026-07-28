@@ -484,6 +484,7 @@
         let currentAudioSpeed = 1.0;  
         let savedNotes = {};
         let isValidForLeaderboard = false; // Biến đánh giá xem bài này có được lên Bảng xếp hạng không
+        let g_selectedParts = []; // Biến lưu trữ danh sách Part đang làm dở
 
         // CÔNG TẮC BẬT/TẮT NÚT HIỆN CHỮ
         // Chỉnh thành "true" nếu bạn muốn nó hiện lại, hiện tại đang "false" (tắt)
@@ -712,16 +713,23 @@
             let selectedTime = document.getElementById('time-select').value;
             let selectedParts = [];
             
-            // Gom các Part đã tick
-            availableParts.forEach(part => {
-                let chk = document.getElementById(`chk-${part}`);
-                if(chk && chk.checked) selectedParts.push(part);
-            });
+            if (resumeData && resumeData.selectedParts) {
+                // Nếu đang làm tiếp, tự động gọi lại đúng các Part đã chọn lúc trước
+                selectedParts = resumeData.selectedParts;
+            } else {
+                // Nếu làm mới, gom các Part đã tick trên màn hình
+                availableParts.forEach(part => {
+                    let chk = document.getElementById(`chk-${part}`);
+                    if(chk && chk.checked) selectedParts.push(part);
+                });
+            }
 
             if(selectedParts.length === 0) {
                 alert("Vui lòng chọn ít nhất 1 Part.");
                 return;
             }
+
+            g_selectedParts = selectedParts; // Ghi nhớ vào biến toàn cục để chốc nữa auto-save
 
             // Nếu số Part tick ít hơn tổng số Part có sẵn -> Tức là học viên đã bỏ tick vài phần (Custom)
             let isCustom = (selectedParts.length < availableParts.length);
@@ -1297,7 +1305,8 @@
                         answeredQuestions: answeredQuestions,
                         globalTimeInSeconds: globalTimeInSeconds,
                         isCountDown: isCountDown,
-                        currentMode: currentMode
+                        currentMode: currentMode,
+                        selectedParts: g_selectedParts
                     };
                     localStorage.setItem(`win_progress_${fileName}`, JSON.stringify(progressData));
                 }
@@ -1319,7 +1328,8 @@
                     answeredQuestions: answeredQuestions,
                     globalTimeInSeconds: globalTimeInSeconds,
                     isCountDown: isCountDown,
-                    currentMode: currentMode
+                    currentMode: currentMode,
+                    selectedParts: g_selectedParts
                 };
                 localStorage.setItem(`win_progress_${fileName}`, JSON.stringify(progressData));
             }
