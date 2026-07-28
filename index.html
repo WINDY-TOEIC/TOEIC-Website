@@ -624,7 +624,7 @@
                     let testName = testMatch[1];
                     let fileUrl = 'Data/' + testName + '.txt';
                     
-                    // Gõ cửa file thử xem có ai ở nhà không
+                    // Kiểm tra sự tồn tại của file dữ liệu thông qua HTTP HEAD request
                     fetch(fileUrl, { method: 'HEAD' })
                     .then(res => {
                         if (!res.ok) {
@@ -640,7 +640,14 @@
             });
         }
 
-        
+        function loadLeaderboardData() {
+            fetch(GOOGLE_SCRIPT_URL + "?action=getLeaderboard")
+                .then(res => res.json())
+                .then(data => {
+                    let mainContainer = document.getElementById('lb-container');
+                    let chalContainer = document.getElementById('lb-challenge-container');
+                    
+                    if (data.length === 0) {
                         mainContainer.innerHTML = '<div class="lb-loading">Chưa có ai ghi danh lên bảng vàng.</div>';
                         chalContainer.innerHTML = '<div class="lb-loading">Chưa có ai tham gia thử thách.</div>';
                         return;
