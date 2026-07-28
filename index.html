@@ -672,15 +672,55 @@
                     let mainContainer = document.getElementById('lb-container');
                     let chalContainer = document.getElementById('lb-challenge-container');
                     
-                    if (data.length === 0) {
+                    if (!data || data.length === 0) {
                         mainContainer.innerHTML = '<div class="lb-loading">Chưa có ai ghi danh lên bảng vàng.</div>';
                         chalContainer.innerHTML = '<div class="lb-loading">Chưa có ai tham gia thử thách.</div>';
                         return;
                     }
+
+                    // Lấy tháng và năm hiện tại để lọc (Tự động reset bảng khi sang tháng mới - Day 1)
+                    let now = new Date();
+                    let currentMonth = now.getMonth() + 1;
+                    let currentYear = now.getFullYear();
+
+                    // Lọc chỉ giữ lại dữ liệu thuộc Tháng Hiện Tại
+                    let currentMonthData = data.filter(row => {
+                        if (!row.time) return true;
+                        let m = row.time.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+                        if (!m) return true;
+                        let month = parseInt(m[2]);
+                        let year = parseInt(m[3]);
+                        return month === currentMonth && year === currentYear;
+                    });
+
+                    // Lọc giữ lại 1 kết quả DUY NHẤT có ĐIỂM CAO NHẤT của mỗi người
+                    function keepHighestScorePerPerson(arr) {
+                        let uniqueMap = {};
+                        arr.forEach(row => {
+                            let key = ((row.className || '') + '_' + (row.name || '')).toLowerCase().trim();
+                            let scoreNum = parseInt(row.score) || 0;
+                            if (!uniqueMap[key] || scoreNum > (parseInt(uniqueMap[key].score) || 0)) {
+                                uniqueMap[key] = row;
+                            }
+                        });
+                        return Object.values(uniqueMap);
+                    }
                     
-                    // Lọc dữ liệu ra 2 bảng khác nhau dựa vào Tên bài Test
-                    let mainData = data.filter(r => r.test !== "THỬ THÁCH PART 5");
-                    let chalData = data.filter(r => r.test === "THỬ THÁCH PART 5");
+                    // Lọc riêng dữ liệu Đề Thi Thật và Thử Thách Part 5
+                    let mainData = currentMonthData.filter(r => r.test !== "THỬ THÁCH PART 5");
+                    let chalData = currentMonthData.filter(r => r.test === "THỬ THÁCH PART 5");
+
+                    // Loại bỏ trùng lặp tên người chơi (chỉ lấy điểm cao nhất)
+                    mainData = keepHighestScorePerPerson(mainData);
+                    chalData = keepHighestScorePerPerson(chalData);
+
+                    // Sắp xếp điểm từ cao xuống thấp
+                    mainData.sort((a, b) => parseInt(b.score) - parseInt(a.score));
+                    chalData.sort((a, b) => parseInt(b.score) - parseInt(a.score));
+
+                    // Cắt lấy số lượng Top hiển thị
+                    mainData = mainData.slice(0, 20); // Top 20 Bảng Vàng
+                    chalData = chalData.slice(0, 10); // Top 10 Thử Thách
                     
                     // Hàm tạo code HTML chung cho 2 bảng
                     function buildTableHtml(dataArray, isChallenge = false) {
@@ -711,16 +751,11 @@
                     }
                     
                     // Trải dữ liệu ra giao diện
-                    if(mainData.length === 0) mainContainer.innerHTML = '<div class="lb-loading">Chưa có ai ghi danh lên bảng vàng.</div>';
+                    if(mainData.length === 0) mainContainer.innerHTML = '<div class="lb-loading">Chưa có ai ghi danh tháng này.</div>';
                     else mainContainer.innerHTML = buildTableHtml(mainData);
                     
-                    if(chalData.length === 0) chalContainer.innerHTML = '<div class="lb-loading">Chưa có ai tham gia thử thách.</div>';
-                    else {
-                        // Tự động xếp hạng riêng cho nhóm Thử thách (Từ cao xuống thấp)
-                        chalData.sort((a, b) => parseInt(b.score) - parseInt(a.score));
-                        chalData = chalData.slice(0, 10); // Lấy Top 10
-                        chalContainer.innerHTML = buildTableHtml(chalData, true);
-                    }
+                    if(chalData.length === 0) chalContainer.innerHTML = '<div class="lb-loading">Chưa có ai tham gia thử thách tháng này.</div>';
+                    else chalContainer.innerHTML = buildTableHtml(chalData, true);
                 })
                 .catch(err => {
                     document.getElementById('lb-container').innerHTML = '<div class="lb-loading" style="color:red;">Lỗi tải dữ liệu. Vui lòng thử lại sau!</div>';
@@ -738,13 +773,6 @@
         let cReviewIndex = 0; // Lưu vị trí câu đang xem lại
 
         function startChallenge() {
-            let classCode = document.getElementById('home-class-code').value.trim();
-            let name = document.getElementById('home-student-name').value.trim();
-            if (classCode === "" || name === "") {
-                alert("Vui lòng nhập Mã lớp và Họ tên ở góc phải phía trên để được ghi danh Đua TOP nhé!");
-                return;
-            }
-            
             document.getElementById('challenge-modal').classList.add('active');
             document.getElementById('c-loading').style.display = 'block';
             document.getElementById('c-game-area').style.display = 'none';
