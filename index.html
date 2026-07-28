@@ -375,10 +375,15 @@
         <div class="left-col">
         
         <!-- BANNER THỬ THÁCH PART 5 -->
+        <style>
+            .c-banner-tooltip { background: rgba(255, 255, 255, 0.25); border: 1px solid rgba(255, 255, 255, 0.4); color: white; border-radius: 50%; width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; font-size: 13px; font-weight: bold; cursor: help; position: relative; }
+            .c-banner-tooltip::after { content: "Trả lời trong 1 phút ngẫu nhiên các câu hỏi Part 5. Đăng nhập để đua TOP!"; position: absolute; top: 30px; left: 50%; transform: translateX(-50%); background: #333; color: #fff; padding: 8px 12px; border-radius: 6px; white-space: nowrap; font-size: 12px; opacity: 0; visibility: hidden; transition: 0.2s; pointer-events: none; z-index: 100; font-weight: normal; box-shadow: 0 4px 8px rgba(0,0,0,0.3); }
+            .c-banner-tooltip:hover::after { opacity: 1; visibility: visible; }
+        </style>
         <div class="challenge-banner">
             <h2 style="margin: 0; display: flex; align-items: center; gap: 8px;">
-                ⚡ THỬ THÁCH PART 5 (30 GIÂY) 
-                <span title="Trả lời trong 30 giây ngẫu nhiên các câu hỏi Part 5. Đăng nhập để đua TOP!" style="background: rgba(255, 255, 255, 0.25); border: 1px solid rgba(255, 255, 255, 0.4); color: white; border-radius: 50%; width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; font-size: 13px; font-weight: bold; cursor: help;">?</span>
+                ⚡ THỬ THÁCH PART 5 (1 PHÚT) 
+                <span class="c-banner-tooltip">?</span>
             </h2>
             <button class="btn-play-challenge" onclick="startChallenge()">CHƠI NGAY ▶</button>
         </div>
@@ -735,7 +740,7 @@
                             
                             // Tách bỏ chữ "WIN" chỉ lấy số lớp (ví dụ: "WIN 171" -> "171")
                             let cleanClass = (row.className || '').replace(/^WIN\s*/i, '').trim();
-                            let testName = isChallenge ? "30s Part 5" : row.test;
+                            let testName = isChallenge ? "1p Part 5" : row.test;
 
                             tableHtml += `<tr>
                                 <td class="${rankClass}" style="white-space: nowrap;">${rankTrophy}</td>
@@ -793,7 +798,7 @@
                 
                 cIndex = 0;
                 cScore = 0;
-                cTimeLeft = 30;
+                cTimeLeft = 60;
                 cHistory = []; // Reset bộ nhớ câu đã làm
                 
                 document.getElementById('c-loading').style.display = 'none';
