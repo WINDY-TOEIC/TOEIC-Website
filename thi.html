@@ -896,6 +896,19 @@
             // Nếu qua NHÓM MỚI (Bài đọc mới hoặc Audio mới), Render lại từ đầu
             if (item.groupId !== currentGroupId || index === 0) {
                 
+                // --- TỰ ĐỘNG LƯU GHI CHÚ TRƯỚC KHI CHUYỂN SANG NHÓM CÂU HỎI KHÁC ---
+                if (currentGroupId !== -1) {
+                    let oldMContent = document.getElementById('media-content');
+                    let oldQContent = document.getElementById('question-content');
+                    if (oldMContent && oldQContent && oldMContent.innerHTML.trim() !== '') {
+                        savedNotes[currentGroupId] = {
+                            left: oldMContent.innerHTML,
+                            right: oldQContent.innerHTML
+                        };
+                        localStorage.setItem(`win_notes_${fileName}`, JSON.stringify(savedNotes));
+                    }
+                }
+
                 // --- NGẮT AUDIO CŨ TRƯỚC KHI CHUYỂN SANG CÂU MỚI ---
                 let oldAudio = document.getElementById('q-audio');
                 if (oldAudio) {
@@ -1056,6 +1069,13 @@
                     if (extractedTranscript !== "") {
                         let isNewTest = !fileName.includes('ets-2018') && !fileName.includes('ets-2019') && !fileName.includes('ets-2020');
                         let transMatch = extractedTranscript.match(/Lời dịch/i);
+                        
+                        // Khai báo cụm nút Zoom (chỉ được hiển thị khi đã nộp bài)
+                        let zoomBtns = isSubmitted ? `
+                            <div style="float: right; margin-top: -5px;">
+                                <button onclick="zoomTranscript(1)" title="Phóng to" style="background: #f8f9fa; border: 1px solid #ccc; border-radius: 4px; cursor: pointer; font-size: 14px; padding: 2px 8px; margin-left: 5px; color: #333; font-weight: bold; box-shadow: 0 1px 2px rgba(0,0,0,0.1);">🔍+</button>
+                                <button onclick="zoomTranscript(-1)" title="Thu nhỏ" style="background: #f8f9fa; border: 1px solid #ccc; border-radius: 4px; cursor: pointer; font-size: 14px; padding: 2px 8px; margin-left: 5px; color: #333; font-weight: bold; box-shadow: 0 1px 2px rgba(0,0,0,0.1);">🔍-</button>
+                            </div>` : '';
 
                         if (isNewTest && transMatch) {
                             let splitTransIdx = transMatch.index;
@@ -1065,17 +1085,19 @@
 
                             rightHtml += `<div id="temp-transcript" style="display:none;">
                                             <div class="explanation ${engClass}" id="left-transcript-eng" style="margin-bottom:10px;">
+                                                ${zoomBtns}
                                                 <h4 style="margin-top:0; color:#003366;">Transcript:</h4>
-                                                <div class="${contentStyle}">${engPart}</div>
+                                                <div class="${contentStyle} trans-content-text" style="font-size: ${currentTransSize}px;">${engPart}</div>
                                             </div>
                                             <div class="explanation ${expClass}" id="left-transcript-vi">
-                                                <div class="${contentStyle}">${viPart}</div>
+                                                <div class="${contentStyle} trans-content-text" style="font-size: ${currentTransSize}px;">${viPart}</div>
                                             </div>
                                           </div>`;
                         } else {
                             rightHtml += `<div id="temp-transcript" class="explanation ${expClass}" style="display:none;">
+                                            ${zoomBtns}
                                             <h4 style="margin-top:0; color:#003366;">Transcript & Lời dịch:</h4>
-                                            <div class="${contentStyle}">${extractedTranscript}</div>
+                                            <div class="${contentStyle} trans-content-text" style="font-size: ${currentTransSize}px;">${extractedTranscript}</div>
                                           </div>`;
                         }
                     }
@@ -1249,6 +1271,20 @@
         }
 
         let isExpCollapsed = false; // Biến nhớ trạng thái thu gọn giải thích (mặc định mở)
+        let currentTransSize = 15; // Mặc định size chữ Transcript là 15px
+
+        // Hàm xử lý tăng/giảm size chữ Transcript
+        function zoomTranscript(step) {
+            currentTransSize += step * 2; // Tăng/giảm 2px mỗi lần bấm
+            if (currentTransSize < 12) currentTransSize = 12; // Giới hạn nhỏ nhất
+            if (currentTransSize > 30) currentTransSize = 30; // Giới hạn lớn nhất
+            
+            // Cập nhật lại ngay lập tức giao diện
+            document.querySelectorAll('.trans-content-text').forEach(el => {
+                el.style.fontSize = currentTransSize + 'px';
+                el.style.lineHeight = '1.6';
+            });
+        }
 
         function toggleGlobalExp() {
             isExpCollapsed = !isExpCollapsed; // Đảo ngược trạng thái
@@ -1685,6 +1721,15 @@
                 mediaDom: mContent ? mContent.innerHTML : ""
             });
             historyStep++;
+            
+            // --- TỰ ĐỘNG LƯU GHI CHÚ NGAY LẬP TỨC (Tránh mất khi F5) ---
+            if (currentGroupId !== -1 && mContent) {
+                savedNotes[currentGroupId] = {
+                    left: mContent.innerHTML,
+                    right: qContent.innerHTML
+                };
+                localStorage.setItem(`win_notes_${fileName}`, JSON.stringify(savedNotes));
+            }
         }
 
         function restoreState(state) {
