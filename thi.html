@@ -1190,16 +1190,23 @@
                 }
 
                 // KIỂM TRA VÀ PHỤC HỒI GHI CHÚ (NẾU CÓ LƯU)
-                if (savedNotes && savedNotes[currentGroupId]) {
-                    let safeLeftHTML = savedNotes[currentGroupId].left;
-                    
-                    // Chặn Audio tự phát
-                    if (isSubmitted) {
-                        safeLeftHTML = safeLeftHTML.replace(/autoplay/gi, '');
-                    }
+                    if (savedNotes && savedNotes[currentGroupId]) {
+                        let safeLeftHTML = savedNotes[currentGroupId].left;
+                        
+                        // Chặn Audio tự phát
+                        if (isSubmitted) {
+                            safeLeftHTML = safeLeftHTML.replace(/autoplay/gi, '');
+                        }
 
-                    document.getElementById('media-content').innerHTML = safeLeftHTML;
-                    document.getElementById('question-content').innerHTML = savedNotes[currentGroupId].right;
+                        document.getElementById('media-content').innerHTML = safeLeftHTML;
+                        
+                        // Gỡ bỏ trạng thái ẩn của thanh Audio bị dính trong bản chụp lúc Thi Thật
+                        if (isSubmitted) {
+                            let hiddenAudioWrapper = document.querySelector('#media-content .audio-wrapper');
+                            if (hiddenAudioWrapper) hiddenAudioWrapper.style.display = 'block';
+                        }
+
+                        document.getElementById('question-content').innerHTML = savedNotes[currentGroupId].right;
                     
                     // Bồi thêm 1 lệnh ép dừng Audio ngay lập tức cho chắc chắn 100%
                     let tempAudio = document.getElementById('q-audio');
