@@ -2016,45 +2016,69 @@
             }
         };
 
-        // --- TÍNH NĂNG TRA IPA (FREE DICTIONARY + FALLBACK GROQ AI) ---
+        // --- TÍNH NĂNG TRA IPA (FREE DICTIONARY + GROQ AI) ---
         document.getElementById('tb-ipa').onclick = async () => {
             if(!currentSelectionRange) return;
-            let text = currentSelectionRange.toString().trim();
+            // Ép thành chữ thường để tra từ điển chuẩn xác hơn
+            let text = currentSelectionRange.toString().trim().toLowerCase();
             if(!text) return;
 
             let btnIpa = document.getElementById('tb-ipa');
             let oldIcon = btnIpa.innerHTML;
             btnIpa.innerHTML = "⏳";
 
-            // Kỹ thuật giấu Key bằng mã hóa Base64 và băm nhỏ (Chống Bot quét Github)
-            let _k1 = "Z3NrX3NjbHNqUGpqWnhzbWZt";
-            let _k2 = "Z2s2Q3RwV0dkeWIzRlk5Wk1F";
-            let _k3 = "VHU4SThhWVVsdkxWVFFuVHVBVTY=";
-            
             let ipaText = "";
 
-            try {
-                // 1. Thử gọi API từ điển miễn phí trước
-                let res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(text)}`);
-                if(!res.ok) throw new Error("Not found");
-                let data = await res.json();
-                
-                let phonetics = data[0]?.phonetics || [];
-                ipaText = data[0]?.phonetic; 
+            // 1. Hàm chuẩn hóa IPA sang chuẩn Oxford
+            const formatIPA = (str) => {
+                return str.replace(/[\/\[\]]/g, '') // Xóa dấu / và []
+                          .replace(/ɹ/g, 'r')      // Đổi ɹ thành r
+                          .replace(/ɛ/g, 'e');     // Đổi ɛ thành e
+            };
 
+            // 2. Hàm gọi Free Dictionary
+            const fetchFreeDict = async (word) => {
+                let res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`);
+                if(!res.ok) return null;
+                let data = await res.json();
+                let phonetics = data[0]?.phonetics || [];
+                let txt = data[0]?.phonetic;
                 let ukItem = phonetics.find(p => p.text && p.audio && p.audio.includes('-uk'));
-                if (ukItem) {
-                    ipaText = ukItem.text;
-                } else {
+                if (ukItem) txt = ukItem.text;
+                else {
                     let textItem = phonetics.find(p => p.text);
-                    if (textItem) ipaText = textItem.text;
+                    if (textItem) txt = textItem.text;
+                }
+                return txt ? formatIPA(txt) : null;
+            };
+
+            try {
+                // Bước A: Thử gọi từ gốc
+                ipaText = await fetchFreeDict(text);
+                
+                // Bước B: Nếu không có (thường do số nhiều, V-ing, ED), thử cắt đuôi tìm từ gốc
+                if (!ipaText) {
+                    let baseWord = text;
+                    if (text.endsWith('ies')) baseWord = text.slice(0, -3) + 'y';
+                    else if (text.endsWith('es')) baseWord = text.slice(0, -2);
+                    else if (text.endsWith('s')) baseWord = text.slice(0, -1);
+                    else if (text.endsWith('ing')) baseWord = text.slice(0, -3);
+                    else if (text.endsWith('ed')) baseWord = text.slice(0, -2);
+                    
+                    if (baseWord !== text) {
+                        ipaText = await fetchFreeDict(baseWord);
+                    }
                 }
 
-                if (!ipaText) throw new Error("No IPA in Free Dictionary");
+                if (!ipaText) throw new Error("Free Dictionary failed");
 
             } catch (err) {
-                // 2. NẾU TỪ ĐIỂN TỊT NGÒI -> GỌI GROQ AI (Không hiện Alert chướng mắt nữa)
+                // Bước C: NẾU TỪ ĐIỂN VẪN TỊT NGÒI -> GỌI GROQ AI BÙ VÀO 
                 try {
+                    let _k1 = "Z3NrX3NjbHNqUGpqWnhzbWZt";
+                    let _k2 = "Z2s2Q3RwV0dkeWIzRlk5Wk1F";
+                    let _k3 = "VHU4SThhWVVsdkxWVFFuVHVBVTY=";
+                    
                     let groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
                         method: 'POST',
                         headers: {
@@ -2062,25 +2086,26 @@
                             'Content-Type': 'application/json'
                         },
                         body: JSON.stringify({
-                            model: "llama3-8b-8192", // Dùng model 8b cho tốc độ phản hồi cực nhanh
+                            model: "llama3-8b-8192",
                             messages: [{
+                                role: "system",
+                                content: "You are an Oxford English Dictionary. Output ONLY the raw UK IPA for the word. Use standard Oxford symbols (use 'r' not 'ɹ'). No brackets, no slashes, no extra text."
+                            }, {
                                 role: "user",
-                                content: `You are an English dictionary. Provide ONLY the UK IPA phonetic transcription for the word "${text}". Do not include any brackets, slashes, or explanations. Just the raw IPA text.`
+                                content: text
                             }],
                             temperature: 0.1,
                             max_tokens: 15
                         })
                     });
-                    if(!groqRes.ok) throw new Error("Groq API failed");
+                    if(!groqRes.ok) throw new Error("Groq API block");
                     let groqData = await groqRes.json();
-                    
-                    // Lấy kết quả AI trả về, dọn dẹp các dấu [] hoặc / nếu AI lỡ tay sinh ra
-                    ipaText = groqData.choices[0].message.content.trim().replace(/[\/\[\]]/g, ''); 
+                    ipaText = formatIPA(groqData.choices[0].message.content.trim()); 
                 } catch (groqErr) {
-                    ipaText = "Không có IPA"; // Nếu cả AI cũng sập (rất hiếm) thì đành chịu
+                    ipaText = "Không có IPA"; 
                 }
             } finally {
-                // 3. IN KẾT QUẢ RA MÀN HÌNH MƯỢT MÀ
+                // IN KẾT QUẢ RA MÀN HÌNH MƯỢT MÀ
                 let noteSpan = document.createElement('span');
                 noteSpan.className = 'hl-note-text';
                 noteSpan.style.color = '#8e44ad'; 
