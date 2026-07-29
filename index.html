@@ -1184,7 +1184,7 @@
         });
 
         function deleteHistoryItem(event, index) {
-            event.stopPropagation(); // Ngăn sự kiện click truyền ra ngoài, tránh làm đóng bảng lịch sử
+            event.stopPropagation(); // Ngăn sự kiện click truyền ra ngoài
             let historyData = JSON.parse(localStorage.getItem('win_history') || '[]');
             historyData.splice(index, 1); // Xóa phần tử tại vị trí index
             localStorage.setItem('win_history', JSON.stringify(historyData)); // Lưu lại vào máy
