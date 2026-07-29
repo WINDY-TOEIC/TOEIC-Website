@@ -1400,13 +1400,17 @@
         }
 
         let isExpCollapsed = false; // Biến nhớ trạng thái thu gọn giải thích (mặc định mở)
-        let currentTransSize = 15; // Mặc định size chữ Transcript là 15px
+        // Lấy size chữ cũ từ LocalStorage (nếu có), không thì mặc định 15
+        let currentTransSize = parseInt(localStorage.getItem('win_trans_size')) || 15;
 
         // Hàm xử lý tăng/giảm size chữ Transcript
         function zoomTranscript(step) {
             currentTransSize += step * 2; // Tăng/giảm 2px mỗi lần bấm
             if (currentTransSize < 12) currentTransSize = 12; // Giới hạn nhỏ nhất
             if (currentTransSize > 30) currentTransSize = 30; // Giới hạn lớn nhất
+            
+            // Lưu vào ổ cứng để nhớ thói quen người dùng cho các câu sau
+            localStorage.setItem('win_trans_size', currentTransSize);
             
             // Cập nhật lại ngay lập tức giao diện
             document.querySelectorAll('.trans-content-text').forEach(el => {
