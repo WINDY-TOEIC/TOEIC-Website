@@ -1069,6 +1069,10 @@
                     let transcriptBtn = (ENABLE_TRANSCRIPT && currentMode === 'practice' && !isSubmitted) ? `<button class="btn-transcript" onclick="toggleTranscript(${gSq.index})">Hiện chữ</button>` : '';
                     let expToggleBtnDisplay = isSubmitted ? "" : "display:none;";
                     let expToggleBtn = `<button class="btn-transcript btn-exp-toggle" style="background:#e3f2fd; border-color:#5ba4e5; color:#043b5c; ${expToggleBtnDisplay}" onclick="toggleGlobalExp()">${(typeof isExpCollapsed !== 'undefined' && isExpCollapsed) ? 'Giải thích' : 'Thu gọn'}</button>`;
+                    
+                    // Nút Teacher Mode (Chỉ hiện khi mã lớp 1, tên Admin, chế độ Luyện tập và chưa nộp bài)
+                    let teacherBtn = (classCode === "1" && studentName.toLowerCase() === "admin" && currentMode === 'practice' && !isSubmitted) 
+                        ? `<button class="btn-transcript" style="background:#28a745; color:white; border-color:#218838; font-weight:bold;" onclick="revealTeacher(${qIdx}, ${gSq.index})">Đ.Án GV</button>` : '';
 
                     let isMarked = markedQuestions[qIdx];
                     let markBtnText = isMarked ? "Bỏ Cờ" : "Gắn Cờ";
@@ -1083,6 +1087,7 @@
                                     <button id="btn-mark-${qIdx}" class="btn-transcript" style="background: ${markBtnBg}; border-color: #ffc107; color: #333; ${markBtnDisplay}" onclick="toggleMark(${qIdx})">&#9873; <span id="mark-text-${qIdx}">${markBtnText}</span></button>
                                     ${transcriptBtn}
                                     ${expToggleBtn}
+                                    ${teacherBtn}
                                 </div>
                             </div>
                             <div class="options">
@@ -1445,6 +1450,52 @@
             document.querySelectorAll('.btn-exp-toggle').forEach(btn => {
                 btn.innerText = isExpCollapsed ? 'Giải thích' : 'Thu gọn';
             });
+        }
+        
+        // --- CHỨC NĂNG TEACHER MODE ---
+        function revealTeacher(qIdx, sqIndex) {
+            // 1. Hiện màu đáp án đúng và sai
+            let correctChoice = null;
+            if (flatQuestions[qIdx] && flatQuestions[qIdx].sq) {
+                let correctObj = flatQuestions[qIdx].sq.choices.find(c => c.choice_right_answer);
+                if (correctObj) correctChoice = correctObj.choice;
+            }
+            if (correctChoice) {
+                document.querySelectorAll(`input[name="q-${qIdx}"]`).forEach(input => {
+                    let label = input.parentElement;
+                    if (input.value === correctChoice) {
+                        label.classList.add('correct');
+                    } else if (input.checked && input.value !== correctChoice) {
+                        label.classList.add('wrong'); // Đánh dấu đỏ nếu học viên đã lỡ chọn sai
+                    }
+                });
+            }
+            
+            // 2. Hiện Giải thích của câu này
+            let expBox = document.getElementById(`exp-${sqIndex}`);
+            if (expBox) {
+                expBox.classList.remove('hidden');
+                // Gỡ class xám, phục hồi nguyên bản định dạng màu sắc/in đậm
+                expBox.querySelectorAll('.pre-submit-text').forEach(e => e.classList.remove('pre-submit-text'));
+            }
+            
+            // 3. Hiện luôn Transcript/Lời dịch bên cột trái nếu có (Dành cho Part 3, 4, 7)
+            let leftT = document.getElementById('left-transcript');
+            if (leftT) {
+                leftT.classList.remove('hidden');
+                leftT.style.display = 'block';
+                leftT.querySelectorAll('.pre-submit-text').forEach(e => e.classList.remove('pre-submit-text'));
+            }
+            let leftTContainer = document.getElementById('left-transcript-container');
+            if (leftTContainer) {
+                leftTContainer.classList.remove('hidden');
+                leftTContainer.style.display = 'block';
+                leftTContainer.querySelectorAll('.hidden').forEach(e => e.classList.remove('hidden'));
+                leftTContainer.querySelectorAll('.pre-submit-text').forEach(e => e.classList.remove('pre-submit-text'));
+            }
+            
+            // 4. Lưu lại hành động này vào Undo (Chống lỗi khi bấm Ctrl+Z)
+            saveActionState();
         }
 
         function toggleTranscript(id) {
