@@ -777,8 +777,8 @@
                 // Nếu bấm từ nút Làm Tiếp -> Load dữ liệu cũ
                 resumeData = JSON.parse(savedProgress);
             } else {
-                // NẾU CLICK THẲNG VÀO ĐỀ HOẶC BẤM LÀM LẠI -> XÓA SẠCH
-                localStorage.removeItem(saveKey);
+                // NẾU CLICK THẲNG VÀO ĐỀ HOẶC BẤM LÀM LẠI
+                localStorage.removeItem(window.progressKey);
                 localStorage.removeItem(`win_draw_${fileName}`); 
                 localStorage.removeItem(`win_notes_${fileName}`); 
             }
