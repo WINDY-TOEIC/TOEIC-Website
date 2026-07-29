@@ -1592,9 +1592,8 @@
                 navigateQuestion(-1);
             } else if (event.code === 'ArrowUp' || event.keyCode === 38) {
                 event.preventDefault();
-                if (!isSubmitted) return; // Khóa phím, chỉ cho phép bật transcript khi ĐÃ NỘP BÀI
-                let sq = flatQuestions[currentQIndex].sq;
-                if(sq) toggleTranscript(sq.index);
+                if (!isSubmitted) return; 
+                toggleGlobalExp(); // Đồng bộ hoàn toàn với nút bấm chuột "Thu gọn/Giải thích"
             }
         });
 
@@ -2296,60 +2295,54 @@
             toolbar.classList.remove('active');
         };
 
-        // --- TÍNH NĂNG LƯU TỪ VÀO SỔ TAY (TỰ ĐỘNG LẤY NGHĨA + IPA + LOẠI TỪ BẰNG AI) ---
+        // --- TÍNH NĂNG LƯU TỪ VÀO SỔ TAY (DÙNG API TỪ ĐIỂN + GOOGLE DỊCH CÓ SẴN) ---
         document.getElementById('tb-save-word').onclick = async () => {
             if(!currentSelectionRange) return;
-            let text = currentSelectionRange.toString().trim();
+            let text = currentSelectionRange.toString().trim().toLowerCase();
             if(!text) return;
 
             let btnSave = document.getElementById('tb-save-word');
             let oldIcon = btnSave.innerHTML;
-            btnSave.innerHTML = "⏳"; // Báo hiệu đang gọi AI
+            btnSave.innerHTML = "⏳";
 
             try {
-                let _k1 = "Z3NrX3NjbHNqUGpqWnhzbWZt";
-                let _k2 = "Z2s2Q3RwV0dkeWIzRlk5Wk1F";
-                let _k3 = "VHU4SThhWVVsdkxWVFFuVHVBVTY=";
+                // 1. Lấy IPA từ Free Dictionary (Y chang logic nút IPA)
+                let ipaText = "";
+                try {
+                    let resDict = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(text)}`);
+                    if(resDict.ok) {
+                        let dataDict = await resDict.json();
+                        let phonetics = dataDict[0]?.phonetics || [];
+                        let txt = dataDict[0]?.phonetic;
+                        let ukItem = phonetics.find(p => p.text && p.audio && p.audio.includes('-uk'));
+                        if (ukItem) txt = ukItem.text;
+                        else {
+                            let textItem = phonetics.find(p => p.text);
+                            if (textItem) txt = textItem.text;
+                        }
+                        if (txt) ipaText = txt.replace(/[\/\[\]]/g, '').replace(/ɹ/g, 'r').replace(/ɛ/g, 'e');
+                    }
+                } catch(e) {}
 
-                // Gọi Groq AI để lấy full combo
-                let groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${atob(_k1 + _k2 + _k3)}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        model: "llama3-8b-8192",
-                        messages: [{
-                            role: "system",
-                            content: "You are a bilingual dictionary. Given an English word or phrase, reply STRICTLY in this exact format: [UK IPA] | Part of Speech | Vietnamese Meaning. Example: [kæt] | Noun | Con mèo. Do not write any extra words."
-                        }, {
-                            role: "user",
-                            content: text
-                        }],
-                        temperature: 0.1,
-                        max_tokens: 30
-                    })
-                });
+                // 2. Lấy Nghĩa từ Google Dịch (Y chang logic nút Dịch)
+                let meaningText = "";
+                try {
+                    let resTrans = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=vi&dt=t&q=${encodeURIComponent(text)}`);
+                    let dataTrans = await resTrans.json();
+                    dataTrans[0].forEach(item => { if(item[0]) meaningText += item[0]; });
+                } catch(e) {
+                    meaningText = "Không dịch được";
+                }
 
-                if(!groqRes.ok) throw new Error("API failed");
-                let groqData = await groqRes.json();
-                let resultStr = groqData.choices[0].message.content.trim();
-                
-                // Tách kết quả AI trả về theo dấu |
-                let parts = resultStr.split('|').map(s => s.trim());
-                let ipa = parts[0] || "";
-                let type = parts[1] || "";
-                let meaning = parts[2] || "Không lấy được nghĩa";
-
-                // Lưu vào Sổ tay
+                // 3. Lưu vào Sổ tay ngầm
                 let vocabList = JSON.parse(localStorage.getItem('win_vocab') || '[]');
                 let existingIndex = vocabList.findIndex(v => v.word.toLowerCase() === text.toLowerCase());
                 
+                let newVocab = { word: text, ipa: ipaText ? `[${ipaText}]` : "", meaning: meaningText, date: new Date().toLocaleDateString("vi-VN") };
                 if (existingIndex !== -1) {
-                    vocabList[existingIndex] = { word: text, ipa: ipa, type: type, meaning: meaning, date: new Date().toLocaleDateString("vi-VN") };
+                    vocabList[existingIndex] = newVocab;
                 } else {
-                    vocabList.unshift({ word: text, ipa: ipa, type: type, meaning: meaning, date: new Date().toLocaleDateString("vi-VN") });
+                    vocabList.unshift(newVocab);
                 }
                 localStorage.setItem('win_vocab', JSON.stringify(vocabList));
 
@@ -2359,7 +2352,7 @@
                 setTimeout(() => { btnSave.style.background = "transparent"; btnSave.innerHTML = oldIcon; }, 1500);
 
             } catch(e) {
-                alert("Lỗi kết nối AI khi lưu từ!");
+                alert("Lỗi khi lưu từ!");
                 btnSave.innerHTML = oldIcon;
             }
 
