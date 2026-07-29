@@ -570,7 +570,8 @@
         <div id="c-game-area" style="display: none; width: 100%; display: flex; flex-direction: column; align-items: center;">
             <div class="c-header">
                 <div class="c-score">Điểm: <b id="c-score-ui">0</b></div>
-                <div class="c-timer" id="c-timer-ui">30s</div>
+                <div id="c-lives-ui" style="color: #e74c3c; font-size: 24px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); letter-spacing: 2px;">❤️❤️❤️❤️❤️</div>
+                <div class="c-timer" id="c-timer-ui">60s</div>
             </div>
             <div class="c-question-box">
                 <div class="c-q-text" id="c-q-text">Đang tải câu hỏi...</div>
@@ -775,6 +776,7 @@
         let isAnswered = false;
         let cHistory = []; // Thêm biến lưu lịch sử các câu đã làm
         let cReviewIndex = 0; // Lưu vị trí câu đang xem lại
+        let cLives = 5; // Khởi tạo 5 mạng
 
         function startChallenge() {
             document.getElementById('challenge-modal').classList.add('active');
@@ -800,6 +802,8 @@
                 cIndex = 0;
                 cScore = 0;
                 cTimeLeft = 60;
+                cLives = 5; // Hồi lại 5 mạng
+                document.getElementById('c-lives-ui').innerText = "❤️❤️❤️❤️❤️"; // Vẽ lại 5 tim đỏ
                 cHistory = []; // Reset bộ nhớ câu đã làm
                 
                 document.getElementById('c-loading').style.display = 'none';
@@ -851,11 +855,21 @@
             if (isRight) {
                 cScore++;
                 document.getElementById('c-score-ui').innerText = cScore;
+            } else {
+                cLives--;
+                let hearts = "";
+                for (let i = 0; i < cLives; i++) hearts += "❤️"; // Tim còn lại
+                for (let i = cLives; i < 5; i++) hearts += "🖤"; // Tim đã mất
+                document.getElementById('c-lives-ui').innerText = hearts;
             }
             
-            // Chuyển câu ngay lập tức
+            // Chuyển câu ngay lập tức, nếu hết mạng thì văng luôn
             cIndex++;
-            if (cTimeLeft > 0) loadNextCQuestion();
+            if (cLives <= 0) {
+                endChallenge();
+            } else if (cTimeLeft > 0) {
+                loadNextCQuestion();
+            }
         }
 
         function endChallenge() {
