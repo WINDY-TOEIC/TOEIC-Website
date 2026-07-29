@@ -1901,7 +1901,13 @@
                     right: qContent.innerHTML
                 };
                 let noteKey = window.progressKey ? window.progressKey.replace('win_progress_', 'win_notes_') : `win_notes_${fileName}`;
-                localStorage.setItem(noteKey, JSON.stringify(savedNotes));
+                
+                // Bọc Try-Catch chặn đứng lỗi Tràn bộ nhớ (QuotaExceededError) gây sập chức năng
+                try {
+                    localStorage.setItem(noteKey, JSON.stringify(savedNotes));
+                } catch (e) {
+                    console.log("Bộ nhớ tạm đã đầy, không thể tự động lưu thêm ghi chú.");
+                }
             }
         }
 
@@ -1914,8 +1920,34 @@
             img.src = state.canvas;
             
             document.getElementById('question-content').innerHTML = state.dom;
+
+            // Đưa khối này lên trên để Cột Trái (Transcript/Audio) được đắp HTML ra màn hình TRƯỚC
+            // Khôi phục lại trạng thái bôi vàng bên trái (Transcript) mà không làm Audio bị ngắt/reset về 0
+            if (state.mediaDom !== undefined) {
+                let mContent = document.getElementById('media-content');
+                let oldAudio = document.getElementById('q-audio');
+                
+                // Ghi nhớ trạng thái Audio trước khi Ctrl Z
+                let wasPlaying = oldAudio && !oldAudio.paused;
+                let currentTime = oldAudio ? oldAudio.currentTime : 0;
+                let currentSpeed = oldAudio ? oldAudio.playbackRate : 1;
+                
+                mContent.innerHTML = state.mediaDom;
+                
+                let newAudio = document.getElementById('q-audio');
+                if (newAudio && oldAudio) {
+                    newAudio.currentTime = currentTime;
+                    newAudio.playbackRate = currentSpeed;
+                    if (wasPlaying) {
+                        let playPromise = newAudio.play();
+                        if (playPromise !== undefined) playPromise.catch(e => {});
+                    }
+                }
+            }
             
             // --- ĐỒNG BỘ LẠI CÁC NÚT BẤM SAU KHI CTRL+Z (Bảo vệ nút Giải Thích, Gắn Cờ, Đáp Án) ---
+            // Để khối này chạy SAU CÙNG. Khi HTML của cả cột trái và phải đều đã nằm trên màn hình,
+            // vòng lặp sẽ quét trúng và áp đặt trạng thái Thu gọn/Giải thích lên 100% văn bản.
             // 1. Phục hồi đúng trạng thái Thu gọn / Giải thích hiện tại
             if (typeof isExpCollapsed !== 'undefined') {
                 document.querySelectorAll('.explanation:not(.always-show)').forEach(el => {
@@ -1942,29 +1974,6 @@
                 }
             }
             // ---------------------------------------------------------------------------------
-
-            // Khôi phục lại trạng thái bôi vàng bên trái (Transcript) mà không làm Audio bị ngắt/reset về 0
-            if (state.mediaDom !== undefined) {
-                let mContent = document.getElementById('media-content');
-                let oldAudio = document.getElementById('q-audio');
-                
-                // Ghi nhớ trạng thái Audio trước khi Ctrl Z
-                let wasPlaying = oldAudio && !oldAudio.paused;
-                let currentTime = oldAudio ? oldAudio.currentTime : 0;
-                let currentSpeed = oldAudio ? oldAudio.playbackRate : 1;
-                
-                mContent.innerHTML = state.mediaDom;
-                
-                let newAudio = document.getElementById('q-audio');
-                if (newAudio && oldAudio) {
-                    newAudio.currentTime = currentTime;
-                    newAudio.playbackRate = currentSpeed;
-                    if (wasPlaying) {
-                        let playPromise = newAudio.play();
-                        if (playPromise !== undefined) playPromise.catch(e => {});
-                    }
-                }
-            }
         }
 
         function undoAction() {
@@ -2045,19 +2054,20 @@
             span.className = className;
             try {
                 currentSelectionRange.surroundContents(span);
-                saveActionState(); // Lưu vào bộ nhớ Undo
             } catch(e) {
-                // Cưỡng ép bọc màu nếu lỡ bôi đen dính khoảng trắng hoặc chéo thẻ HTML trong Transcript
                 try {
-                    span.appendChild(currentSelectionRange.extractContents());
+                    let fragment = currentSelectionRange.extractContents();
+                    span.appendChild(fragment);
                     currentSelectionRange.insertNode(span);
-                    saveActionState(); // Lưu vào bộ nhớ Undo
-                } catch(err) {
-                    console.log("Lỗi highlight: ", err);
-                }
+                } catch(err) { console.log(err); }
             }
+            
+            // Bọc Try-Catch để chặn lỗi văng code khi bộ nhớ đầy
+            try { saveActionState(); } catch(err) {} 
+            
             window.getSelection().removeAllRanges();
-            toolbar.classList.remove('active');
+            let tb = document.getElementById('selection-toolbar');
+            if (tb) tb.classList.remove('active');
         }
 
         document.getElementById('tb-yellow').onclick = () => applyWrap('hl-yellow');
