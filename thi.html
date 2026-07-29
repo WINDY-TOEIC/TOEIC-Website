@@ -6,7 +6,6 @@
     <title>Windy TOEIC - Đang Làm Bài</title>
     <link rel="icon" href="logo.png" type="image/x-icon">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         
@@ -432,7 +431,6 @@
                 </div>
                 
                 <div class="modal-buttons">
-                    <button class="btn-modal-blue" style="background:#27ae60;" onclick="printPDF()">🖨️ IN PDF</button>
                     <button class="btn-modal-blue" onclick="closeScoreModal(true)">XEM ĐÁP ÁN</button>
                     <button class="btn-modal-red" onclick="closeScoreModal(false)">THOÁT</button>
                 </div>
@@ -1325,7 +1323,7 @@
                 let isListening = partName.includes("PART 1") || partName.includes("PART 2") || partName.includes("PART 3") || partName.includes("PART 4");
 
                 if (currentMode === 'exam' && !isSubmitted && isListening) {
-                    alert("Listening thi thật không qua lại câu trước được!");
+                    alert("Listening thi thật không thể tự chuyển câu!");
                     return;
                 }
                 showQuestion(newIndex);
@@ -1454,12 +1452,13 @@
                         userAnswers: userAnswers,
                         markedQuestions: markedQuestions,
                         currentQIndex: currentQIndex,
-                        currentQNumber: actualQNum, // Lưu số thứ tự thật
+                        currentQNumber: actualQNum, 
                         answeredQuestions: answeredQuestions,
                         globalTimeInSeconds: globalTimeInSeconds,
                         isCountDown: isCountDown,
                         currentMode: currentMode,
-                        selectedParts: g_selectedParts
+                        selectedParts: g_selectedParts,
+                        lastUpdated: Date.now() // Gắn dấu thời gian để đưa lên đầu danh sách
                     };
                     localStorage.setItem(window.progressKey, JSON.stringify(progressData));
                 }
@@ -1480,12 +1479,13 @@
                         userAnswers: userAnswers,
                         markedQuestions: markedQuestions,
                         currentQIndex: currentQIndex,
-                        currentQNumber: actualQNum, // Lưu số thứ tự thật
+                        currentQNumber: actualQNum, 
                         answeredQuestions: answeredQuestions,
                         globalTimeInSeconds: globalTimeInSeconds,
                         isCountDown: isCountDown,
                         currentMode: currentMode,
-                        selectedParts: g_selectedParts
+                        selectedParts: g_selectedParts,
+                        lastUpdated: Date.now() // Gắn dấu thời gian để đưa lên đầu danh sách
                     };
                     localStorage.setItem(window.progressKey, JSON.stringify(progressData));
             }
@@ -1973,114 +1973,7 @@
             }
         }
         
-        function printPDF() {
-            closeScoreModal(true); 
-            
-            let btn = document.querySelector('button[onclick="printPDF()"]');
-            let oldText = btn.innerHTML;
-            btn.innerHTML = "⏳ ĐANG TẠO PDF...";
-            btn.disabled = true;
-
-            let originalIndex = currentQIndex; 
-            
-            // 1. Tạo 1 trang giấy ảo trong bộ nhớ (ẩn hoàn toàn)
-            let pdfArea = document.createElement('div');
-            pdfArea.style.padding = '10px 20px';
-            pdfArea.style.fontFamily = 'Arial, sans-serif';
-            pdfArea.style.color = '#111';
-            
-            let testTitle = document.getElementById('setup-title').innerText;
-            let pScore = document.getElementById('m-final-score').innerText;
-            pdfArea.innerHTML = `<h2 style="text-align:center; color:#043b5c; margin-bottom: 5px; text-transform: uppercase;">${testTitle}</h2>
-                                 <h4 style="text-align:center; color:#dc3545; margin-top:0; border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 20px;">ĐIỂM SỐ: ${pScore}</h4>`;
-
-            // 2. Chạy qua các câu hỏi và cấu trúc lại Layout siêu gọn
-            let processedGroups = [];
-            for (let i = 0; i < flatQuestions.length; i++) {
-                let gId = flatQuestions[i].groupId;
-                if (!processedGroups.includes(gId)) {
-                    processedGroups.push(gId);
-                    showQuestion(i); // Lấy data hiện tại
-
-                    let mClone = document.getElementById('media-content').cloneNode(true);
-                    let qClone = document.getElementById('question-content').cloneNode(true);
-
-                    // Dọn rác UI (Xóa nút, audio, thu gọn khoảng trống)
-                    mClone.querySelectorAll('audio, .speed-controls, #temp-transcript').forEach(e => e.remove());
-                    qClone.querySelectorAll('.action-btns-wrap, .btn-transcript, .btn-exp-toggle').forEach(e => e.remove());
-                    qClone.querySelectorAll('.explanation').forEach(e => {
-                        e.classList.remove('hidden'); // Ép hiện giải thích
-                        e.style.padding = '8px';
-                        e.style.marginTop = '5px';
-                        e.style.fontSize = '14px';
-                    });
-                    qClone.querySelectorAll('.q-block').forEach(qb => {
-                        qb.style.marginBottom = '5px';
-                        qb.style.paddingBottom = '5px';
-                        qb.style.borderBottom = '1px solid #eee';
-                    });
-                    qClone.querySelectorAll('.option-label').forEach(lbl => {
-                        lbl.style.padding = '2px 0'; // Ép khít đáp án lại
-                    });
-
-                    let groupDiv = document.createElement('div');
-                    groupDiv.style.marginBottom = '20px';
-                    groupDiv.style.pageBreakInside = 'avoid'; 
-
-                    let partName = flatQuestions[i].sq.term_name ? flatQuestions[i].sq.term_name.toUpperCase() : "";
-
-                    // CẤU TRÚC ĐẶC BIỆT CHO PART 1 (Hình bên trái 40%, Chữ bên phải 60%)
-                    if (partName.includes("PART 1")) {
-                        groupDiv.style.display = 'flex';
-                        groupDiv.style.alignItems = 'flex-start';
-                        groupDiv.style.gap = '15px';
-                        
-                        mClone.style.flex = '0 0 45%'; // Cột hình
-                        mClone.querySelectorAll('img').forEach(img => {
-                            img.style.width = '100%';
-                            img.style.maxHeight = '250px'; 
-                            img.style.objectFit = 'contain';
-                            img.style.marginBottom = '0';
-                        });
-                        
-                        qClone.style.flex = '1'; // Cột chữ
-                        groupDiv.appendChild(mClone);
-                        groupDiv.appendChild(qClone);
-                    } 
-                    // CÁC PART KHÁC (Dồn cục lại thật khít)
-                    else {
-                        mClone.querySelectorAll('img').forEach(img => {
-                            img.style.maxWidth = '80%'; 
-                            img.style.maxHeight = '400px';
-                            img.style.objectFit = 'contain';
-                        });
-                        groupDiv.appendChild(mClone);
-                        groupDiv.appendChild(qClone);
-                    }
-
-                    pdfArea.appendChild(groupDiv);
-                }
-            }
-
-            // 3. Phục hồi UI gốc
-            showQuestion(originalIndex);
-
-            // 4. LỆNH GỌI TẢI PDF TRỰC TIẾP
-            let opt = {
-                margin:       10,
-                filename:     `${testTitle.replace(/\s+/g, '_')}_KetQua.pdf`, 
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true }, 
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
-
-            // Tiến hành ép file ngầm và tự tải về
-            html2pdf().set(opt).from(pdfArea).save().then(() => {
-                btn.innerHTML = "🖨️ IN PDF"; 
-                btn.disabled = false;
-            });
-        }
-
+        
 
         function applyWrap(className) {
             if (!currentSelectionRange) return;

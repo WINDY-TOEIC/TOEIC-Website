@@ -1013,16 +1013,19 @@
                 }
             }
             
+            // Sắp xếp bài làm gần nhất (thời gian mới nhất) lên đầu
+            resumeList.sort((a, b) => (b.data.lastUpdated || 0) - (a.data.lastUpdated || 0));
+
             let resumeBtn = document.getElementById('resume-btn');
             if (resumeList.length === 0) {
                 resumeBtn.style.display = 'none'; return;
             }
-            resumeList = resumeList.slice(0, 5); // Tối đa 5 bài
+            resumeList = resumeList.slice(0, 5);
 
             if (resumeList.length === 1) {
                 let item = resumeList[0];
                 let testName = item.file.replace('.txt', '').replace('.json', '').replace(/-/g, ' ').toUpperCase();
-                let actualQNum = item.data.currentQNumber || (item.data.currentQIndex + 1); // Lấy số câu thật
+                let actualQNum = item.data.currentQNumber || (item.data.currentQIndex + 1); 
                 let partText = item.data.selectedParts ? ` (${item.data.selectedParts.join(', ')})` : '';
                 
                 let url = `thi.html?file=${encodeURIComponent(item.file)}&resume=1`;
@@ -1032,7 +1035,7 @@
                 resumeBtn.href = url;
                 resumeBtn.style.display = 'flex';
             } else {
-                let tooltipHtml = '<div style="font-weight:bold; margin-bottom:5px; border-bottom:1px solid #555; padding-bottom:5px; color:#f1c40f;">DANH SÁCH ĐANG DỞ:</div>';
+                let tooltipHtml = '<div style="font-weight:bold; margin-bottom:5px; border-bottom:1px solid #555; padding-bottom:5px; color:#f1c40f;">TEST CHƯA HOÀN THÀNH:</div>';
                 resumeList.forEach(item => {
                     let testName = item.file.replace('.txt', '').replace('.json', '').replace(/-/g, ' ').toUpperCase();
                     let actualQNum = item.data.currentQNumber || (item.data.currentQIndex + 1);
