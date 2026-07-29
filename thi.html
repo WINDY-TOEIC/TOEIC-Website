@@ -730,12 +730,16 @@
                 });
                 window.progressKey = `win_progress_${fileName}|${tempParts.join('-')}`;
                 
-                // DỌN SẠCH RÁC CỦA COMBO PART NÀY TRƯỚC KHI LÀM MỚI 
-                localStorage.removeItem(window.progressKey);
-                let noteKeyToClean = window.progressKey ? window.progressKey.replace('win_progress_', 'win_notes_') : `win_notes_${fileName}`;
-                localStorage.removeItem(noteKeyToClean);
-                localStorage.removeItem(`win_draw_${fileName}`);
-
+                // --- Xóa TOÀN BỘ RÁC CỦA ĐỀ NÀY (BẤT KỂ LÀ PART NÀO) ---
+                let keysToRemove = [];
+                for (let i = 0; i < localStorage.length; i++) {
+                    let k = localStorage.key(i);
+                    if (k && (k.startsWith(`win_progress_${fileName}`) || k.startsWith(`win_notes_${fileName}`) || k.startsWith(`win_draw_${fileName}`))) {
+                        keysToRemove.push(k);
+                    }
+                }
+                keysToRemove.forEach(k => localStorage.removeItem(k));
+                savedNotes = {}; // Xóa trắng bộ nhớ tạm trong RAM để chặn đứng bóng ma phục hồi
             }
 
             let savedProgress = localStorage.getItem(window.progressKey);
