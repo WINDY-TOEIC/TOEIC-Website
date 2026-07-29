@@ -766,8 +766,12 @@
                     mainData = mainData.slice(0, 10); // Top 10 Bảng Vàng
                     chalData = chalData.slice(0, 10); // Top 10 Thử Thách
                     
-                    // Hàm tạo code HTML chung cho 2 bảng (Đã tách cột Lớp & bỏ cột Ngày)
+                    // Hàm tạo code HTML chung cho 2 bảng (Bảo vệ XSS theo Lỗi số 2)
                     function buildTableHtml(dataArray, isChallenge = false) {
+                        const escapeHtml = (unsafe) => {
+                            return (unsafe || '').toString().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+                        };
+
                         let scoreHeader = isChallenge ? "Số câu" : "Điểm";
                         let tableHtml = `<table class="lb-table"><tr><th style="text-align:center; width:12%;">Top</th><th style="text-align:center; width:15%;">Lớp</th><th style="text-align:center; width:35%;">Thí sinh</th><th style="text-align:center; width:26%;">Đề Thi</th><th style="text-align:center; width:12%;">${scoreHeader}</th></tr>`;
                         dataArray.forEach((row, index) => {
@@ -777,14 +781,14 @@
                             else if (index === 1) { rankClass += " top-2"; rankTrophy = "🥈&nbsp;2"; }
                             else if (index === 2) { rankClass += " top-3"; rankTrophy = "🥉&nbsp;3"; }
                             
-                            // Tách bỏ chữ "WIN" chỉ lấy số lớp (ví dụ: "WIN 171" -> "171")
-                            let cleanClass = (row.className || '').replace(/^WIN\s*/i, '').trim();
-                            let testName = isChallenge ? "1p Part 5" : row.test;
+                            let cleanClass = escapeHtml((row.className || '').replace(/^WIN\s*/i, '').trim());
+                            let safeName = escapeHtml(row.name);
+                            let testName = escapeHtml(isChallenge ? "1p Part 5" : row.test);
 
                             tableHtml += `<tr>
                                 <td class="${rankClass}" style="white-space: nowrap;">${rankTrophy}</td>
                                 <td style="text-align:center; font-weight:600; color:#555;">${cleanClass}</td>
-                                <td style="font-weight:600; color:#003366; text-align:center;">${row.name}</td>
+                                <td style="font-weight:600; color:#003366; text-align:center;">${safeName}</td>
                                 <td style="text-align:center; line-height:1.4; font-size:12px;">${testName}</td>
                                 <td class="lb-score" style="text-align:center;">${row.score}</td>
                             </tr>`;
