@@ -1779,8 +1779,8 @@
             // 1. Xóa vĩnh viễn các đoạn text ghi chú / nghĩa tiếng Việt
             document.querySelectorAll('.hl-note-text').forEach(el => el.remove());
             
-            // 2. Gỡ bỏ bôi vàng, gạch ngang, gạch dưới (Giữ nguyên chữ gốc bên trong)
-            document.querySelectorAll('.hl-yellow, .hl-strike, .hl-underline').forEach(el => {
+            // 2. Gỡ bỏ bôi vàng, gạch ngang, gạch dưới, màu xanh, màu tím (Giữ nguyên chữ gốc bên trong)
+            document.querySelectorAll('.hl-yellow, .hl-strike, .hl-underline, .hl-word-blue, .hl-word-purple').forEach(el => {
                 let parent = el.parentNode;
                 while (el.firstChild) {
                     parent.insertBefore(el.firstChild, el);
@@ -2003,12 +2003,22 @@
                 noteSpan.className = 'hl-note-text';
                 noteSpan.style.color = '#2980b9'; 
                 noteSpan.style.borderColor = '#2980b9'; 
-                noteSpan.innerHTML = `(${translatedText}) <span class="del-note" onclick="this.parentElement.remove(); saveActionState();">❌</span>`;
+                // Thêm hàm unwrap để khi xóa ❌ nó gỡ luôn màu nền xanh
+                noteSpan.innerHTML = `(${translatedText}) <span class="del-note" onclick="let p = this.parentElement; let prev = p.previousSibling; if(prev && prev.classList && prev.classList.contains('hl-word-blue')) { while(prev.firstChild) p.parentNode.insertBefore(prev.firstChild, prev); prev.remove(); } p.remove(); saveActionState();">❌</span>`;
                 
-                // KHÔNG BÔI VÀNG - CHỈ CHÈN VÀO ĐẰNG SAU TỪ ĐÓ
                 let range = currentSelectionRange;
-                range.collapse(false);
-                range.insertNode(noteSpan);
+                try {
+                    let wrapSpan = document.createElement('span');
+                    wrapSpan.className = 'hl-word-blue';
+                    wrapSpan.style.backgroundColor = '#d6eaf8'; // Màu xanh dương nhạt
+                    wrapSpan.style.borderRadius = '2px';
+                    range.surroundContents(wrapSpan);
+                    wrapSpan.insertAdjacentElement('afterend', noteSpan);
+                } catch(e) {
+                    // Nếu bôi chéo thẻ HTML bị lỗi, thì chỉ chèn note (không bôi nền)
+                    range.collapse(false);
+                    range.insertNode(noteSpan);
+                }
 
                 saveActionState();
                 window.getSelection().removeAllRanges();
@@ -2114,11 +2124,21 @@
                 noteSpan.className = 'hl-note-text';
                 noteSpan.style.color = '#8e44ad'; 
                 noteSpan.style.borderColor = '#8e44ad'; 
-                noteSpan.innerHTML = `[${ipaText}] <span class="del-note" onclick="this.parentElement.remove(); saveActionState();">❌</span>`;
+                // Thêm hàm unwrap để khi xóa ❌ nó gỡ luôn màu nền tím
+                noteSpan.innerHTML = `[${ipaText}] <span class="del-note" onclick="let p = this.parentElement; let prev = p.previousSibling; if(prev && prev.classList && prev.classList.contains('hl-word-purple')) { while(prev.firstChild) p.parentNode.insertBefore(prev.firstChild, prev); prev.remove(); } p.remove(); saveActionState();">❌</span>`;
                 
                 let range = currentSelectionRange;
-                range.collapse(false);
-                range.insertNode(noteSpan);
+                try {
+                    let wrapSpan = document.createElement('span');
+                    wrapSpan.className = 'hl-word-purple';
+                    wrapSpan.style.backgroundColor = '#f4ecf7'; // Màu tím nhạt
+                    wrapSpan.style.borderRadius = '2px';
+                    range.surroundContents(wrapSpan);
+                    wrapSpan.insertAdjacentElement('afterend', noteSpan);
+                } catch(e) {
+                    range.collapse(false);
+                    range.insertNode(noteSpan);
+                }
 
                 saveActionState();
                 window.getSelection().removeAllRanges();
