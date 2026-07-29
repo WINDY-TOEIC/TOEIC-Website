@@ -2047,7 +2047,14 @@
                 currentSelectionRange.surroundContents(span);
                 saveActionState(); // Lưu vào bộ nhớ Undo
             } catch(e) {
-                // Lỡ bôi chéo thẻ thì cứ âm thầm bỏ qua
+                // Cưỡng ép bọc màu nếu lỡ bôi đen dính khoảng trắng hoặc chéo thẻ HTML trong Transcript
+                try {
+                    span.appendChild(currentSelectionRange.extractContents());
+                    currentSelectionRange.insertNode(span);
+                    saveActionState(); // Lưu vào bộ nhớ Undo
+                } catch(err) {
+                    console.log("Lỗi highlight: ", err);
+                }
             }
             window.getSelection().removeAllRanges();
             toolbar.classList.remove('active');
