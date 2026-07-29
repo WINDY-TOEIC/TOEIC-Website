@@ -629,7 +629,11 @@
                     startTest(shareMode); // Kích hoạt vào thi
                 } else if (isResumeSignal === '1') {
                     // Nếu bấm nút LÀM TIẾP -> tự động chạy thẳng vào phòng thi, không cần hỏi
-                    let savedProgress = localStorage.getItem(`win_progress_${fileName}`);
+                    // Cập nhật lấy đúng chìa khóa có chứa tên Part để khôi phục chính xác chế độ Thi thật
+                    let partsSuffix = urlParams.get('partsSuffix');
+                    let targetKey = partsSuffix ? `win_progress_${fileName}|${partsSuffix}` : `win_progress_${fileName}`;
+                    let savedProgress = localStorage.getItem(targetKey);
+                    
                     let resumeMode = 'practice';
                     if (savedProgress) {
                         let parsed = JSON.parse(savedProgress);
