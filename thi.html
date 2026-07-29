@@ -2212,6 +2212,12 @@
         };
 
         // --- TÍNH NĂNG ĐỌC TỪ VỰNG (WEB SPEECH API) ---
+        // Ép trình duyệt tải giọng đọc ngầm ngay từ lúc mở web
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.onvoiceschanged = function() { window.speechSynthesis.getVoices(); };
+            window.speechSynthesis.getVoices();
+        }
+
         document.getElementById('tb-speak').onclick = () => {
             if(!currentSelectionRange) return;
             let text = currentSelectionRange.toString().trim();
