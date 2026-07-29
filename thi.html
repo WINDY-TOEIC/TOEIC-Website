@@ -1213,8 +1213,8 @@
                         });
                     }
 
-                    // --- BẢO VỆ TRẠNG THÁI THU GỌN/GIẢI THÍCH ---
-                    if (typeof isExpCollapsed !== 'undefined') {
+                    // --- BẢO VỆ TRẠNG THÁI THU GỌN/GIẢI THÍCH (CHỈ ĐƯỢC CHẠY KHI ĐÃ NỘP BÀI) ---
+                    if (isSubmitted && typeof isExpCollapsed !== 'undefined') {
                         document.querySelectorAll('.explanation:not(.always-show)').forEach(el => {
                             if (isExpCollapsed) el.classList.add('hidden');
                             else el.classList.remove('hidden');
