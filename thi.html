@@ -1293,6 +1293,12 @@
                 rightPanel.scrollTo({ top: scrollPos, behavior: "smooth" });
             }
 
+            // --- Ép đồng bộ lại size chữ Transcript hiện tại (Khắc phục lỗi bản chụp savedNotes đè size cũ) ---
+            document.querySelectorAll('.trans-content-text').forEach(el => {
+                el.style.fontSize = currentTransSize + 'px';
+                el.style.lineHeight = '1.6';
+            });
+
             let currentPartStr = (sq.term_name || "").toUpperCase();
             let isListening = currentPartStr.includes("PART 1") || currentPartStr.includes("PART 2") || currentPartStr.includes("PART 3") || currentPartStr.includes("PART 4");
             
@@ -1618,8 +1624,8 @@
                 event.preventDefault(); redoAction(); return;
             }
 
-            // --- PHÍM TẮT MỚI: CTRL + SPACE ĐỂ GẠCH CHÂN ĐỎ ---
-            if (event.ctrlKey && (event.code === 'Space' || event.keyCode === 32)) {
+            // --- PHÍM TẮT MỚI: BẤM PHÍM SỐ 1 ĐỂ GẠCH CHÂN ĐỎ ---
+            if (event.key === '1') {
                 event.preventDefault(); // Chặn hành vi mặc định của trình duyệt
                 if (currentMode === 'exam' && !isSubmitted) return; // Thi thật chưa nộp thì cấm dùng
                 
