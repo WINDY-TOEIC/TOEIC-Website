@@ -960,7 +960,7 @@
             if (item.groupId !== currentGroupId || index === 0) {
                 
                 // --- TỰ ĐỘNG LƯU GHI CHÚ TRƯỚC KHI CHUYỂN SANG NHÓM CÂU HỎI KHÁC ---
-                if (currentGroupId !== -1 && !isSubmitted) {
+                if (currentGroupId !== -1) {
                     let oldMContent = document.getElementById('media-content');
                     let oldQContent = document.getElementById('question-content');
                     if (oldMContent && oldQContent) {
@@ -1184,42 +1184,74 @@
                 document.getElementById('question-content').innerHTML = rightHtml;
 
                 // KIỂM TRA VÀ PHỤC HỒI GHI CHÚ (NẾU CÓ LƯU)
-
-                // Chỉ phục hồi ghi chú nếu CHƯA NỘP BÀI (!isSubmitted)
-                // Đã nộp rồi thì tuyệt đối không được đè lại giao diện cũ
-                if (savedNotes && savedNotes[currentGroupId] && !isSubmitted) {
+                if (savedNotes && savedNotes[currentGroupId]) {
                     document.getElementById('media-content').innerHTML = savedNotes[currentGroupId].left;
                     document.getElementById('question-content').innerHTML = savedNotes[currentGroupId].right;
                     
+                    // --- ĐỒNG BỘ GIAO DIỆN XANH/ĐỎ NẾU ĐÃ NỘP BÀI ---
+                    if (isSubmitted) {
+                        document.querySelectorAll('.pre-submit-text').forEach(e => e.classList.remove('pre-submit-text'));
+                        document.querySelectorAll('.always-show.hidden').forEach(e => e.classList.remove('hidden'));
+                        
+                        groupItems.forEach(gItem => {
+                            let qIdx = gItem.idx;
+                            let correctObj = gItem.q.sq.choices.find(c => c.choice_right_answer);
+                            let correctChoice = correctObj ? correctObj.choice : null;
+                            
+                            document.querySelectorAll(`input[name="q-${qIdx}"]`).forEach(input => {
+                                let label = input.parentElement;
+                                label.className = "option-label"; // Xóa class rác
+                                if (input.value === correctChoice) {
+                                    label.classList.add('correct');
+                                } else if (input.value === userAnswers[qIdx]) {
+                                    label.classList.add('wrong');
+                                }
+                            });
+                            
+                            let markBtn = document.getElementById(`btn-mark-${qIdx}`);
+                            if (markBtn) markBtn.style.display = "none"; // Ẩn cờ sau nộp
+                        });
+                    }
+
+                    // --- BẢO VỆ TRẠNG THÁI THU GỌN/GIẢI THÍCH ---
+                    if (typeof isExpCollapsed !== 'undefined') {
+                        document.querySelectorAll('.explanation:not(.always-show)').forEach(el => {
+                            if (isExpCollapsed) el.classList.add('hidden');
+                            else el.classList.remove('hidden');
+                        });
+                        document.querySelectorAll('.btn-exp-toggle').forEach(btn => {
+                            btn.innerText = isExpCollapsed ? 'Giải thích' : 'Thu gọn';
+                        });
+                    }
+
+                    // --- ĐỒNG BỘ TRẠNG THÁI RADIO & CỜ NẾU CHƯA NỘP ---
+                    if (!isSubmitted) {
+                        groupItems.forEach(gItem => {
+                            let qIdx = gItem.idx;
+                            document.querySelectorAll(`input[name="q-${qIdx}"]`).forEach(input => {
+                                input.checked = (input.value === userAnswers[qIdx]);
+                            });
+                            let markBtn = document.getElementById(`btn-mark-${qIdx}`);
+                            let markText = document.getElementById(`mark-text-${qIdx}`);
+                            if (markBtn && markText) {
+                                markText.innerText = markedQuestions[qIdx] ? "Bỏ Cờ" : "Gắn Cờ";
+                                markBtn.style.background = markedQuestions[qIdx] ? "#ffc107" : "#fff3cd";
+                            }
+                        });
+                    }
+
                     // Phục hồi Audio
                     let audioEl = document.getElementById('q-audio');
                     if (audioEl) {
                         audioEl.playbackRate = currentAudioSpeed;
                         audioEl.preservesPitch = true;
-                        
-                        // --- Áp dụng và lưu âm lượng ---
                         let savedVol = localStorage.getItem('win_audio_vol');
                         if (savedVol !== null) audioEl.volume = parseFloat(savedVol);
                         audioEl.addEventListener('volumechange', function() {
                             localStorage.setItem('win_audio_vol', audioEl.volume);
                         });
-
                         if (currentMode === 'exam') audioEl.onended = function() { autoAdvanceExam(index); };
                     }
-                    
-                    // Đồng bộ lại trạng thái chọn Đáp án và Gắn Cờ
-                    groupItems.forEach(gItem => {
-                        let qIdx = gItem.idx;
-                        document.querySelectorAll(`input[name="q-${qIdx}"]`).forEach(input => {
-                            input.checked = (input.value === userAnswers[qIdx]);
-                        });
-                        let markBtn = document.getElementById(`btn-mark-${qIdx}`);
-                        let markText = document.getElementById(`mark-text-${qIdx}`);
-                        if (markBtn && markText) {
-                            markText.innerText = markedQuestions[qIdx] ? "Bỏ Cờ" : "Gắn Cờ";
-                            markBtn.style.background = markedQuestions[qIdx] ? "#ffc107" : "#fff3cd";
-                        }
-                    });
                 }
 
                 document.getElementById('right-panel').scrollTop = 0;
@@ -1831,7 +1863,7 @@
             historyStep++;
             
             // --- TỰ ĐỘNG LƯU GHI CHÚ NGAY LẬP TỨC (Tránh mất khi F5) ---
-            if (currentGroupId !== -1 && mContent && !isSubmitted) {
+            if (currentGroupId !== -1 && mContent) {
                 savedNotes[currentGroupId] = {
                     left: mContent.innerHTML,
                     right: qContent.innerHTML
@@ -1983,7 +2015,7 @@
                 currentSelectionRange.surroundContents(span);
                 saveActionState(); // Lưu vào bộ nhớ Undo
             } catch(e) {
-                alert("Vui lòng bôi đen gọn trong 1 đoạn văn, không bôi chéo qua các ô.");
+                // Lỡ bôi chéo thẻ thì cứ âm thầm bỏ qua
             }
             window.getSelection().removeAllRanges();
             toolbar.classList.remove('active');

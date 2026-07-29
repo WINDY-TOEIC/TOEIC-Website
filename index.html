@@ -312,9 +312,12 @@
         <button class="theme-btn" onclick="toggleThemePanel()" title="Đổi màu nền">🎨</button>
         <button class="dark-mode-btn" id="dark-mode-btn-index" onclick="toggleDarkMode()" title="Bật/Tắt Chế độ tối">🌙</button>
         
-        <!-- Nút Lịch Sử Làm Bài -->
+        <!-- Nút Lịch Sử & Sổ Tay -->
         <div class="history-wrapper">
-            <button class="btn-history-toggle" onclick="toggleHistory()">Xem Lịch Sử Làm Bài</button>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn-history-toggle" onclick="toggleHistory()">Xem Lịch Sử</button>
+                <button class="btn-history-toggle" style="background: #e67e22;" onclick="openVocabModal()">📖 Sổ Tay Từ Vựng</button>
+            </div>
             <div id="history-dropdown" class="history-dropdown">
                 <h3 style="margin-top: 0; margin-bottom: 15px; font-size: 16px; color: #003366; border-bottom: 1px solid #eee; padding-bottom: 10px;">LỊCH SỬ GẦN ĐÂY</h3>
                 <div id="history-container" class="history-list">
@@ -602,7 +605,41 @@
     
     
 
-<!-- BẢNG CHI TIẾT LỊCH SỬ KHI BẤM VÀO -->
+<!-- MODAL SỔ TAY TỪ VỰNG -->
+    <style>
+        .vocab-modal { background: white; padding: 20px 25px; border-radius: 8px; width: 650px; max-width: 95%; box-shadow: 0 10px 30px rgba(0,0,0,0.3); transform: translateY(-30px); transition: 0.3s; max-height: 85vh; display: flex; flex-direction: column;}
+        .modal-overlay.active .vocab-modal { transform: translateY(0); }
+        .vocab-list { flex: 1; overflow-y: auto; margin-top: 15px; border-top: 1px solid #eee; padding-top: 15px; display: flex; flex-direction: column; gap: 10px; }
+        .vocab-item { background: #f8f9fa; border-left: 4px solid #8e44ad; padding: 12px 15px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; }
+        .vocab-word { font-size: 18px; font-weight: bold; color: #8e44ad; text-transform: lowercase; }
+        .vocab-ipa { font-size: 14px; color: #555; font-family: monospace; }
+        .vocab-type { font-size: 12px; background: #e0e0e0; padding: 2px 6px; border-radius: 4px; font-weight: bold; color: #333; margin-left: 8px; }
+        .vocab-meaning { font-size: 15px; color: #111; margin-top: 5px; font-weight: 500;}
+        .vocab-date { font-size: 12px; color: #999; margin-top: 5px; }
+        .btn-del-vocab { background: transparent; border: none; color: #dc3545; font-size: 20px; cursor: pointer; transition: 0.2s; }
+        .btn-del-vocab:hover { transform: scale(1.2); }
+        body.dark-mode .vocab-modal { background: #1e1e1e; }
+        body.dark-mode .vocab-item { background: #2a2a2a; border-left-color: #bb86fc; }
+        body.dark-mode .vocab-word { color: #bb86fc; }
+        body.dark-mode .vocab-meaning, body.dark-mode .vocab-ipa { color: #e0e0e0; }
+        body.dark-mode .vocab-type { background: #444; color: #fff; }
+    </style>
+    <div id="vocab-modal-overlay" class="modal-overlay" onclick="if(event.target === this) document.getElementById('vocab-modal-overlay').classList.remove('active')">
+        <div class="vocab-modal">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h2 style="margin: 0; color: #003366; font-size: 20px;">📖 SỔ TAY TỪ VỰNG</h2>
+                <button onclick="clearAllVocab()" style="background: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px;">🗑️ Xóa tất cả</button>
+            </div>
+            <div id="vocab-container" class="vocab-list">
+                <!-- Nội dung từ vựng chèn vào đây -->
+            </div>
+            <div class="modal-buttons" style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 15px; justify-content: flex-end; display: flex;">
+                <button class="btn-modal-red" onclick="document.getElementById('vocab-modal-overlay').classList.remove('active')">ĐÓNG</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- BẢNG CHI TIẾT LỊCH SỬ KHI BẤM VÀO -->
     <div id="history-modal-overlay" class="modal-overlay" onclick="if(event.target === this) document.getElementById('history-modal-overlay').classList.remove('active')">
         <div class="score-modal">
             <h2 id="hm-title">CHI TIẾT KẾT QUẢ</h2>
@@ -1055,6 +1092,55 @@
 
         function toggleHistory() {
             document.getElementById('history-dropdown').classList.toggle('active');
+        }
+
+        // --- HÀM XỬ LÝ SỔ TAY TỪ VỰNG ---
+        function openVocabModal() {
+            renderVocab();
+            document.getElementById('vocab-modal-overlay').classList.add('active');
+        }
+
+        function renderVocab() {
+            let vocabList = JSON.parse(localStorage.getItem('win_vocab') || '[]');
+            let container = document.getElementById('vocab-container');
+            
+            if (vocabList.length === 0) {
+                container.innerHTML = '<div class="no-history">Sổ tay của bạn đang trống. Hãy bôi đen từ vựng trong lúc làm bài và bấm nút ⭐ để lưu nhé!</div>';
+                return;
+            }
+
+            let html = '';
+            vocabList.forEach((v, index) => {
+                let typeBadge = v.type ? `<span class="vocab-type">${v.type}</span>` : '';
+                html += `
+                <div class="vocab-item">
+                    <div>
+                        <div style="display: flex; align-items: center; margin-bottom: 5px;">
+                            <span class="vocab-word">${v.word}</span>
+                            ${typeBadge}
+                        </div>
+                        <div class="vocab-ipa">${v.ipa}</div>
+                        <div class="vocab-meaning">${v.meaning}</div>
+                        <div class="vocab-date">Đã lưu: ${v.date}</div>
+                    </div>
+                    <button class="btn-del-vocab" onclick="deleteVocab(${index})" title="Xóa từ này">🗑️</button>
+                </div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function deleteVocab(index) {
+            let vocabList = JSON.parse(localStorage.getItem('win_vocab') || '[]');
+            vocabList.splice(index, 1);
+            localStorage.setItem('win_vocab', JSON.stringify(vocabList));
+            renderVocab();
+        }
+
+        function clearAllVocab() {
+            if(confirm("Bạn có chắc chắn muốn xóa toàn bộ Sổ tay từ vựng không?")) {
+                localStorage.removeItem('win_vocab');
+                renderVocab();
+            }
         }
 
         // Lắng nghe thao tác click chuột trên toàn trang để đóng menu dropdown
