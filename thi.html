@@ -1565,6 +1565,7 @@
                 navigateQuestion(-1);
             } else if (event.code === 'ArrowUp' || event.keyCode === 38) {
                 event.preventDefault();
+                if (!isSubmitted) return; // Khóa phím, chỉ cho phép bật transcript khi ĐÃ NỘP BÀI
                 let sq = flatQuestions[currentQIndex].sq;
                 if(sq) toggleTranscript(sq.index);
             }
