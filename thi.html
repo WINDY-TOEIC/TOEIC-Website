@@ -607,8 +607,17 @@
 
                 if (autoRestartMode) {
                     sessionStorage.removeItem('win_auto_restart'); 
-                    document.getElementById('chk-custom-parts').checked = false;
-                    togglePartSelection(); 
+                    // Phục hồi chính xác Thời gian và các Part đã chọn trước đó
+                    let savedTime = sessionStorage.getItem('win_restart_time');
+                    let savedParts = sessionStorage.getItem('win_restart_parts');
+                    if (savedTime) document.getElementById('time-select').value = savedTime;
+                    if (savedParts) {
+                        let partsArray = savedParts.split(',');
+                        availableParts.forEach(part => {
+                            let chk = document.getElementById(`chk-${part}`);
+                            if (chk) chk.checked = partsArray.includes(part);
+                        });
+                    }
                     startTest(autoRestartMode); 
                 } else if (shareMode && shareParts) {
                     // Bắt được link chia sẻ -> Ép thông số và chạy thẳng vào test
@@ -876,8 +885,9 @@
             
             buildNavGrid();
 
-            // Load ghi chú cũ từ máy
-            let storedNotes = localStorage.getItem(`win_notes_${fileName}`);
+            // Load ghi chú cũ từ máy theo đúng Combo Part đang làm
+            let noteKey = window.progressKey ? window.progressKey.replace('win_progress_', 'win_notes_') : `win_notes_${fileName}`;
+            let storedNotes = localStorage.getItem(noteKey);
             if (storedNotes) savedNotes = JSON.parse(storedNotes);
 
             // Phục hồi dữ liệu nếu chọn Làm Tiếp
@@ -954,12 +964,13 @@
                 if (currentGroupId !== -1 && !isSubmitted) {
                     let oldMContent = document.getElementById('media-content');
                     let oldQContent = document.getElementById('question-content');
-                    if (oldMContent && oldQContent && oldMContent.innerHTML.trim() !== '') {
+                    if (oldMContent && oldQContent) {
                         savedNotes[currentGroupId] = {
                             left: oldMContent.innerHTML,
                             right: oldQContent.innerHTML
                         };
-                        localStorage.setItem(`win_notes_${fileName}`, JSON.stringify(savedNotes));
+                        let noteKey = window.progressKey ? window.progressKey.replace('win_progress_', 'win_notes_') : `win_notes_${fileName}`;
+                        localStorage.setItem(noteKey, JSON.stringify(savedNotes));
                     }
                 }
 
@@ -1718,7 +1729,9 @@
             btnSubmit.innerText = "LÀM LẠI";
             btnSubmit.style.backgroundColor = "#f27127"; // Đổi sang màu cam
             btnSubmit.onclick = function() { 
-                sessionStorage.setItem('win_auto_restart', currentMode); // Bắn tín hiệu làm lại
+                sessionStorage.setItem('win_auto_restart', currentMode); 
+                sessionStorage.setItem('win_restart_time', document.getElementById('time-select').value);
+                sessionStorage.setItem('win_restart_parts', g_selectedParts.join(','));
                 location.reload(); 
             };
 
@@ -1823,7 +1836,8 @@
                     left: mContent.innerHTML,
                     right: qContent.innerHTML
                 };
-                localStorage.setItem(`win_notes_${fileName}`, JSON.stringify(savedNotes));
+                let noteKey = window.progressKey ? window.progressKey.replace('win_progress_', 'win_notes_') : `win_notes_${fileName}`;
+                localStorage.setItem(noteKey, JSON.stringify(savedNotes));
             }
         }
 
@@ -1960,8 +1974,55 @@
         }
         
         function printPDF() {
-            closeScoreModal(true); // Đóng bảng điểm trước
-            setTimeout(() => { window.print(); }, 500); // Mở hộp thoại In của trình duyệt
+            closeScoreModal(true); 
+            let originalIndex = currentQIndex; // Nhớ vị trí hiện tại
+            
+            // Tạo 1 trang giấy ảo
+            let printArea = document.createElement('div');
+            printArea.id = 'print-area';
+            printArea.style.padding = '20px';
+            printArea.style.background = 'white';
+            printArea.style.color = 'black';
+            
+            let testTitle = document.getElementById('setup-title').innerText;
+            let pScore = document.getElementById('m-final-score').innerText;
+            printArea.innerHTML = `<h1 style="text-align:center; color:#043b5c; margin-bottom: 5px;">${testTitle}</h1>
+                                   <h3 style="text-align:center; color:#dc3545; margin-top:0; border-bottom: 2px solid #ccc; padding-bottom: 20px;">Điểm số: ${pScore}</h3>`;
+
+            // Ép hệ thống chạy qua TOÀN BỘ các câu hỏi để lấy trọn vẹn HTML (cả màu xanh đỏ và ghi chú)
+            let processedGroups = [];
+            for (let i = 0; i < flatQuestions.length; i++) {
+                let gId = flatQuestions[i].groupId;
+                if (!processedGroups.includes(gId)) {
+                    processedGroups.push(gId);
+                    showQuestion(i); // Render ra màn hình ảo
+
+                    let mContent = document.getElementById('media-content').innerHTML;
+                    let qContent = document.getElementById('question-content').innerHTML;
+
+                    let groupDiv = document.createElement('div');
+                    groupDiv.style.marginBottom = '40px';
+                    groupDiv.style.borderBottom = '1px dashed #999';
+                    groupDiv.style.paddingBottom = '20px';
+                    groupDiv.innerHTML = `<div style="margin-bottom:15px; break-inside: avoid;">${mContent}</div><div style="break-inside: avoid;">${qContent}</div>`;
+                    printArea.appendChild(groupDiv);
+                }
+            }
+
+            // Dọn dẹp các nút bấm thừa ra khỏi file PDF
+            printArea.querySelectorAll('.action-btns-wrap, .speed-controls, audio, .tb-btn, .nav-buttons, #temp-transcript').forEach(el => el.remove());
+
+            // Ẩn web cũ, đưa giấy ảo lên in
+            document.body.appendChild(printArea);
+            document.getElementById('test-screen').style.display = 'none';
+
+            setTimeout(() => {
+                window.print(); // Gọi hộp thoại Save as PDF
+                // In xong thì Dọn dẹp và khôi phục lại màn hình web
+                printArea.remove();
+                document.getElementById('test-screen').style.display = 'flex';
+                showQuestion(originalIndex);
+            }, 1000);
         }
 
         function applyWrap(className) {
@@ -2177,32 +2238,71 @@
             toolbar.classList.remove('active');
         };
 
-        // --- TÍNH NĂNG LƯU TỪ VÀO SỔ TAY ---
-        document.getElementById('tb-save-word').onclick = () => {
+        // --- TÍNH NĂNG LƯU TỪ VÀO SỔ TAY (TỰ ĐỘNG LẤY NGHĨA + IPA + LOẠI TỪ BẰNG AI) ---
+        document.getElementById('tb-save-word').onclick = async () => {
             if(!currentSelectionRange) return;
             let text = currentSelectionRange.toString().trim();
             if(!text) return;
-            
-            // Hỏi học viên nhập nghĩa của từ (có thể bỏ trống)
-            let meaning = prompt(`Đang thêm "${text}" vào Sổ tay.\n\nNhập nghĩa tiếng Việt (nếu muốn):`, "");
-            if (meaning !== null) { // Nếu không bấm Hủy
+
+            let btnSave = document.getElementById('tb-save-word');
+            let oldIcon = btnSave.innerHTML;
+            btnSave.innerHTML = "⏳"; // Báo hiệu đang gọi AI
+
+            try {
+                let _k1 = "Z3NrX3NjbHNqUGpqWnhzbWZt";
+                let _k2 = "Z2s2Q3RwV0dkeWIzRlk5Wk1F";
+                let _k3 = "VHU4SThhWVVsdkxWVFFuVHVBVTY=";
+
+                // Gọi Groq AI để lấy full combo
+                let groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${atob(_k1 + _k2 + _k3)}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        model: "llama3-8b-8192",
+                        messages: [{
+                            role: "system",
+                            content: "You are a bilingual dictionary. Given an English word or phrase, reply STRICTLY in this exact format: [UK IPA] | Part of Speech | Vietnamese Meaning. Example: [kæt] | Noun | Con mèo. Do not write any extra words."
+                        }, {
+                            role: "user",
+                            content: text
+                        }],
+                        temperature: 0.1,
+                        max_tokens: 30
+                    })
+                });
+
+                if(!groqRes.ok) throw new Error("API failed");
+                let groqData = await groqRes.json();
+                let resultStr = groqData.choices[0].message.content.trim();
+                
+                // Tách kết quả AI trả về theo dấu |
+                let parts = resultStr.split('|').map(s => s.trim());
+                let ipa = parts[0] || "";
+                let type = parts[1] || "";
+                let meaning = parts[2] || "Không lấy được nghĩa";
+
+                // Lưu vào Sổ tay
                 let vocabList = JSON.parse(localStorage.getItem('win_vocab') || '[]');
-                
-                // Tránh lưu trùng lặp
                 let existingIndex = vocabList.findIndex(v => v.word.toLowerCase() === text.toLowerCase());
+                
                 if (existingIndex !== -1) {
-                    vocabList[existingIndex].meaning = meaning; // Cập nhật nghĩa nếu đã có
+                    vocabList[existingIndex] = { word: text, ipa: ipa, type: type, meaning: meaning, date: new Date().toLocaleDateString("vi-VN") };
                 } else {
-                    vocabList.unshift({ word: text, meaning: meaning, date: new Date().toLocaleDateString("vi-VN") });
+                    vocabList.unshift({ word: text, ipa: ipa, type: type, meaning: meaning, date: new Date().toLocaleDateString("vi-VN") });
                 }
-                
                 localStorage.setItem('win_vocab', JSON.stringify(vocabList));
-                
-                // Nháy xanh lá báo thành công
-                let btnSave = document.getElementById('tb-save-word');
-                let oldBg = btnSave.style.background;
+
+                // Báo thành công
                 btnSave.style.background = "#27ae60";
-                setTimeout(() => { btnSave.style.background = oldBg; }, 1000);
+                btnSave.innerHTML = "✔️";
+                setTimeout(() => { btnSave.style.background = "transparent"; btnSave.innerHTML = oldIcon; }, 1500);
+
+            } catch(e) {
+                alert("Lỗi kết nối AI khi lưu từ!");
+                btnSave.innerHTML = oldIcon;
             }
 
             window.getSelection().removeAllRanges();
