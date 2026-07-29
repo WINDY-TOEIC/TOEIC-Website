@@ -706,7 +706,11 @@
             studentName = localStorage.getItem('win_studentName') || "";
             
             if (classCode !== "" && studentName !== "") {
-                studentInfo = `WIN ${classCode} - ${studentName}`;
+                if (classCode === "1" && studentName.toLowerCase() === "admin") {
+                    studentInfo = "Teacher Mode"; // Ẩn thông tin 
+                } else {
+                    studentInfo = `WIN ${classCode} - ${studentName}`;
+                }
                 document.querySelector('.guest-text').innerText = studentInfo;
             } else {
                 studentInfo = "Guest (Khách)";
@@ -966,6 +970,8 @@
             // Nếu qua NHÓM MỚI (Bài đọc mới hoặc Audio mới), Render lại từ đầu
             if (item.groupId !== currentGroupId || index === 0) {
                 
+                teacherRevealStep = 0; // Reset trạng thái Teacher Mode về mức 0 (ẩn) khi qua câu mới
+                
                 // --- TỰ ĐỘNG LƯU GHI CHÚ TRƯỚC KHI CHUYỂN SANG NHÓM CÂU HỎI KHÁC ---
                 if (currentGroupId !== -1) {
                     let oldMContent = document.getElementById('media-content');
@@ -1072,7 +1078,7 @@
                     
                     // Nút Teacher Mode (Chỉ hiện khi mã lớp 1, tên Admin, chế độ Luyện tập và chưa nộp bài)
                     let teacherBtn = (classCode === "1" && studentName.toLowerCase() === "admin" && currentMode === 'practice' && !isSubmitted) 
-                        ? `<button class="btn-transcript" style="background:#28a745; color:white; border-color:#218838; font-weight:bold;" onclick="revealTeacher(${qIdx}, ${gSq.index})">Đ.Án GV</button>` : '';
+                        ? `<button class="btn-transcript" style="background:#28a745; color:white; border-color:#218838; font-weight:bold;" onclick="handleTeacherHotkeys('full')">Đáp án</button>` : '';
 
                     let isMarked = markedQuestions[qIdx];
                     let markBtnText = isMarked ? "Bỏ Cờ" : "Gắn Cờ";
@@ -1420,6 +1426,7 @@
         let isExpCollapsed = false; // Biến nhớ trạng thái thu gọn giải thích (mặc định mở)
         // Lấy size chữ cũ từ LocalStorage (nếu có), không thì mặc định 15
         let currentTransSize = parseInt(localStorage.getItem('win_trans_size')) || 15;
+        let teacherRevealStep = 0; // Biến theo dõi tiến độ show đáp án của Teacher
 
         // Hàm xử lý tăng/giảm size chữ Transcript
         function zoomTranscript(step) {
@@ -1452,50 +1459,69 @@
             });
         }
         
-        // --- CHỨC NĂNG TEACHER MODE ---
-        function revealTeacher(qIdx, sqIndex) {
-            // 1. Hiện màu đáp án đúng và sai
-            let correctChoice = null;
-            if (flatQuestions[qIdx] && flatQuestions[qIdx].sq) {
-                let correctObj = flatQuestions[qIdx].sq.choices.find(c => c.choice_right_answer);
-                if (correctObj) correctChoice = correctObj.choice;
+        // --- CHỨC NĂNG TEACHER MODE TỪNG BƯỚC ---
+        function handleTeacherHotkeys(action) {
+            if (!(classCode === "1" && studentName.toLowerCase() === "admin" && currentMode === 'practice' && !isSubmitted)) return;
+
+            if (action === 'up') {
+                if (teacherRevealStep < 2) teacherRevealStep++;
+            } else if (action === 'down') {
+                teacherRevealStep = 0; // Ẩn hoàn toàn
+            } else if (action === 'full') {
+                teacherRevealStep = 2; // Bấm nút "Đáp án" là bung hết cỡ luôn
             }
-            if (correctChoice) {
-                document.querySelectorAll(`input[name="q-${qIdx}"]`).forEach(input => {
-                    let label = input.parentElement;
-                    if (input.value === correctChoice) {
-                        label.classList.add('correct');
-                    } else if (input.checked && input.value !== correctChoice) {
-                        label.classList.add('wrong'); // Đánh dấu đỏ nếu học viên đã lỡ chọn sai
-                    }
+
+            let groupItems = [];
+            for(let i=0; i<flatQuestions.length; i++) {
+                if(flatQuestions[i].groupId === currentGroupId) groupItems.push(i);
+            }
+
+            // Bước 1 & 2: Hiện Transcript và Giải thích
+            if (teacherRevealStep >= 1) {
+                let leftT = document.getElementById('left-transcript');
+                if (leftT) { leftT.classList.remove('hidden'); leftT.style.display = 'block'; leftT.querySelectorAll('.pre-submit-text').forEach(e => e.classList.remove('pre-submit-text')); }
+                let leftTContainer = document.getElementById('left-transcript-container');
+                if (leftTContainer) { leftTContainer.classList.remove('hidden'); leftTContainer.style.display = 'block'; leftTContainer.querySelectorAll('.hidden').forEach(e => e.classList.remove('hidden')); leftTContainer.querySelectorAll('.pre-submit-text').forEach(e => e.classList.remove('pre-submit-text')); }
+
+                groupItems.forEach(qIdx => {
+                    let sqIndex = flatQuestions[qIdx].sq.index;
+                    let expBox = document.getElementById(`exp-${sqIndex}`);
+                    if (expBox) { expBox.classList.remove('hidden'); expBox.querySelectorAll('.pre-submit-text').forEach(e => e.classList.remove('pre-submit-text')); }
+                });
+            } else {
+                // Trả về mặc định (Ẩn)
+                let leftT = document.getElementById('left-transcript');
+                if (leftT) { leftT.classList.add('hidden'); leftT.style.display = 'none'; leftT.querySelectorAll('div').forEach(e => e.classList.add('pre-submit-text')); }
+                let leftTContainer = document.getElementById('left-transcript-container');
+                if (leftTContainer) { leftTContainer.classList.add('hidden'); leftTContainer.style.display = 'none'; leftTContainer.querySelectorAll('div:not(.always-show)').forEach(e => e.classList.add('hidden')); leftTContainer.querySelectorAll('div').forEach(e => e.classList.add('pre-submit-text')); }
+
+                groupItems.forEach(qIdx => {
+                    let sqIndex = flatQuestions[qIdx].sq.index;
+                    let expBox = document.getElementById(`exp-${sqIndex}`);
+                    if (expBox) { expBox.classList.add('hidden'); expBox.querySelectorAll('div').forEach(e => e.classList.add('pre-submit-text')); }
                 });
             }
-            
-            // 2. Hiện Giải thích của câu này
-            let expBox = document.getElementById(`exp-${sqIndex}`);
-            if (expBox) {
-                expBox.classList.remove('hidden');
-                // Gỡ class xám, phục hồi nguyên bản định dạng màu sắc/in đậm
-                expBox.querySelectorAll('.pre-submit-text').forEach(e => e.classList.remove('pre-submit-text'));
+
+            // Bước 2: Bôi màu Đáp án
+            if (teacherRevealStep === 2) {
+                groupItems.forEach(qIdx => {
+                    let correctObj = flatQuestions[qIdx].sq.choices.find(c => c.choice_right_answer);
+                    let correctChoice = correctObj ? correctObj.choice : null;
+                    document.querySelectorAll(`input[name="q-${qIdx}"]`).forEach(input => {
+                        let label = input.parentElement;
+                        if (input.value === correctChoice) label.classList.add('correct');
+                        else if (input.checked && input.value !== correctChoice) label.classList.add('wrong');
+                    });
+                });
+            } else {
+                groupItems.forEach(qIdx => {
+                    document.querySelectorAll(`input[name="q-${qIdx}"]`).forEach(input => {
+                        input.parentElement.classList.remove('correct', 'wrong');
+                    });
+                });
             }
-            
-            // 3. Hiện luôn Transcript/Lời dịch bên cột trái nếu có (Dành cho Part 3, 4, 7)
-            let leftT = document.getElementById('left-transcript');
-            if (leftT) {
-                leftT.classList.remove('hidden');
-                leftT.style.display = 'block';
-                leftT.querySelectorAll('.pre-submit-text').forEach(e => e.classList.remove('pre-submit-text'));
-            }
-            let leftTContainer = document.getElementById('left-transcript-container');
-            if (leftTContainer) {
-                leftTContainer.classList.remove('hidden');
-                leftTContainer.style.display = 'block';
-                leftTContainer.querySelectorAll('.hidden').forEach(e => e.classList.remove('hidden'));
-                leftTContainer.querySelectorAll('.pre-submit-text').forEach(e => e.classList.remove('pre-submit-text'));
-            }
-            
-            // 4. Lưu lại hành động này vào Undo (Chống lỗi khi bấm Ctrl+Z)
-            saveActionState();
+
+            try { saveActionState(); } catch(e) {}
         }
 
         function toggleTranscript(id) {
@@ -1713,8 +1739,20 @@
                 navigateQuestion(-1);
             } else if (event.code === 'ArrowUp' || event.keyCode === 38) {
                 event.preventDefault();
+                // 1. Xử lý cho Admin (Bấm lên từng bước)
+                if (classCode === "1" && studentName.toLowerCase() === "admin" && currentMode === 'practice' && !isSubmitted) {
+                    handleTeacherHotkeys('up');
+                    return;
+                }
+                // 2. Xử lý cho Học viên sau khi đã nộp bài
                 if (!isSubmitted) return; 
                 toggleGlobalExp(); // Đồng bộ hoàn toàn với nút bấm chuột "Thu gọn/Giải thích"
+            } else if (event.code === 'ArrowDown' || event.keyCode === 40) {
+                // Xử lý cho Admin (Bấm xuống để ẩn hoàn toàn)
+                if (classCode === "1" && studentName.toLowerCase() === "admin" && currentMode === 'practice' && !isSubmitted) {
+                    event.preventDefault();
+                    handleTeacherHotkeys('down');
+                }
             }
         });
 
