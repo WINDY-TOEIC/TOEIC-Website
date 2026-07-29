@@ -1185,9 +1185,23 @@
 
                 // KIỂM TRA VÀ PHỤC HỒI GHI CHÚ (NẾU CÓ LƯU)
                 if (savedNotes && savedNotes[currentGroupId]) {
-                    document.getElementById('media-content').innerHTML = savedNotes[currentGroupId].left;
+                    let safeLeftHTML = savedNotes[currentGroupId].left;
+                    
+                    // Chặn Audio tự phát
+                    if (isSubmitted) {
+                        safeLeftHTML = safeLeftHTML.replace(/autoplay/gi, '');
+                    }
+
+                    document.getElementById('media-content').innerHTML = safeLeftHTML;
                     document.getElementById('question-content').innerHTML = savedNotes[currentGroupId].right;
                     
+                    // Bồi thêm 1 lệnh ép dừng Audio ngay lập tức cho chắc chắn 100%
+                    let tempAudio = document.getElementById('q-audio');
+                    if (tempAudio && isSubmitted) {
+                        tempAudio.removeAttribute('autoplay');
+                        tempAudio.pause();
+                    }
+
                     // --- ĐỒNG BỘ GIAO DIỆN XANH/ĐỎ NẾU ĐÃ NỘP BÀI ---
                     if (isSubmitted) {
                         document.querySelectorAll('.pre-submit-text').forEach(e => e.classList.remove('pre-submit-text'));
