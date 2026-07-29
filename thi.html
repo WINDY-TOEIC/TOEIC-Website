@@ -1067,7 +1067,8 @@
                     let gSq = gItem.q.sq;
                     
                     let transcriptBtn = (ENABLE_TRANSCRIPT && currentMode === 'practice' && !isSubmitted) ? `<button class="btn-transcript" onclick="toggleTranscript(${gSq.index})">Hiện chữ</button>` : '';
-                    let expToggleBtn = isSubmitted ? `<button class="btn-transcript btn-exp-toggle" style="background:#e3f2fd; border-color:#5ba4e5; color:#043b5c;" onclick="toggleGlobalExp()">${(typeof isExpCollapsed !== 'undefined' && isExpCollapsed) ? 'Giải thích' : 'Thu gọn'}</button>` : '';
+                    let expToggleBtnDisplay = isSubmitted ? "" : "display:none;";
+                    let expToggleBtn = `<button class="btn-transcript btn-exp-toggle" style="background:#e3f2fd; border-color:#5ba4e5; color:#043b5c; ${expToggleBtnDisplay}" onclick="toggleGlobalExp()">${(typeof isExpCollapsed !== 'undefined' && isExpCollapsed) ? 'Giải thích' : 'Thu gọn'}</button>`;
 
                     let isMarked = markedQuestions[qIdx];
                     let markBtnText = isMarked ? "Bỏ Cờ" : "Gắn Cờ";
@@ -1239,6 +1240,7 @@
                             else el.classList.remove('hidden');
                         });
                         document.querySelectorAll('.btn-exp-toggle').forEach(btn => {
+                            btn.style.display = ""; // Ép hiện lại nút nếu nó bị ẩn trong bản chụp
                             btn.innerText = isExpCollapsed ? 'Giải thích' : 'Thu gọn';
                         });
                     }
