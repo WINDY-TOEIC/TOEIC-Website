@@ -850,7 +850,7 @@
             flatQuestions = [];
             fullData.forEach(group => {
                 if(group.sub_questions && group.sub_questions.length > 0) {
-                    let partName = group.sub_questions[0].term_name.trim();
+                    let partName = group.sub_questions[0].term_name.trim().toUpperCase();
                     if(!isCustom || selectedParts.includes(partName)) {
                         group.sub_questions.forEach(sq => {
                             flatQuestions.push({
