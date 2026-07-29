@@ -171,7 +171,7 @@
         .selection-toolbar.active { opacity: 1; visibility: visible; }
         .selection-toolbar.active::after { content: ''; position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%); border-width: 6px 6px 0; border-style: solid; border-color: #555 transparent transparent transparent; }
         
-        .tb-btn { background: transparent; border: none; color: white; cursor: pointer; padding: 4px 8px; border-radius: 4px; font-size: 14px; display: flex; align-items: center; justify-content: center; }
+        .tb-btn { background: transparent; border: none; color: white; cursor: pointer; padding: 4px 5px; border-radius: 4px; font-size: 13.5px; display: flex; align-items: center; justify-content: center; }
         .tb-btn:hover { background: rgba(255,255,255,0.2); }
         .tb-btn.color-yellow { color: #f1c40f; }
         .tb-btn.color-red { color: #e74c3c; font-weight: bold; }
@@ -261,6 +261,15 @@
             .score-modal { width: 95%; padding: 15px; }
             .modal-buttons { flex-direction: column; gap: 10px; }
             .btn-modal-blue, .btn-modal-red { width: 100%; }
+        }
+    /* --- CSS CHO TÍNH NĂNG IN PDF --- */
+        @media print {
+            body { zoom: 1 !important; background: white !important; overflow: visible !important; }
+            .test-header, .sub-header, #setup-screen, #nav-modal, .selection-toolbar, #drawing-canvas, #score-overlay, #practice-tools { display: none !important; }
+            .test-body { display: flex !important; flex-direction: column !important; padding: 0 !important; margin: 0 !important; max-width: 100% !important;}
+            .left-panel, .right-panel { width: 100% !important; max-width: 100% !important; border: none !important; box-shadow: none !important; overflow: visible !important; max-height: none !important; padding: 0 !important; margin-bottom: 20px !important;}
+            .q-block { break-inside: avoid; }
+            .explanation { break-inside: avoid; }
         }
     </style>
 </head>
@@ -422,6 +431,7 @@
                 </div>
                 
                 <div class="modal-buttons">
+                    <button class="btn-modal-blue" style="background:#27ae60;" onclick="printPDF()">🖨️ IN PDF</button>
                     <button class="btn-modal-blue" onclick="closeScoreModal(true)">XEM ĐÁP ÁN</button>
                     <button class="btn-modal-red" onclick="closeScoreModal(false)">THOÁT</button>
                 </div>
@@ -431,7 +441,7 @@
         <!-- TOOLBAR NỔI KHI BÔI ĐEN -->
         <div id="selection-toolbar" class="selection-toolbar">
             <!-- Khu vực các nút công cụ -->
-            <div id="tb-buttons-wrap" style="display: flex; gap: 8px;">
+            <div id="tb-buttons-wrap" style="display: flex; gap: 2px;">
                 <button class="tb-btn" id="tb-trash" style="display: none;" title="Xóa">🗑️</button>
                 <button class="tb-btn" id="tb-note" title="Thêm ghi chú">📝</button>
                 <button class="tb-btn color-yellow" id="tb-yellow" title="Bôi vàng">■</button>
@@ -440,6 +450,7 @@
                 <button class="tb-btn" id="tb-search" title="Tra từ điển">🔍</button>
                 <button class="tb-btn" id="tb-ipa" title="Tra phiên âm IPA" style="font-weight:bold;">IPA</button>
                 <button class="tb-btn" id="tb-speak" title="Đọc phát âm">🔊</button>
+                <button class="tb-btn" id="tb-save-word" title="Lưu vào Sổ tay">⭐</button>
             </div>
             <!-- Khu vực nhập Ghi chú (ẩn mặc định, chỉ hiện khi bấm icon Note) -->
             <div id="tb-note-input-wrap" style="display: none; align-items: center; gap: 5px;">
@@ -1930,6 +1941,7 @@
                 document.getElementById('tb-search').style.display = 'none';
                 document.getElementById('tb-ipa').style.display = 'none';
                 document.getElementById('tb-speak').style.display = 'none';
+                document.getElementById('tb-save-word').style.display = 'none';
             } else {
                 document.getElementById('tb-trash').style.display = 'none';
                 document.getElementById('tb-yellow').style.display = 'block';
@@ -1939,7 +1951,13 @@
                 document.getElementById('tb-search').style.display = 'block';
                 document.getElementById('tb-ipa').style.display = 'block';
                 document.getElementById('tb-speak').style.display = 'block';
+                document.getElementById('tb-save-word').style.display = 'block';
             }
+        }
+        
+        function printPDF() {
+            closeScoreModal(true); // Đóng bảng điểm trước
+            setTimeout(() => { window.print(); }, 500); // Mở hộp thoại In của trình duyệt
         }
 
         function applyWrap(className) {
@@ -2106,6 +2124,38 @@
             utterance.rate = 0.9;     
             window.speechSynthesis.speak(utterance);
             
+            window.getSelection().removeAllRanges();
+            toolbar.classList.remove('active');
+        };
+
+        // --- TÍNH NĂNG LƯU TỪ VÀO SỔ TAY ---
+        document.getElementById('tb-save-word').onclick = () => {
+            if(!currentSelectionRange) return;
+            let text = currentSelectionRange.toString().trim();
+            if(!text) return;
+            
+            // Hỏi học viên nhập nghĩa của từ (có thể bỏ trống)
+            let meaning = prompt(`Đang thêm "${text}" vào Sổ tay.\n\nNhập nghĩa tiếng Việt (nếu muốn):`, "");
+            if (meaning !== null) { // Nếu không bấm Hủy
+                let vocabList = JSON.parse(localStorage.getItem('win_vocab') || '[]');
+                
+                // Tránh lưu trùng lặp
+                let existingIndex = vocabList.findIndex(v => v.word.toLowerCase() === text.toLowerCase());
+                if (existingIndex !== -1) {
+                    vocabList[existingIndex].meaning = meaning; // Cập nhật nghĩa nếu đã có
+                } else {
+                    vocabList.unshift({ word: text, meaning: meaning, date: new Date().toLocaleDateString("vi-VN") });
+                }
+                
+                localStorage.setItem('win_vocab', JSON.stringify(vocabList));
+                
+                // Nháy xanh lá báo thành công
+                let btnSave = document.getElementById('tb-save-word');
+                let oldBg = btnSave.style.background;
+                btnSave.style.background = "#27ae60";
+                setTimeout(() => { btnSave.style.background = oldBg; }, 1000);
+            }
+
             window.getSelection().removeAllRanges();
             toolbar.classList.remove('active');
         };
