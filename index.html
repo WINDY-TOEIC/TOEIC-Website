@@ -543,7 +543,7 @@
         <!-- CỘT PHẢI: CHỨA BẢNG XẾP HẠNG -->
         <div class="right-col">
             <div class="leaderboard-section">
-                <h2>🏆 BẢNG VÀNG (TOP 20) <span class="lb-tooltip-icon">?</span></h2>
+                <h2>🏆 BẢNG VÀNG (TOP 10) <span class="lb-tooltip-icon">?</span></h2>
                 <div id="lb-container">
                     <div class="lb-loading">Đang tải dữ liệu từ máy chủ... ⏳</div>
                 </div>
@@ -724,7 +724,7 @@
                     chalData.sort((a, b) => parseInt(b.score) - parseInt(a.score));
 
                     // Cắt lấy số lượng Top hiển thị
-                    mainData = mainData.slice(0, 20); // Top 20 Bảng Vàng
+                    mainData = mainData.slice(0, 10); // Top 10 Bảng Vàng
                     chalData = chalData.slice(0, 10); // Top 10 Thử Thách
                     
                     // Hàm tạo code HTML chung cho 2 bảng (Đã tách cột Lớp & bỏ cột Ngày)
@@ -981,45 +981,52 @@
 
         function checkResumeTest() {
             let resumeList = [];
-            
-            // Tìm TẤT CẢ các bài test đang làm dở
             for (let i = 0; i < localStorage.length; i++) {
                 let key = localStorage.key(i);
                 if (key.startsWith('win_progress_')) {
                     let data = JSON.parse(localStorage.getItem(key));
-                    let fileName = key.replace('win_progress_', '');
-                    resumeList.push({ file: fileName, data: data });
+                    let fileName = key.replace('win_progress_', ''); 
+                    let partsSuffix = "";
+                    
+                    // Phân tách chìa khóa lưu độc lập theo từng Part
+                    if (key.includes('|')) {
+                        let splitArr = key.split('|');
+                        fileName = splitArr[0].replace('win_progress_', '');
+                        partsSuffix = splitArr[1];
+                    }
+                    resumeList.push({ file: fileName, data: data, partsSuffix: partsSuffix });
                 }
             }
             
             let resumeBtn = document.getElementById('resume-btn');
-            
             if (resumeList.length === 0) {
-                resumeBtn.style.display = 'none';
-                return;
+                resumeBtn.style.display = 'none'; return;
             }
-
-            // Lấy tối đa 5 bài
-            resumeList = resumeList.slice(0, 5);
+            resumeList = resumeList.slice(0, 5); // Tối đa 5 bài
 
             if (resumeList.length === 1) {
-                // TRƯỜNG HỢP 1 BÀI: Nút "LÀM TIẾP" bình thường
-                let testName = resumeList[0].file.replace('.txt', '').replace('.json', '').replace(/-/g, ' ').toUpperCase();
-                let currentQ = resumeList[0].data.currentQIndex + 1;
+                let item = resumeList[0];
+                let testName = item.file.replace('.txt', '').replace('.json', '').replace(/-/g, ' ').toUpperCase();
+                let actualQNum = item.data.currentQNumber || (item.data.currentQIndex + 1); // Lấy số câu thật
+                let partText = item.data.selectedParts ? ` (${item.data.selectedParts.join(', ')})` : '';
                 
-                resumeBtn.innerHTML = `⏳ LÀM TIẾP <div class="resume-tooltip">Đang làm câu ${currentQ} của đề ${testName}</div>`;
-                resumeBtn.href = `thi.html?file=${encodeURIComponent(resumeList[0].file)}&resume=1`;
+                let url = `thi.html?file=${encodeURIComponent(item.file)}&resume=1`;
+                if (item.partsSuffix) url += `&partsSuffix=${encodeURIComponent(item.partsSuffix)}`;
+
+                resumeBtn.innerHTML = `⏳ LÀM TIẾP <div class="resume-tooltip">Đang làm câu ${actualQNum}${partText} của đề ${testName}</div>`;
+                resumeBtn.href = url;
                 resumeBtn.style.display = 'flex';
             } else {
-                // TRƯỜNG HỢP NHIỀU BÀI (TỪ 2 ĐẾN 5): Đổi thành biểu tượng đồng hồ, thả menu danh sách
                 let tooltipHtml = '<div style="font-weight:bold; margin-bottom:5px; border-bottom:1px solid #555; padding-bottom:5px; color:#f1c40f;">DANH SÁCH ĐANG DỞ:</div>';
-                
                 resumeList.forEach(item => {
                     let testName = item.file.replace('.txt', '').replace('.json', '').replace(/-/g, ' ').toUpperCase();
-                    let currentQ = item.data.currentQIndex + 1;
-                    let url = `thi.html?file=${encodeURIComponent(item.file)}&resume=1`;
+                    let actualQNum = item.data.currentQNumber || (item.data.currentQIndex + 1);
+                    let partText = item.data.selectedParts ? ` (${item.data.selectedParts.join(', ')})` : '';
                     
-                    tooltipHtml += `<a href="${url}" class="resume-item-link">▶ ${testName} (Đang làm câu ${currentQ})</a>`;
+                    let url = `thi.html?file=${encodeURIComponent(item.file)}&resume=1`;
+                    if (item.partsSuffix) url += `&partsSuffix=${encodeURIComponent(item.partsSuffix)}`;
+
+                    tooltipHtml += `<a href="${url}" class="resume-item-link">▶ ${testName}${partText} - Đang làm câu ${actualQNum}</a>`;
                 });
                 
                 resumeBtn.innerHTML = `⏳ <div class="resume-tooltip">${tooltipHtml}</div>`;
