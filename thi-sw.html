@@ -115,7 +115,7 @@
         
         <div class="form-group" style="position: relative; margin-bottom: 35px;">
             <label style="display: flex; align-items: center;">
-                Groq API KEY 
+                Groq API KEY <span style="color: #dc3545; font-size: 14px; font-weight: bold; margin-left: 8px;">* Bắt buộc</span>
                 <div class="api-tooltip" id="api-tooltip-btn" onclick="toggleApiTooltip(event)">?
                     <div class="api-tooltip-box" id="api-tooltip-box" onclick="event.stopPropagation()">
                         <div style="font-weight: bold; color: #ff6b6b; margin-bottom: 5px;">HƯỚNG DẪN LẤY API KEY (MIỄN PHÍ)</div>
@@ -127,8 +127,7 @@
                 </div>
             </label>
             <input type="password" id="groq-api-key" placeholder="Nhập API Key bắt đầu bằng gsk_..." style="width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #ccc; font-size: 15px; outline: none;" oninput="autoSaveAPI()">
-            <div style="display: flex; justify-content: space-between; margin-top: 5px; position: absolute; width: 100%;">
-                <span style="color: #dc3545; font-size: 14px; font-weight: bold;">* Bắt buộc</span>
+            <div style="display: flex; justify-content: flex-end; margin-top: 5px; position: absolute; width: 100%;">
                 <span id="api-saved-msg" class="saved-text">Đã lưu ✔</span>
             </div>
         </div>
@@ -233,40 +232,41 @@
         function initTest() {
             currentTestName = document.getElementById('sw-test-select').value;
             currentSkill = document.getElementById('sw-skill-select').value;
+            currentMode = document.getElementById('sw-mode-select').value; 
             
-            // Khởi tạo đường dẫn dữ liệu
-            let fileName = `${currentTestName} ${currentSkill}.json`;
-            let filePath = `SW/${currentTestName}/${fileName}`;
+            let apiKey = document.getElementById('groq-api-key').value.trim();
+            if (apiKey) localStorage.setItem('win_groq_api_key', apiKey);
+
+            let skillsToFetch = currentSkill === 'B' ? ['S', 'W'] : [currentSkill];
             
-            // Mã hóa URL để xử lý khoảng trắng trong tên thư mục/tệp tin trên server
-            let encodedFilePath = encodeURI(filePath);
-            
-            // Gọi API Fetch để lấy data
-            fetch(encodedFilePath)
-                .then(response => {
-                    if (!response.ok) throw new Error("Không tìm thấy file Data! Vui lòng kiểm tra lại thư mục.");
-                    return response.json();
-                })
-                .then(data => {
-                    swData = data;
+            let fetchPromises = skillsToFetch.map(skill => {
+                let filePath = encodeURI(`SW/${currentTestName}/${currentTestName} ${skill}.json`);
+                // Bơm thêm TimeStamp để ép GitHub bóp nát Cache, bắt buộc tải file mới 100%
+                let noCacheUrl = filePath + "?v=" + new Date().getTime();
+                
+                return fetch(noCacheUrl).then(res => {
+                    if (!res.ok) throw new Error(`Không tìm thấy file: ${decodeURI(filePath)}`);
+                    return res.json();
+                });
+            });
+
+            Promise.all(fetchPromises)
+                .then(results => {
+                    if (results.length === 1) {
+                        swData = results[0];
+                    } else {
+                        swData = {
+                            questions: results[0].questions.concat(results[1].questions),
+                            intro: results[0].intro.concat(results[1].intro),
+                            sub_intro: results[0].sub_intro 
+                        };
+                    }
                     totalQuestions = swData.questions.length;
                     currentQIndex = 0;
                     
                     document.getElementById('setup-screen').classList.add('hidden');
                     document.getElementById('test-screen').classList.remove('hidden');
                     
-                    // Set Giao diện theo Kỹ năng
-                    document.getElementById('part-title').innerText = currentSkill === 'S' ? "TOEIC SPEAKING" : "TOEIC WRITING";
-                    if (currentSkill === 'S') {
-                        document.getElementById('speaking-action').classList.remove('hidden');
-                        document.getElementById('writing-action').classList.add('hidden');
-                    } else {
-                        document.getElementById('speaking-action').classList.add('hidden');
-                        document.getElementById('writing-action').classList.remove('hidden');
-                        document.getElementById('writing-action').style.display = "flex";
-                    }
-                    
-                    // Gọi hàm in câu hỏi ra màn hình
                     renderQuestion();
                 })
                 .catch(err => alert("Lỗi: " + err.message));
