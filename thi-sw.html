@@ -153,9 +153,13 @@
     <script>
         let currentTestName = "";
         let currentSkill = "";
-        let swData = null; // Biến chứa toàn bộ Data JSON sau khi load
-        let currentQIndex = 0; // Vị trí câu hỏi hiện tại
+        let swData = null;
+        let currentQIndex = 0; 
         let totalQuestions = 0; 
+        
+        let swTimerInterval; 
+        let currentPhase = "prep"; 
+        let timeLeft = 0;
         
         // HÀM 1: BẤM NÚT BẮT ĐẦU TỪ MÀN HÌNH SETUP
         function initTest() {
@@ -227,17 +231,21 @@
             // 4. Nếu là bài Writing -> Mở khóa ô gõ chữ và đếm từ
             if (currentSkill === 'W') {
                 let txtArea = document.getElementById('writing-input');
-                txtArea.value = ""; // Tạm thời clear trắng mỗi khi chuyển câu
+                txtArea.value = ""; 
                 txtArea.disabled = false; 
                 document.getElementById('word-count-num').innerText = "0";
             }
+            
+            // 5. Khởi động bộ đếm thời gian
+            document.getElementById('timer-box').classList.remove('hidden-time');
+            startQuestionTimer();
         }
 
         // HÀM 3: XỬ LÝ CHUYỂN CÂU
         function changeQuestion(step) {
-            // Tạm thời ngắt audio cũ nếu đang phát
             let oldAudio = document.querySelector('#media-box audio');
             if (oldAudio) { oldAudio.pause(); oldAudio.src = ""; }
+            clearInterval(swTimerInterval);
 
             let newIndex = currentQIndex + step;
             if (newIndex >= 0 && newIndex < totalQuestions) {
@@ -245,6 +253,79 @@
                 renderQuestion();
             }
         }
+
+        // HÀM 4: QUẢN LÝ THỜI GIAN TOEIC S&W
+        function getQuestionTime(skill, index) {
+            if (skill === 'S') {
+                if (index <= 1) return { prep: 45, res: 45 }; 
+                if (index <= 3) return { prep: 45, res: 30 }; 
+                if (index <= 6) return { prep: 3, res: (index === 6 ? 30 : 15) }; 
+                if (index <= 9) return { prep: 3, res: (index === 9 ? 30 : 15) }; 
+                return { prep: 45, res: 60 }; 
+            } else {
+                if (index <= 4) return { prep: 0, res: 8 * 60 }; 
+                if (index <= 6) return { prep: 0, res: 10 * 60 }; 
+                return { prep: 0, res: 30 * 60 }; 
+            }
+        }
+
+        function startQuestionTimer() {
+            clearInterval(swTimerInterval);
+            let timeConfig = getQuestionTime(currentSkill, currentQIndex);
+            let timerBox = document.getElementById('timer-box');
+            
+            if (timeConfig.prep > 0) {
+                currentPhase = "prep";
+                timeLeft = timeConfig.prep;
+                timerBox.className = "timer-box prep-time";
+            } else {
+                currentPhase = "response";
+                timeLeft = timeConfig.res;
+                timerBox.className = "timer-box response-time";
+            }
+
+            updateTimerUI();
+
+            swTimerInterval = setInterval(() => {
+                timeLeft--;
+                if (timeLeft < 0) {
+                    if (currentPhase === "prep") {
+                        currentPhase = "response";
+                        timeLeft = timeConfig.res;
+                        timerBox.className = "timer-box response-time";
+                    } else {
+                        clearInterval(swTimerInterval);
+                        timerBox.innerText = "TIME UP!";
+                        return;
+                    }
+                }
+                updateTimerUI();
+            }, 1000);
+        }
+
+        function updateTimerUI() {
+            let m = Math.floor(timeLeft / 60);
+            let s = timeLeft % 60;
+            let timeStr = (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s);
+            let titleStr = currentPhase === "prep" ? "PREPARATION TIME" : "RESPONSE TIME";
+            document.getElementById('timer-box').innerText = `${titleStr}: ${timeStr}`;
+        }
+
+        // BẮT PHÍM TẮT MŨI TÊN TRÁI/PHẢI
+        document.addEventListener('keydown', function(event) {
+            if (document.activeElement.tagName === 'TEXTAREA' || document.activeElement.tagName === 'INPUT') return;
+            
+            let testScreen = document.getElementById('test-screen');
+            if (testScreen && !testScreen.classList.contains('hidden')) {
+                if (event.code === 'ArrowRight' || event.keyCode === 39) {
+                    event.preventDefault();
+                    if (!document.getElementById('btn-next').disabled) changeQuestion(1);
+                } else if (event.code === 'ArrowLeft' || event.keyCode === 37) {
+                    event.preventDefault();
+                    if (!document.getElementById('btn-prev').disabled) changeQuestion(-1);
+                }
+            }
+        });
     </script>
 </body>
 </html>
