@@ -37,9 +37,11 @@
         .btn-skip { background: #6c757d; color: white; border: none; padding: 8px 20px; font-weight: bold; border-radius: 4px; cursor: pointer; transition: 0.2s; width: 150px; font-size: 15px;}
         .btn-skip:hover { background: #5a6268; }
         
-        .api-guide-box { background: #f8f9fa; border: 1px dashed #ccc; padding: 15px; border-radius: 6px; font-size: 13.5px; color: #444; margin-bottom: 25px; line-height: 1.6; text-align: left;}
-        .api-guide-box a { color: #0037f4; text-decoration: none; font-weight: bold;}
-        .api-guide-box a:hover { text-decoration: underline; }
+        .api-tooltip { background: #003366; color: white; border-radius: 50%; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; cursor: help; position: relative; margin-left: 5px; vertical-align: middle;}
+        .api-tooltip::after { content: "HƯỚNG DẪN LẤY API KEY (MIỄN PHÍ)\A 1. Đăng ký: console.groq.com/login\A 2. Vào trang: console.groq.com/keys\A 3. Bấm Create API key, nhập tên bất kỳ, Submit, copy dãy mã dán vào ô bên dưới."; position: absolute; bottom: 25px; left: 50%; transform: translateX(-50%); background: #333; color: #fff; padding: 10px 15px; border-radius: 6px; white-space: pre; font-size: 13px; opacity: 0; visibility: hidden; transition: 0.2s; pointer-events: none; z-index: 100; box-shadow: 0 4px 6px rgba(0,0,0,0.3); font-weight: normal; line-height: 1.5; width: max-content;}
+        .api-tooltip:hover::after { opacity: 1; visibility: visible; }
+        .saved-text { color: #28a745; font-size: 13px; font-weight: bold; opacity: 0; transition: opacity 0.3s; }
+        .saved-text.show { opacity: 1; }
         
         /* Main Content 2 Columns */
         .content-area { display: flex; gap: 20px; min-height: 50vh; align-items: stretch;}
@@ -108,15 +110,13 @@
             </select>
         </div>
         
-        <div class="form-group">
-            <label>Khóa API AI Chấm Điểm (Bắt buộc):</label>
-            <input type="password" id="groq-api-key" placeholder="Nhập API Key bắt đầu bằng gsk_..." style="width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #ccc; font-size: 15px; outline: none;">
-        </div>
-        <div class="api-guide-box">
-            <div style="font-weight: bold; color: #dc3545; margin-bottom: 5px;">HƯỚNG DẪN LẤY API KEY (HOÀN TOÀN MIỄN PHÍ)</div>
-            1. Đăng ký tài khoản Groq: <a href="https://console.groq.com/login" target="_blank">console.groq.com/login</a><br>
-            2. Vào trang: <a href="https://console.groq.com/keys" target="_blank">console.groq.com/keys</a><br>
-            3. Bấm <b>Create API key</b>, nhập tên bất kỳ, bấm Submit, rồi Copy dãy mã đó dán vào ô trống phía trên.
+        <div class="form-group" style="position: relative; margin-bottom: 35px;">
+            <label>Groq API KEY <span class="api-tooltip">?</span></label>
+            <input type="password" id="groq-api-key" placeholder="Nhập API Key bắt đầu bằng gsk_..." style="width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #ccc; font-size: 15px; outline: none;" oninput="autoSaveAPI()">
+            <div style="display: flex; justify-content: space-between; margin-top: 5px; position: absolute; width: 100%;">
+                <span style="color: #dc3545; font-size: 14px; font-weight: bold;">*</span>
+                <span id="api-saved-msg" class="saved-text">Đã lưu ✔</span>
+            </div>
         </div>
 
         <button class="btn-start" onclick="initTest()">Bắt đầu làm bài</button>
@@ -128,6 +128,20 @@
             let savedKey = localStorage.getItem('win_groq_api_key');
             if (savedKey) document.getElementById('groq-api-key').value = savedKey;
         };
+
+        let apiSaveTimeout;
+        function autoSaveAPI() {
+            let apiKey = document.getElementById('groq-api-key').value.trim();
+            localStorage.setItem('win_groq_api_key', apiKey);
+            
+            let msg = document.getElementById('api-saved-msg');
+            msg.classList.add('show');
+            
+            clearTimeout(apiSaveTimeout);
+            apiSaveTimeout = setTimeout(() => {
+                msg.classList.remove('show');
+            }, 1500);
+        }
     </script>
 
     <!-- MÀN HÌNH THI -->
