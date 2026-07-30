@@ -1509,7 +1509,20 @@
                     // Cố tình KHÔNG gỡ class 'hidden' của khối tiếng Việt (left-transcript-vi)
                 }
 
-                // 3. CỐ TÌNH BỎ QUA expBox (Không hiện phần dịch câu hỏi và giải thích A,B,C,D bên phải)
+                // 3. Xử lý phần expBox (Khối giải thích bên phải)
+                // Transcript của Part 1, 2, 5, 6, 7 nằm hoàn toàn trong expBox.
+                // Do đó, nếu KHÔNG PHẢI Part 3, 4 thì ta BẮT BUỘC phải hiện expBox ra.
+                let currentPartStr = (document.getElementById('current-part-label').innerText || "").toUpperCase();
+                if (!currentPartStr.includes("PART 3") && !currentPartStr.includes("PART 4")) {
+                    groupItems.forEach(qIdx => {
+                        let sqIndex = flatQuestions[qIdx].sq.index;
+                        let expBox = document.getElementById(`exp-${sqIndex}`);
+                        if (expBox) { 
+                            expBox.classList.remove('hidden'); 
+                            expBox.querySelectorAll('.pre-submit-text').forEach(e => e.classList.remove('pre-submit-text')); 
+                        }
+                    });
+                }
                 
             } else {
                 // Trả về mặc định (Ẩn)
