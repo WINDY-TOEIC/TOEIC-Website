@@ -1389,7 +1389,13 @@ function toggleThemePanel() {
         function showLoggedIn(classCode, name) {
             document.getElementById('logged-out-view').style.display = 'none';
             document.getElementById('logged-in-view').style.display = 'flex';
-            document.getElementById('display-user-name').innerText = "WIN " + classCode + " - " + name;
+            
+            // Bảo mật Teacher Mode trên Landing Page
+            if (classCode === "1" && name.toLowerCase() === "admin") {
+                document.getElementById('display-user-name').innerText = "Teacher Mode";
+            } else {
+                document.getElementById('display-user-name').innerText = "WIN " + classCode + " - " + name;
+            }
         }
 
         // Bắt phím tắt cho Game Modal
