@@ -193,7 +193,7 @@
         <div class="timer-bar">
             <div class="part-title" id="part-title">TOEIC SPEAKING</div>
             <div class="timer-box prep-time hidden-time" id="timer-box">PREPARATION TIME: 00:00</div>
-            <button class="btn-skip hidden" id="btn-skip-prep" onclick="skipPrepTime()">BỎ QUA CHUẨN BỊ</button>
+            <button class="btn-skip hidden" id="btn-skip-prep" onclick="skipPrepTime()">Skip</button>
             <div style="width: 150px;" id="dummy-space"></div> <!-- Chỗ trống ảo để giữ layout khi ẩn nút Skip -->
         </div>
         
@@ -394,9 +394,36 @@
                 document.getElementById('word-count-num').innerText = "0";
             }
             
-            // 5. Khởi động bộ đếm thời gian
+            // 5. Khởi động bộ đếm thời gian (Đã fix logic chờ Audio chạy xong)
             document.getElementById('timer-box').classList.remove('hidden-time');
-            startQuestionTimer();
+            
+            let audioEl = document.querySelector('#media-box audio');
+            let timeConfig = getQuestionTime(currentQIndex);
+            
+            // Kiểm tra xem có đang chạy đồng hồ dùng chung không (như Writing Q1-Q5)
+            let isSharedRunning = (timeConfig.shared && timeConfig.sharedId === activeSharedTimerId && swTimerInterval);
+
+            if (audioEl && !isSharedRunning) {
+                // Đang có Audio -> Báo chữ PLAYING AUDIO và chờ
+                document.getElementById('timer-box').className = "timer-box prep-time";
+                document.getElementById('timer-box').innerText = "PLAYING AUDIO...";
+                
+                // Ẩn nút Bỏ qua chuẩn bị lúc đang nghe Audio
+                document.getElementById('btn-skip-prep').classList.add('hidden');
+                document.getElementById('dummy-space').style.display = "block";
+
+                audioEl.onended = function() {
+                    startQuestionTimer();
+                };
+                
+                // Trường hợp audio tải lỗi thì vẫn cho đếm giờ để không bị kẹt
+                audioEl.onerror = function() {
+                    startQuestionTimer(); 
+                };
+            } else {
+                // Không có Audio hoặc đang dùng chung đồng hồ Writing -> Đếm giờ luôn
+                startQuestionTimer();
+            }
         }
 
         let activeSharedTimerId = null; // Biến nhớ đồng hồ chung (Dành cho Writing)
