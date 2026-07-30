@@ -1279,6 +1279,14 @@
                                 markText.innerText = markedQuestions[qIdx] ? "Bỏ Cờ" : "Gắn Cờ";
                                 markBtn.style.background = markedQuestions[qIdx] ? "#ffc107" : "#fff3cd";
                             }
+                            
+                            // Ép hiển thị lại nút Teacher Mode nếu bản chụp HTML cũ trong máy bị thiếu
+                            if (classCode === "1" && studentName.toLowerCase() === "admin" && currentMode === 'practice') {
+                                let actionWrap = document.querySelector(`#q-block-${qIdx} .action-btns-wrap`);
+                                if (actionWrap && !actionWrap.innerHTML.includes('Đáp án')) {
+                                    actionWrap.insertAdjacentHTML('beforeend', `<button class="btn-transcript" style="background:#28a745; color:white; border-color:#218838; font-weight:bold;" onclick="handleTeacherHotkeys('full')">Đáp án</button>`);
+                                }
+                            }
                         });
                     }
 
