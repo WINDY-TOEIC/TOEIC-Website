@@ -699,14 +699,22 @@
             checkAvailableTests(); // Quét các đề chưa có data
         };
 
-        // Hàm đi đêm kiểm tra xem file txt có tồn tại trong thư mục Data không
+        // Hàm đi đêm kiểm tra xem file dữ liệu có tồn tại không
         function checkAvailableTests() {
             document.querySelectorAll('.test-card').forEach(card => {
                 let url = card.getAttribute('href');
                 let testMatch = url.match(/\?test=([^&]+)/);
                 if (testMatch) {
                     let testName = testMatch[1];
-                    let fileUrl = 'Data/' + testName + '.txt';
+                    let fileUrl = '';
+                    
+                    // Phân loại: Tìm trong thư mục SW nếu là đề Speaking/Writing
+                    if (url.includes('thi-sw.html')) {
+                        fileUrl = 'SW/' + decodeURI(testName) + '/' + decodeURI(testName) + ' S.json';
+                    } else {
+                        // Tìm trong thư mục Data nếu là đề Listening/Reading
+                        fileUrl = 'Data/' + testName + '.txt';
+                    }
                     
                     // Kiểm tra sự tồn tại của file dữ liệu thông qua HTTP HEAD request
                     fetch(fileUrl, { method: 'HEAD' })
