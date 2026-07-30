@@ -53,11 +53,11 @@
         /* Styling inside Left Col */
         #intro-box { background: #e3f2fd; padding: 15px; border-radius: 6px; border-left: 4px solid #5ba4e5; margin-bottom: 20px; font-size: 14px; color: #333; line-height: 1.6;}
         #intro-box strong { color: #003366; font-size: 16px; display: block; margin-bottom: 5px;}
-        #media-box img { max-width: 100%; height: auto; border: 1px solid #ccc; border-radius: 4px; display: block; margin: 0 auto 15px auto; }
+        #media-box img { max-width: 100%; max-height: 40vh; object-fit: contain; border: 1px solid #ccc; border-radius: 6px; display: block; margin: 0 auto 15px auto; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
         #text-box { font-size: 18px; font-weight: 500; line-height: 1.6; color: #111;}
         
         /* Styling inside Right Col (Controls) */
-        .sw-textarea { width: 100%; flex: 1; padding: 15px; font-size: 16px; border: 2px solid #ccc; border-radius: 6px; resize: none; font-family: inherit; outline: none; transition: 0.2s; line-height: 1.5;}
+        .sw-textarea { width: 100%; flex: 1; min-height: 300px; padding: 15px; font-size: 16px; border: 2px solid #ccc; border-radius: 6px; resize: vertical; font-family: inherit; outline: none; transition: 0.2s; line-height: 1.5;}
         .sw-textarea:focus { border-color: #5ba4e5; box-shadow: 0 0 0 3px rgba(91,164,229,0.2);}
         .word-count { width: 100%; text-align: right; font-size: 14px; color: #666; font-weight: bold; margin-top: 10px; }
         
@@ -144,7 +144,17 @@
             let testParam = urlParams.get('test');
             if (testParam) {
                 let selectBox = document.getElementById('sw-test-select');
-                if (selectBox) selectBox.value = testParam;
+                if (selectBox) {
+                    selectBox.value = testParam;
+                    // Ẩn luôn ô "Chọn bộ đề" đi cho gọn mắt
+                    selectBox.parentElement.style.display = 'none'; 
+                }
+                
+                // Đổi tiêu đề trên cùng để học viên biết đang làm đề nào
+                let titleEl = document.querySelector('#setup-screen h2');
+                if (titleEl) {
+                    titleEl.innerText = testParam.toUpperCase() + " - SPEAKING & WRITING";
+                }
             }
         };
 
@@ -349,38 +359,62 @@
             startQuestionTimer();
         }
 
+        let activeSharedTimerId = null; // Biến nhớ đồng hồ chung (Dành cho Writing)
+
         // HÀM 3: XỬ LÝ CHUYỂN CÂU
         function changeQuestion(step) {
             let oldAudio = document.querySelector('#media-box audio');
             if (oldAudio) { oldAudio.pause(); oldAudio.src = ""; }
-            clearInterval(swTimerInterval);
-
+            
             let newIndex = currentQIndex + step;
             if (newIndex >= 0 && newIndex < totalQuestions) {
+                
+                // KIỂM TRA BẢO TOÀN ĐỒNG HỒ: Nếu lật câu mà vẫn nằm trong nhóm dùng chung thì KHÔNG ĐƯỢC XÓA GIỜ
+                let oldTimeConfig = getQuestionTime(currentQIndex);
+                let newTimeConfig = getQuestionTime(newIndex);
+                if (!(oldTimeConfig.shared && newTimeConfig.shared && oldTimeConfig.sharedId === newTimeConfig.sharedId)) {
+                    clearInterval(swTimerInterval); // Xóa đồng hồ
+                    swTimerInterval = null;
+                    activeSharedTimerId = null;
+                }
+                
+                stopRecording(); // Tắt mic nếu đang thu dở mà bấm qua câu
                 currentQIndex = newIndex;
                 renderQuestion();
             }
         }
 
         // HÀM 4: QUẢN LÝ THỜI GIAN TOEIC S&W
-        function getQuestionTime(skill, index) {
-            if (skill === 'S') {
-                if (index <= 1) return { prep: 45, res: 45 }; 
-                if (index <= 3) return { prep: 45, res: 30 }; 
-                if (index <= 6) return { prep: 3, res: (index === 6 ? 30 : 15) }; 
-                if (index <= 9) return { prep: 3, res: (index === 9 ? 30 : 15) }; 
+        function getQuestionTime(index) {
+            let realSkill = getRealSkill(index);
+            let localQIndex = (currentSkill === 'B' && realSkill === 'W') ? index - 11 : index;
+
+            if (realSkill === 'S') {
+                if (localQIndex <= 1) return { prep: 45, res: 45 }; 
+                if (localQIndex <= 3) return { prep: 45, res: 30 }; 
+                if (localQIndex <= 6) return { prep: 3, res: (localQIndex === 6 ? 30 : 15) }; 
+                if (localQIndex <= 9) return { prep: 3, res: (localQIndex === 9 ? 30 : 15) }; 
                 return { prep: 45, res: 60 }; 
             } else {
-                if (index <= 4) return { prep: 0, res: 8 * 60 }; 
-                if (index <= 6) return { prep: 0, res: 10 * 60 }; 
-                return { prep: 0, res: 30 * 60 }; 
+                // Phân bổ ID chung cho các câu Writing xài chung đồng hồ
+                if (localQIndex <= 4) return { prep: 0, res: 8 * 60, shared: true, sharedId: 'W_Q1_5' }; 
+                if (localQIndex <= 6) return { prep: 0, res: 10 * 60, shared: false }; 
+                return { prep: 0, res: 30 * 60, shared: false }; 
             }
         }
 
         function startQuestionTimer() {
-            clearInterval(swTimerInterval);
-            let timeConfig = getQuestionTime(currentSkill, currentQIndex);
+            let timeConfig = getQuestionTime(currentQIndex);
             let timerBox = document.getElementById('timer-box');
+            
+            // CHỐNG RESET: Nếu hệ thống đang đếm giờ của 1 nhóm dùng chung (Ví dụ Writing Q1-Q5), thì bỏ qua khởi tạo
+            if (timeConfig.shared && timeConfig.sharedId === activeSharedTimerId && swTimerInterval) {
+                updateTimerUI(); // Chỉ render lại chữ ra màn hình
+                return;
+            }
+
+            clearInterval(swTimerInterval);
+            activeSharedTimerId = timeConfig.shared ? timeConfig.sharedId : null;
             
             if (timeConfig.prep > 0) {
                 currentPhase = "prep";
@@ -390,20 +424,50 @@
                 currentPhase = "response";
                 timeLeft = timeConfig.res;
                 timerBox.className = "timer-box response-time";
+                
+                // Mở bài mà không có prep (vd: Writing) thì bóp còi luôn
+                playBeep(); 
+                // Kích hoạt Mic ngay lập tức nếu là Speaking (trường hợp hiếm nhưng phòng hờ)
+                if (getRealSkill(currentQIndex) === 'S') startRecording();
             }
 
             updateTimerUI();
 
             swTimerInterval = setInterval(() => {
                 timeLeft--;
-                if (timeLeft < 0) {
+                if (timeLeft <= 0) {
                     if (currentPhase === "prep") {
+                        playBeep(); // Hết chuẩn bị -> Kêu TÍT
                         currentPhase = "response";
                         timeLeft = timeConfig.res;
                         timerBox.className = "timer-box response-time";
+                        
+                        // Bật Mic ghi âm khi hết giờ chuẩn bị
+                        if (getRealSkill(currentQIndex) === 'S') startRecording();
+                        
                     } else {
                         clearInterval(swTimerInterval);
                         timerBox.innerText = "TIME UP!";
+                        playBeep(); // Hết giờ làm bài -> TÍT
+                        
+                        // Tắt Mic
+                        if (getRealSkill(currentQIndex) === 'S') stopRecording();
+                        
+                        // Xử lý Hành động theo Chế độ
+                        if (currentMode === 'exam') {
+                            // Thi thật Speaking -> tự qua câu. Writing -> không tự qua (vì được tự do nộp)
+                            if (getRealSkill(currentQIndex) === 'S') {
+                                setTimeout(() => changeQuestion(1), 2000);
+                            }
+                        } else {
+                            // Luyện tập: Hiện nút Feedback
+                            if (getRealSkill(currentQIndex) === 'S') {
+                                document.getElementById('mic-guide-text').style.display = 'none';
+                                document.getElementById('practice-feedback-speaking').classList.remove('hidden');
+                            } else {
+                                document.getElementById('btn-eval-writing').classList.remove('hidden');
+                            }
+                        }
                         return;
                     }
                 }
