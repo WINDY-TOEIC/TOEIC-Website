@@ -999,7 +999,10 @@
                 let leftHtml = '';
                 if (item.audio_url && item.audio_url !== "false" && item.audio_url !== "") {
                     let displayStyle = (currentMode === 'exam' && !isSubmitted) ? 'style="display:none;"' : '';
-                    let autoPlayAttr = isSubmitted ? '' : 'autoplay'; // Tắt tự động phát nếu đã nộp bài
+                    
+                    // Teacher Mode không tự động phát Audio
+                    let isTeacher = (classCode === "1" && studentName.toLowerCase() === "admin" && currentMode === 'practice');
+                    let autoPlayAttr = (isSubmitted || isTeacher) ? '' : 'autoplay'; 
                     
                     leftHtml += `
                     <div class="audio-wrapper" ${displayStyle}>
@@ -1476,18 +1479,29 @@
                 if(flatQuestions[i].groupId === currentGroupId) groupItems.push(i);
             }
 
-            // Bước 1 & 2: Hiện Transcript và Giải thích
+            // Bước 1 & 2: CHỈ hiện Transcript Tiếng Anh, GIẤU Giải thích và Lời dịch tiếng Việt
             if (teacherRevealStep >= 1) {
+                
+                // 1. Nếu là định dạng đề cũ (Transcript gom chung Anh-Việt vào 1 cục)
                 let leftT = document.getElementById('left-transcript');
                 if (leftT) { leftT.classList.remove('hidden'); leftT.style.display = 'block'; leftT.querySelectorAll('.pre-submit-text').forEach(e => e.classList.remove('pre-submit-text')); }
+                
+                // 2. Nếu là định dạng đề mới (Tách riêng Eng và Vi) -> CHỈ MỞ KHÓA ENG
                 let leftTContainer = document.getElementById('left-transcript-container');
-                if (leftTContainer) { leftTContainer.classList.remove('hidden'); leftTContainer.style.display = 'block'; leftTContainer.querySelectorAll('.hidden').forEach(e => e.classList.remove('hidden')); leftTContainer.querySelectorAll('.pre-submit-text').forEach(e => e.classList.remove('pre-submit-text')); }
+                if (leftTContainer) { 
+                    leftTContainer.classList.remove('hidden'); 
+                    leftTContainer.style.display = 'block'; 
+                    
+                    let engPart = document.getElementById('left-transcript-eng');
+                    if (engPart) {
+                        engPart.classList.remove('hidden');
+                        engPart.querySelectorAll('.pre-submit-text').forEach(e => e.classList.remove('pre-submit-text'));
+                    }
+                    // Cố tình KHÔNG gỡ class 'hidden' của khối tiếng Việt (left-transcript-vi)
+                }
 
-                groupItems.forEach(qIdx => {
-                    let sqIndex = flatQuestions[qIdx].sq.index;
-                    let expBox = document.getElementById(`exp-${sqIndex}`);
-                    if (expBox) { expBox.classList.remove('hidden'); expBox.querySelectorAll('.pre-submit-text').forEach(e => e.classList.remove('pre-submit-text')); }
-                });
+                // 3. CỐ TÌNH BỎ QUA expBox (Không hiện phần dịch câu hỏi và giải thích A,B,C,D bên phải)
+                
             } else {
                 // Trả về mặc định (Ẩn)
                 let leftT = document.getElementById('left-transcript');
