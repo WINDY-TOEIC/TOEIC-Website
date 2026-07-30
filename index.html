@@ -240,19 +240,26 @@
         .chat-widget { position: fixed; bottom: 20px; right: 20px; z-index: 9999; font-family: 'Inter', Arial, sans-serif; }
         .chat-btn-toggle { width: 60px; height: 60px; border-radius: 50%; background: #0037f4; color: white; border: none; font-size: 28px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,55,244,0.4); transition: transform 0.3s; display: flex; align-items: center; justify-content: center; }
         .chat-btn-toggle:hover { transform: scale(1.1); }
-        .chat-panel { position: absolute; bottom: 75px; right: 0; width: 350px; height: 450px; background: white; border-radius: 12px; box-shadow: 0 5px 25px rgba(0,0,0,0.2); display: flex; flex-direction: column; overflow: hidden; transform: scale(0); transform-origin: bottom right; transition: transform 0.3s ease, opacity 0.3s ease; opacity: 0; pointer-events: none; border: 1px solid #ddd; }
+        .chat-panel { position: absolute; bottom: 75px; right: 0; width: 420px; height: 600px; background: white; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); display: flex; flex-direction: column; overflow: hidden; transform: scale(0); transform-origin: bottom right; transition: transform 0.3s ease, opacity 0.3s ease; opacity: 0; pointer-events: none; border: 1px solid #ddd; }
         .chat-panel.active { transform: scale(1); opacity: 1; pointer-events: auto; }
-        .chat-header { background: #0037f4; color: white; padding: 15px; font-weight: bold; font-size: 16px; display: flex; justify-content: space-between; align-items: center; }
-        .btn-close-chat { background: transparent; border: none; color: white; font-size: 25px; cursor: pointer; line-height: 1; }
-        .chat-body { flex: 1; padding: 15px; overflow-y: auto; background: #f9f9f9; display: flex; flex-direction: column; gap: 10px; }
-        .chat-msg { max-width: 80%; padding: 10px 12px; border-radius: 8px; font-size: 14px; line-height: 1.4; word-wrap: break-word; }
+        .chat-header { background: #0037f4; color: white; padding: 18px; font-weight: bold; font-size: 18px; display: flex; justify-content: space-between; align-items: center; }
+        .btn-close-chat { background: transparent; border: none; color: white; font-size: 30px; cursor: pointer; line-height: 1; }
+        .chat-body { flex: 1; padding: 15px; overflow-y: auto; background: #f9f9f9; display: flex; flex-direction: column; gap: 15px; }
+        .chat-msg { max-width: 85%; padding: 12px 15px; border-radius: 10px; font-size: 16px; line-height: 1.5; word-wrap: break-word; }
         .chat-msg.other { background: #e9ecef; color: #333; align-self: flex-start; border-bottom-left-radius: 0; }
         .chat-msg.mine { background: #0037f4; color: white; align-self: flex-end; border-bottom-right-radius: 0; }
-        .msg-sender { font-size: 11px; font-weight: bold; margin-bottom: 3px; color: #0037f4; }
-        .chat-footer { padding: 10px; background: white; border-top: 1px solid #eee; display: flex; gap: 8px; align-items: center; }
-        .chat-input { flex: 1; padding: 10px 15px; border: 1px solid #ccc; border-radius: 20px; outline: none; font-size: 14px; }
-        .btn-send-msg { background: #0037f4; color: white; border: none; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+        
+        /* Hiệu ứng VIP cho Admin */
+        .chat-msg.admin { background: linear-gradient(135deg, #f1c40f, #e67e22); color: white; align-self: flex-start; border-bottom-left-radius: 0; box-shadow: 0 4px 10px rgba(241, 196, 15, 0.4); border: 2px solid #f39c12; }
+        .msg-sender.admin-name { color: #fff; font-size: 13px; font-weight: 900; letter-spacing: 1px; text-shadow: 1px 1px 2px rgba(0,0,0,0.3); margin-bottom: 5px;}
+        
+        .msg-sender { font-size: 13px; font-weight: bold; margin-bottom: 3px; color: #0037f4; }
+        .chat-footer { padding: 12px; background: white; border-top: 1px solid #eee; display: flex; gap: 10px; align-items: center; }
+        .chat-input { flex: 1; padding: 12px 15px; border: 1px solid #ccc; border-radius: 20px; outline: none; font-size: 15px; }
+        .chat-input:disabled { background: #eee; cursor: not-allowed; }
+        .btn-send-msg { background: #0037f4; color: white; border: none; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; font-size: 20px; }
         .btn-send-msg:hover { background: #0026a3; }
+        .btn-send-msg:disabled { background: #aaa; cursor: not-allowed; }
         
         body.dark-mode .chat-panel { background: #1e1e1e; border-color: #333; }
         body.dark-mode .chat-body { background: #121212; }
@@ -260,6 +267,7 @@
         body.dark-mode .msg-sender { color: #5ba4e5; }
         body.dark-mode .chat-footer { background: #1e1e1e; border-top-color: #333; }
         body.dark-mode .chat-input { background: #333; color: #fff; border-color: #555; }
+        body.dark-mode .chat-input:disabled { background: #222; }
         
         @media (max-width: 768px) {
             .chat-panel { width: 90vw; right: -10px; height: 60vh; }
@@ -391,7 +399,7 @@
             .btn-chal-corner:hover { transform: scale(1.05); }
             @media (max-width: 768px) { .btn-chal-corner { bottom: 10px; right: 10px; font-size: 11px; padding: 6px 10px; } }
         </style>
-        <button class="btn-chal-corner" onclick="startChallenge()" title="Trả lời ngẫu nhiên Part 5 trong 1 phút. Đăng nhập để đua TOP!">⚡ Thử Thách Part 5 (1 Phút)</button>
+        <button class="btn-chal-corner" onclick="startChallenge()" title="Luyện tập Part 5">⚡ Thử Thách Part 5</button>
     </header>
 
     <!-- Khu vực Đăng Nhập -->
@@ -615,11 +623,19 @@
     <!-- MODAL THỬ THÁCH PART 5 CHƠI GAME -->
     <div id="challenge-modal" class="c-modal" onclick="if(event.target === this) closeChallenge()">
         <button class="btn-close-c" onclick="closeChallenge()">×</button>
-        <div class="c-loading" id="c-loading">Đang nạp dữ liệu câu hỏi... ⏳</div>
+        
+        <!-- Màn hình chọn chế độ -->
+        <div id="c-mode-select" style="display: flex; flex-direction: column; gap: 20px; align-items: center;">
+            <h2 style="color: white; font-size: 28px; text-transform: uppercase; margin-bottom: 10px;">Chọn chế độ chơi</h2>
+            <button onclick="initCGame('timed')" style="background: linear-gradient(45deg, #dc3545, #ff6b6b); color: white; border: none; padding: 15px 40px; border-radius: 50px; font-size: 20px; font-weight: bold; cursor: pointer; transition: 0.2s; box-shadow: 0 5px 15px rgba(220,53,69,0.4); width: 350px;">⏱️ 1 Phút (Đua TOP)</button>
+            <button onclick="initCGame('unlimited')" style="background: linear-gradient(45deg, #28a745, #2ecc71); color: white; border: none; padding: 15px 40px; border-radius: 50px; font-size: 20px; font-weight: bold; cursor: pointer; transition: 0.2s; box-shadow: 0 5px 15px rgba(40,167,69,0.4); width: 350px;">♾️ Không giới hạn (Luyện tập)</button>
+        </div>
+
+        <div class="c-loading" id="c-loading" style="display:none;">Đang nạp dữ liệu câu hỏi... ⏳</div>
         
         <!-- Khu vực chơi game -->
-        <div id="c-game-area" style="display: none; width: 100%; display: flex; flex-direction: column; align-items: center;">
-            <div class="c-header">
+        <div id="c-game-area" style="display: none; width: 100%; display: flex; flex-direction: column; align-items: center; overflow-y: auto; max-height: 90vh; padding-bottom: 30px;">
+            <div class="c-header" id="c-header-ui">
                 <div class="c-score">Điểm: <b id="c-score-ui">0</b></div>
                 <div id="c-lives-ui" style="color: #e74c3c; font-size: 24px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); letter-spacing: 2px;">❤️❤️❤️❤️❤️</div>
                 <div class="c-timer" id="c-timer-ui">60s</div>
@@ -628,6 +644,14 @@
                 <div class="c-q-text" id="c-q-text">Đang tải câu hỏi...</div>
                 <div class="c-options" id="c-options-ui">
                     <!-- Nút bấm sẽ chèn vào đây -->
+                </div>
+                <!-- Vùng chứa giải thích và nút Next (Dành riêng cho mode Không giới hạn) -->
+                <div id="c-unlimited-actions" style="display: none; margin-top: 20px; border-top: 1px dashed #ccc; padding-top: 20px;">
+                    <div id="c-unlimited-exp"></div>
+                    <div style="display: flex; justify-content: space-between; margin-top: 15px;">
+                        <button onclick="saveCQuestionToVocab()" style="background: #f1c40f; color: #333; border: none; padding: 10px 20px; border-radius: 6px; font-weight: bold; font-size: 16px; cursor: pointer;">⭐ Lưu Sổ Tay</button>
+                        <button onclick="loadNextCQuestion()" style="background: #0037f4; color: white; border: none; padding: 10px 30px; border-radius: 6px; font-weight: bold; font-size: 16px; cursor: pointer;">Tiếp Theo ➔</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -901,60 +925,73 @@
 
         // --- LOGIC GAME THỬ THÁCH PART 5 ---
         let cTimer;
-        let cTimeLeft = 30;
+        let cTimeLeft = 60;
         let cScore = 0;
         let cQuestions = [];
         let cIndex = 0;
         let isAnswered = false;
-        let cHistory = []; // Thêm biến lưu lịch sử các câu đã làm
-        let cReviewIndex = 0; // Lưu vị trí câu đang xem lại
-        let cLives = 5; // Khởi tạo 5 mạng
+        let cHistory = []; 
+        let cReviewIndex = 0; 
+        let cLives = 5; 
+        let cMode = 'timed'; // 'timed' hoặc 'unlimited'
 
         function startChallenge() {
             document.getElementById('challenge-modal').classList.add('active');
-            document.getElementById('c-loading').style.display = 'block';
+            document.getElementById('c-mode-select').style.display = 'flex';
+            document.getElementById('c-loading').style.display = 'none';
             document.getElementById('c-game-area').style.display = 'none';
             document.getElementById('c-review-area').style.display = 'none'; 
-            
-            // Tự động quét DOM để lấy danh sách các đề đang có (Bỏ qua các đề chưa có data)
+        }
+
+        function initCGame(mode) {
+            cMode = mode;
+            document.getElementById('c-mode-select').style.display = 'none';
+            document.getElementById('c-loading').style.display = 'block';
+
             let testFiles = [];
             document.querySelectorAll('.test-card:not(.disabled-test)').forEach(card => {
                 let match = card.getAttribute('href').match(/\?test=([^&]+)/);
                 if (match) testFiles.push(match[1]);
             });
-            if (testFiles.length === 0) testFiles = ['ets-2026-test-1']; // Dự phòng nếu quét lỗi
+            if (testFiles.length === 0) testFiles = ['ets-2026-test-1']; 
             
             let randomTest = testFiles[Math.floor(Math.random() * testFiles.length)];
             
             fetch('Data/' + randomTest + '.txt')
             .then(res => res.json())
             .then(json => {
-                // Lọc nguyên cụm Part 5 ra
                 let p5Groups = json.data.data.questions.filter(q => q.sub_questions && q.sub_questions.length > 0 && q.sub_questions[0].term_name.trim().toUpperCase() === 'PART 5');
                 cQuestions = [];
                 p5Groups.forEach(g => { g.sub_questions.forEach(sq => cQuestions.push(sq)); });
-                
-                // Shuffle: Trộn xáo trộn vị trí câu hỏi
                 cQuestions.sort(() => Math.random() - 0.5);
                 
                 cIndex = 0;
                 cScore = 0;
-                cTimeLeft = 60;
-                cLives = 5; // Hồi lại 5 mạng
-                document.getElementById('c-lives-ui').innerText = "❤️❤️❤️❤️❤️"; // Vẽ lại 5 tim đỏ
-                cHistory = []; // Reset bộ nhớ câu đã làm
+                cHistory = []; 
+                
+                if (cMode === 'timed') {
+                    cTimeLeft = 60;
+                    cLives = 5; 
+                    document.getElementById('c-lives-ui').style.display = 'block';
+                    document.getElementById('c-timer-ui').style.display = 'block';
+                    document.getElementById('c-lives-ui').innerText = "❤️❤️❤️❤️❤️"; 
+                } else {
+                    document.getElementById('c-lives-ui').style.display = 'none';
+                    document.getElementById('c-timer-ui').style.display = 'none';
+                }
                 
                 document.getElementById('c-loading').style.display = 'none';
                 document.getElementById('c-game-area').style.display = 'flex';
                 
                 loadNextCQuestion();
                 
-                // Đồng hồ đếm ngược 30 giây
-                cTimer = setInterval(() => {
-                    cTimeLeft--;
-                    document.getElementById('c-timer-ui').innerText = cTimeLeft + "s";
-                    if (cTimeLeft <= 0) endChallenge();
-                }, 1000);
+                if (cMode === 'timed') {
+                    cTimer = setInterval(() => {
+                        cTimeLeft--;
+                        document.getElementById('c-timer-ui').innerText = cTimeLeft + "s";
+                        if (cTimeLeft <= 0) endChallenge();
+                    }, 1000);
+                }
             })
             .catch(err => {
                 alert("Lỗi kết nối dữ liệu. Vui lòng thử lại!");
@@ -966,9 +1003,10 @@
             if (cIndex >= cQuestions.length) { endChallenge(); return; }
             isAnswered = false;
             document.getElementById('c-score-ui').innerText = cScore;
+            document.getElementById('c-unlimited-actions').style.display = 'none'; // Ẩn giải thích
             
             let sq = cQuestions[cIndex];
-            let cleanTitle = sq.title.replace(/^(\d+\.|Câu\s+\d+\:?)\s*/i, ''); // Xóa chữ "Câu 101." ở đầu cho đẹp
+            let cleanTitle = sq.title.replace(/^(\d+\.|Câu\s+\d+\:?)\s*/i, '');
             document.getElementById('c-q-text').innerHTML = cleanTitle;
             
             let optsHtml = '';
@@ -981,44 +1019,70 @@
 
         function selectCAnswer(btn, isRight, userChoice) {
             if (isAnswered) return;
-            isAnswered = true; // Sẽ được reset về false ngay khi load câu mới
+            isAnswered = true; 
             
-            // Lưu dữ liệu vào bộ nhớ để lát xem lại
             cHistory.push({
                 question: cQuestions[cIndex],
                 userChoice: userChoice,
                 isRight: isRight
             });
 
-            if (isRight) {
-                btn.classList.add('correct');
-                cScore++;
-                document.getElementById('c-score-ui').innerText = cScore;
-            } else {
-                btn.classList.add('wrong');
-                cLives--;
-                let hearts = "";
-                for (let i = 0; i < cLives; i++) hearts += "❤️"; 
-                for (let i = cLives; i < 5; i++) hearts += "🖤"; 
-                document.getElementById('c-lives-ui').innerText = hearts;
-            }
-            
-            // Trì hoãn 0.4s để học viên kịp nhìn thấy màu ĐÚNG/SAI
-            setTimeout(() => {
-                cIndex++;
-                if (cLives <= 0) {
-                    endChallenge();
-                } else if (cTimeLeft > 0) {
-                    loadNextCQuestion();
+            // Hiển thị màu đúng/sai lên tất cả các nút
+            let buttons = document.getElementById('c-options-ui').querySelectorAll('.c-opt-btn');
+            let choices = cQuestions[cIndex].choices;
+            buttons.forEach((b, idx) => {
+                if (choices[idx].choice_right_answer) b.classList.add('correct');
+                else if (choices[idx].choice === userChoice && !isRight) b.classList.add('wrong');
+            });
+
+            if (isRight) cScore++;
+            document.getElementById('c-score-ui').innerText = cScore;
+
+            if (cMode === 'timed') {
+                if (!isRight) {
+                    cLives--;
+                    let hearts = "";
+                    for (let i = 0; i < cLives; i++) hearts += "❤️"; 
+                    for (let i = cLives; i < 5; i++) hearts += "🖤"; 
+                    document.getElementById('c-lives-ui').innerText = hearts;
                 }
-            }, 400);
+                setTimeout(() => {
+                    cIndex++;
+                    if (cLives <= 0) endChallenge();
+                    else if (cTimeLeft > 0) loadNextCQuestion();
+                }, 400);
+            } else {
+                // Chế độ không giới hạn -> Hiện Giải thích và Nút Lưu
+                let sq = cQuestions[cIndex];
+                let expBox = document.getElementById('c-unlimited-exp');
+                expBox.innerHTML = sq.explanation ? `<div class="c-review-exp">${sq.explanation}</div>` : '<i>Không có giải thích chi tiết.</i>';
+                document.getElementById('c-unlimited-actions').style.display = 'block';
+                cIndex++; 
+            }
+        }
+
+        function saveCQuestionToVocab() {
+            let sq = cQuestions[cIndex - 1]; // Lấy câu vừa làm
+            let vocabList = JSON.parse(localStorage.getItem('win_vocab') || '[]');
+            let cleanTitle = sq.title.replace(/^(\d+\.|Câu\s+\d+\:?)\s*/i, '');
+            let cleanExp = sq.explanation ? sq.explanation.replace(/(<([^>]+)>)/gi, "") : "Hãy xem lại ngữ pháp câu này.";
+            
+            let newVocab = {
+                word: cleanTitle,
+                ipa: "[Part 5]",
+                type: "Grammar/Vocab",
+                meaning: cleanExp,
+                date: new Date().toLocaleDateString("vi-VN")
+            };
+            vocabList.unshift(newVocab);
+            localStorage.setItem('win_vocab', JSON.stringify(vocabList));
+            alert("Đã lưu câu hỏi vào Sổ tay từ vựng!");
         }
 
         function endChallenge() {
             clearInterval(cTimer);
-            document.getElementById('c-timer-ui').innerText = "0s";
+            if (cMode === 'timed') document.getElementById('c-timer-ui').innerText = "0s";
             
-            // --- BẮN PHÁO GIẤY VÀ PHÁT ÂM THANH ---
             let successAudio = new Audio('cheer.mp3');
             successAudio.volume = 0;
             let maxVolume = 0.3;
@@ -1038,7 +1102,7 @@
 
             let duration = 6 * 1000;
             let animationEnd = Date.now() + duration;
-            let defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 999999 }; // zIndex siêu to để đè lên Modal
+            let defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 999999 };
             function randomInRange(min, max) { return Math.random() * (max - min) + min; }
             let interval = setInterval(function() {
                 let timeLeft = animationEnd - Date.now();
@@ -1048,15 +1112,13 @@
                 confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
             }, 250);
 
-            // Delay báo Alert 0.5 giây để hiệu ứng kịp chạy
             setTimeout(() => {
-                
                 let name = document.getElementById('home-student-name').value.trim();
                 let classCode = document.getElementById('home-class-code').value.trim();
                 let isTeacherAcc = (classCode === "1" && name.toLowerCase() === "admin");
                 
-                if (cScore > 0 && classCode !== "GUEST" && classCode !== "" && name !== "" && !isTeacherAcc) {
-                    // Đóng gói data gửi về Google Sheets chung một đường dẫn
+                // CHỈ LƯU ĐIỂM NẾU LÀ CHẾ ĐỘ ĐUA TOP (TIMED)
+                if (cMode === 'timed' && cScore > 0 && classCode !== "GUEST" && classCode !== "" && name !== "" && !isTeacherAcc) {
                     let submitUrl = GOOGLE_SCRIPT_URL +
                         "?name=" + encodeURIComponent(name) +
                         "&classcode=" + encodeURIComponent(classCode) +
@@ -1065,17 +1127,14 @@
                         "&leaderboard=YES";
 
                     fetch(submitUrl, { mode: 'no-cors' }).then(() => {
-                        setTimeout(loadLeaderboardData, 1500); // Tải lại 2 Bảng Vàng sau 1.5s
+                        setTimeout(loadLeaderboardData, 1500); 
                     });
                 }
                 
-                // HIỂN THỊ MÀN HÌNH XEM LẠI ĐÁP ÁN THAY VÌ ĐÓNG MODAL
                 showChallengeReview();
-
             }, 500);
         }
 
-        // HÀM TẠO GIAO DIỆN XEM LẠI KẾT QUẢ (1 Câu / 1 Trang)
         function showChallengeReview() {
             document.getElementById('c-game-area').style.display = 'none';
             document.getElementById('c-review-area').style.display = 'flex';
@@ -1119,7 +1178,6 @@
             document.getElementById('c-review-list').innerHTML = reviewHtml;
             document.getElementById('c-review-counter').innerText = `Câu ${cReviewIndex + 1} / ${cHistory.length}`;
 
-            // Ẩn/Hiện nút Trước, Tiếp
             document.getElementById('c-btn-prev').style.visibility = cReviewIndex === 0 ? 'hidden' : 'visible';
             document.getElementById('c-btn-next').style.visibility = cReviewIndex === cHistory.length - 1 ? 'hidden' : 'visible';
         }
@@ -1522,8 +1580,24 @@ function toggleThemePanel() {
         function toggleChat() {
             let panel = document.getElementById('chat-panel');
             panel.classList.toggle('active');
-            if(panel.classList.contains('active')) {
-                document.getElementById('chat-input').focus();
+            
+            let myName = localStorage.getItem('win_studentName');
+            let classCode = localStorage.getItem('win_classCode');
+            let inputField = document.getElementById('chat-input');
+            let sendBtn = document.querySelector('.btn-send-msg');
+            
+            if (!myName || !classCode) {
+                inputField.disabled = true;
+                sendBtn.disabled = true;
+                inputField.placeholder = "Vui lòng đăng nhập phía trên để chat...";
+            } else {
+                inputField.disabled = false;
+                sendBtn.disabled = false;
+                inputField.placeholder = "Nhập tin nhắn...";
+            }
+
+            if(panel.classList.contains('active') && !inputField.disabled) {
+                inputField.focus();
                 setTimeout(() => {
                     let body = document.getElementById('chat-body');
                     body.scrollTop = body.scrollHeight;
@@ -1544,18 +1618,16 @@ function toggleThemePanel() {
 
             let myName = localStorage.getItem('win_studentName');
             let classCode = localStorage.getItem('win_classCode');
-            if(!myName || !classCode) {
-                alert("Bạn cần Đăng nhập (điền Mã lớp & Tên) phía trên Banner để chat nhé!");
-                return;
-            }
+            if(!myName || !classCode) return;
 
             const badWords = ["đụ", "địt", "đĩ", "lồn", "cặc", "chó", "ngu", "cứt", "cac", "lon", "dit", "loz", "cc"];
             let regex = new RegExp(badWords.join("|"), "gi");
             msg = msg.replace(regex, "***");
 
             lastChatTime = Date.now();
-
-            let displayName = `WIN ${classCode} - ${myName}`;
+            
+            let isTeacherAcc = (classCode === "1" && myName.toLowerCase() === "admin");
+            let displayName = isTeacherAcc ? "👑 ADMIN" : `WIN ${classCode} - ${myName}`;
             let timeStr = new Date().toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'});
             
             chatRef.push({
@@ -1568,11 +1640,11 @@ function toggleThemePanel() {
             input.value = '';
         }
 
-        // Tự động lắng nghe và load tin nhắn từ Firebase (Real-time tự động lấy tin cho mọi máy)
         chatRef.limitToLast(50).on('value', (snapshot) => {
             let myName = localStorage.getItem('win_studentName');
             let classCode = localStorage.getItem('win_classCode');
-            let myDisplayName = myName ? `WIN ${classCode} - ${myName}` : "Unknown";
+            let isTeacherAcc = (classCode === "1" && (myName || "").toLowerCase() === "admin");
+            let myDisplayName = isTeacherAcc ? "👑 ADMIN" : (myName ? `WIN ${classCode} - ${myName}` : "Unknown");
             
             let chatBody = document.getElementById('chat-body');
             let html = '<div style="text-align:center; font-size:12px; color:#999; margin-bottom:10px; background: #eee; padding: 5px; border-radius: 4px;">Đã kết nối máy chủ Chat Online!</div>';
@@ -1580,19 +1652,25 @@ function toggleThemePanel() {
             snapshot.forEach((childSnapshot) => {
                 let c = childSnapshot.val();
                 let isMe = (c.sender === myDisplayName);
-                let msgClass = isMe ? 'chat-msg mine' : 'chat-msg other';
-                let senderHtml = isMe ? '' : `<div class="msg-sender">${c.sender}</div>`;
+                let isAdmin = (c.sender === "👑 ADMIN");
+                
+                let msgClass = isMe ? 'chat-msg mine' : (isAdmin ? 'chat-msg admin' : 'chat-msg other');
+                
+                let senderHtml = '';
+                if (!isMe) {
+                    if (isAdmin) senderHtml = `<div class="msg-sender admin-name">${c.sender}</div>`;
+                    else senderHtml = `<div class="msg-sender">${c.sender}</div>`;
+                }
                 
                 html += `
                 <div class="${msgClass}">
                     ${senderHtml}
                     ${c.text}
-                    ${isMe ? `<div style="font-size:9px; text-align:right; margin-top:3px; opacity:0.7;">${c.time}</div>` : `<div style="font-size:9px; text-align:left; margin-top:3px; opacity:0.6;">${c.time}</div>`}
+                    <div style="font-size:10px; text-align:${isMe ? 'right' : 'left'}; margin-top:5px; opacity:${isAdmin ? '0.9' : '0.6'};">${c.time}</div>
                 </div>`;
             });
             chatBody.innerHTML = html;
             
-            // Tự động kéo xuống cuối cùng khi có tin nhắn mới
             if(document.getElementById('chat-panel').classList.contains('active')) {
                 setTimeout(() => { chatBody.scrollTop = chatBody.scrollHeight; }, 50);
             }
