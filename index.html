@@ -726,7 +726,12 @@
         </div>
     </div>
 
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+
     <script>
+
         const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzWAINM3W5jAJA0Jhv4Ha_kPPApcrbVi4ANAY0gQ6oB2gUuLv4loTglWov4dwEXTQdz/exec";
 
         window.onload = function() {
@@ -1499,13 +1504,26 @@ function toggleThemePanel() {
             }
         });
 
-        // --- HỆ THỐNG KHUNG CHAT ---
+        // --- HỆ THỐNG KHUNG CHAT (FIREBASE ONLINE) ---
+        const firebaseConfig = {
+          apiKey: "AIzaSyC0A2YeZ_cUFNVFqYaRnodIonluS7nSNyw",
+          authDomain: "toeic-4c5d2.firebaseapp.com",
+          databaseURL: "https://toeic-4c5d2-default-rtdb.firebaseio.com",
+          projectId: "toeic-4c5d2",
+          storageBucket: "toeic-4c5d2.firebasestorage.app",
+          messagingSenderId: "695040447657",
+          appId: "1:695040447657:web:a7675aa45b7bab751a45b8"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const chatRef = firebase.database().ref('chat_messages');
+
+        let lastChatTime = 0;
+
         function toggleChat() {
             let panel = document.getElementById('chat-panel');
             panel.classList.toggle('active');
             if(panel.classList.contains('active')) {
                 document.getElementById('chat-input').focus();
-                loadChatMessages();
                 setTimeout(() => {
                     let body = document.getElementById('chat-body');
                     body.scrollTop = body.scrollHeight;
@@ -1518,6 +1536,12 @@ function toggleThemePanel() {
             let msg = input.value.trim();
             if(!msg) return;
 
+            let now = Date.now();
+            if (now - lastChatTime < 3000) {
+                alert("Vui lòng nhắn tin chậm lại (cách nhau 3 giây)!");
+                return;
+            }
+
             let myName = localStorage.getItem('win_studentName');
             let classCode = localStorage.getItem('win_classCode');
             if(!myName || !classCode) {
@@ -1525,36 +1549,36 @@ function toggleThemePanel() {
                 return;
             }
 
-            // Lưu tạm vào LocalStorage
-            let chatData = JSON.parse(localStorage.getItem('win_chat_data') || '[]');
+            const badWords = ["đụ", "địt", "đĩ", "lồn", "cặc", "chó", "ngu", "cứt", "cac", "lon", "dit", "loz", "cc"];
+            let regex = new RegExp(badWords.join("|"), "gi");
+            msg = msg.replace(regex, "***");
+
+            lastChatTime = Date.now();
+
             let displayName = `WIN ${classCode} - ${myName}`;
+            let timeStr = new Date().toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'});
             
-            chatData.push({ 
-                sender: displayName, 
-                text: msg, 
-                time: new Date().toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}) 
+            chatRef.push({
+                sender: displayName,
+                text: msg,
+                time: timeStr,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
             });
-            
-            if(chatData.length > 50) chatData.shift(); // Tự động xóa tin nhắn cũ, giữ 50 tin gần nhất cho mượt web
-            localStorage.setItem('win_chat_data', JSON.stringify(chatData));
 
             input.value = '';
-            loadChatMessages();
-            
-            let body = document.getElementById('chat-body');
-            setTimeout(() => { body.scrollTop = body.scrollHeight; }, 50);
         }
 
-        function loadChatMessages() {
-            let chatData = JSON.parse(localStorage.getItem('win_chat_data') || '[]');
+        // Tự động lắng nghe và load tin nhắn từ Firebase (Real-time tự động lấy tin cho mọi máy)
+        chatRef.limitToLast(50).on('value', (snapshot) => {
             let myName = localStorage.getItem('win_studentName');
             let classCode = localStorage.getItem('win_classCode');
             let myDisplayName = myName ? `WIN ${classCode} - ${myName}` : "Unknown";
             
             let chatBody = document.getElementById('chat-body');
-            let html = '<div style="text-align:center; font-size:12px; color:#999; margin-bottom:10px; background: #eee; padding: 5px; border-radius: 4px;">Chào mừng đến với phòng chat! Để hiển thị với máy khác cần kết nối CSDL riêng.</div>';
+            let html = '<div style="text-align:center; font-size:12px; color:#999; margin-bottom:10px; background: #eee; padding: 5px; border-radius: 4px;">Đã kết nối máy chủ Chat Online!</div>';
             
-            chatData.forEach(c => {
+            snapshot.forEach((childSnapshot) => {
+                let c = childSnapshot.val();
                 let isMe = (c.sender === myDisplayName);
                 let msgClass = isMe ? 'chat-msg mine' : 'chat-msg other';
                 let senderHtml = isMe ? '' : `<div class="msg-sender">${c.sender}</div>`;
@@ -1567,14 +1591,10 @@ function toggleThemePanel() {
                 </div>`;
             });
             chatBody.innerHTML = html;
-        }
-
-        // Lắng nghe thay đổi Storage để update chat real-time giữa các tab trên cùng 1 máy
-        window.addEventListener('storage', function(e) {
-            if(e.key === 'win_chat_data' && document.getElementById('chat-panel').classList.contains('active')) {
-                loadChatMessages();
-                let body = document.getElementById('chat-body');
-                setTimeout(() => { body.scrollTop = body.scrollHeight; }, 50);
+            
+            // Tự động kéo xuống cuối cùng khi có tin nhắn mới
+            if(document.getElementById('chat-panel').classList.contains('active')) {
+                setTimeout(() => { chatBody.scrollTop = chatBody.scrollHeight; }, 50);
             }
         });
     </script>
