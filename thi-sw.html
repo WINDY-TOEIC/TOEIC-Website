@@ -275,7 +275,12 @@
         function hideIntroAndShowQuestion() {
             document.getElementById('full-intro-screen').classList.add('hidden');
             document.getElementById('main-workspace').classList.remove('hidden');
-            document.querySelector('.nav-controls').classList.remove('hidden'); // Hiện lại thanh chuyển câu
+            document.querySelector('.nav-controls').classList.remove('hidden'); 
+            
+            // Kích hoạt Audio và Đồng hồ tính giờ sau khi học viên đã bấm Continue
+            if (typeof triggerQuestionStart === 'function') {
+                triggerQuestionStart();
+            }
         }
 
         // HÀM 1: BẤM NÚT BẮT ĐẦU TỪ MÀN HÌNH SETUP
@@ -357,7 +362,8 @@
             // 2. Cập nhật nội dung Cột Trái (Media + Chữ)
             let mediaHtml = "";
             if (qData.audio_src && qData.audio_src !== "") {
-                mediaHtml = `<audio controls autoplay style="width: 100%; margin-bottom: 15px;"><source src="${qData.audio_src}" type="audio/mpeg"></audio>`;
+                // Đã gỡ thuộc tính autoplay để không tự phát âm thanh khi đang đọc hướng dẫn
+                mediaHtml = `<audio controls style="width: 100%; margin-bottom: 15px;"><source src="${qData.audio_src}" type="audio/mpeg"></audio>`;
             }
             document.getElementById('media-box').innerHTML = mediaHtml;
             document.getElementById('text-box').innerHTML = qData.question || "";
@@ -377,14 +383,19 @@
                 if (localQIndex <= 4) introIndex = 0;
                 else if (localQIndex <= 6) introIndex = 1;
                 else introIndex = 2;
-                if (currentSkill === 'B') introIndex += 5; // Cộng dồn với 5 cái Intro của Speaking
+                if (currentSkill === 'B') introIndex += 5; 
             }
 
             if (introIndex !== -1 && swData.intro && swData.intro[introIndex]) {
-                introHtml += swData.intro[introIndex].content;
+                let rawIntro = swData.intro[introIndex].content;
+                // FIX CHỮ LỘN XỘN VÀ ẢNH HỎNG: 
+                // 1. Dọn dẹp lỗi xuống dòng vô duyên trước các dấu chấm, phẩy, hai chấm
+                rawIntro = rawIntro.replace(/(?:<br\s*\/?>|\n)\s*([.:,;])/g, '$1');
+                // 2. Chèn thuộc tính onerror để tự động ẩn ảnh đi nếu link ảnh trong thư viện bị chết
+                rawIntro = rawIntro.replace(/<img/gi, '<img onerror="this.style.display=\\\'none\\\'"');
+                introHtml += rawIntro;
             }
 
-            // Gắn thêm Sub-Intro (Tình huống) nếu đang ở Speaking Q5, Q6, Q7
             if (realSkill === 'S' && localQIndex >= 4 && localQIndex <= 6 && swData.sub_intro) {
                 introHtml += `<div style="margin-top: 15px; border-top: 1px dashed #ccc; padding-top: 10px;"><strong>Situation:</strong> ${swData.sub_intro.content}</div>`;
             }
@@ -393,58 +404,59 @@
             let fullIntroScreen = document.getElementById('full-intro-screen');
             let mainWorkspace = document.getElementById('main-workspace');
 
+            // HÀM MỚI: Tách logic kích hoạt Timer và Audio ra riêng để chờ bấm Continue
+            window.triggerQuestionStart = function() {
+                document.getElementById('timer-box').classList.remove('hidden-time');
+                let audioEl = document.querySelector('#media-box audio');
+                let timeConfig = getQuestionTime(currentQIndex);
+                let isSharedRunning = (timeConfig.shared && timeConfig.sharedId === activeSharedTimerId && swTimerInterval);
+
+                if (audioEl && !isSharedRunning) {
+                    document.getElementById('timer-box').className = "timer-box prep-time";
+                    document.getElementById('timer-box').innerText = "PLAYING AUDIO...";
+                    document.getElementById('btn-skip-prep').classList.add('hidden');
+                    document.getElementById('dummy-space').style.display = "block";
+
+                    // Ép phát Audio
+                    let playPromise = audioEl.play();
+                    if (playPromise !== undefined) playPromise.catch(e => console.log("Trình duyệt chặn Autoplay"));
+                    
+                    audioEl.onended = function() { startQuestionTimer(); };
+                    audioEl.onerror = function() { startQuestionTimer(); };
+                } else {
+                    startQuestionTimer();
+                }
+            };
+
             if (introHtml.trim() !== "") {
                 introBox.innerHTML = introHtml;
                 fullIntroScreen.classList.remove('hidden');
                 mainWorkspace.classList.add('hidden');
-                document.querySelector('.nav-controls').classList.add('hidden'); // Ẩn luôn thanh chuyển câu ở dưới
+                document.querySelector('.nav-controls').classList.add('hidden'); 
+                
+                // NẾU CÓ HƯỚNG DẪN -> DỪNG ĐỒNG HỒ LẠI ĐỢI
+                clearInterval(swTimerInterval);
+                document.getElementById('timer-box').className = "timer-box prep-time";
+                document.getElementById('timer-box').innerText = "READING DIRECTIONS...";
+                document.getElementById('btn-skip-prep').classList.add('hidden');
+                document.getElementById('dummy-space').style.display = "block";
             } else {
                 fullIntroScreen.classList.add('hidden');
                 mainWorkspace.classList.remove('hidden');
                 document.querySelector('.nav-controls').classList.remove('hidden');
+                
+                // NẾU KHÔNG CÓ HƯỚNG DẪN -> KÍCH HOẠT CHẠY LUÔN TIMER VÀ AUDIO
+                triggerQuestionStart();
             }
             
-            // 3. Xử lý ẩn hiện nút Nav (Khóa nút 'Trước' nếu ở câu 1, khóa 'Tiếp' nếu ở câu cuối)
             document.getElementById('btn-prev').disabled = (currentQIndex === 0);
             document.getElementById('btn-next').disabled = (currentQIndex === totalQuestions - 1);
             
-            // 4. Nếu là bài Writing -> Mở khóa ô gõ chữ và đếm từ
             if (realSkill === 'W') {
                 let txtArea = document.getElementById('writing-input');
                 txtArea.value = ""; 
                 txtArea.disabled = false; 
                 document.getElementById('word-count-num').innerText = "0";
-            }
-            
-            // 5. Khởi động bộ đếm thời gian (Đã fix logic chờ Audio chạy xong)
-            document.getElementById('timer-box').classList.remove('hidden-time');
-            
-            let audioEl = document.querySelector('#media-box audio');
-            let timeConfig = getQuestionTime(currentQIndex);
-            
-            // Kiểm tra xem có đang chạy đồng hồ dùng chung không (như Writing Q1-Q5)
-            let isSharedRunning = (timeConfig.shared && timeConfig.sharedId === activeSharedTimerId && swTimerInterval);
-
-            if (audioEl && !isSharedRunning) {
-                // Đang có Audio -> Báo chữ PLAYING AUDIO và chờ
-                document.getElementById('timer-box').className = "timer-box prep-time";
-                document.getElementById('timer-box').innerText = "PLAYING AUDIO...";
-                
-                // Ẩn nút Bỏ qua chuẩn bị lúc đang nghe Audio
-                document.getElementById('btn-skip-prep').classList.add('hidden');
-                document.getElementById('dummy-space').style.display = "block";
-
-                audioEl.onended = function() {
-                    startQuestionTimer();
-                };
-                
-                // Trường hợp audio tải lỗi thì vẫn cho đếm giờ để không bị kẹt
-                audioEl.onerror = function() {
-                    startQuestionTimer(); 
-                };
-            } else {
-                // Không có Audio hoặc đang dùng chung đồng hồ Writing -> Đếm giờ luôn
-                startQuestionTimer();
             }
         }
 
