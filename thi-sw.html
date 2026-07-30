@@ -126,7 +126,7 @@
                     </div>
                 </div>
             </label>
-            <input type="password" id="groq-api-key" placeholder="Nhập API Key bắt đầu bằng gsk_..." style="width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #ccc; font-size: 15px; outline: none;" oninput="autoSaveAPI()">
+            <input type="text" autocomplete="off" spellcheck="false" id="groq-api-key" placeholder="Nhập API Key bắt đầu bằng gsk_..." style="width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #ccc; font-size: 15px; outline: none; -webkit-text-security: disc;" oninput="autoSaveAPI()">
             <div style="display: flex; justify-content: flex-end; margin-top: 5px; position: absolute; width: 100%;">
                 <span id="api-saved-msg" class="saved-text">Đã lưu ✔</span>
             </div>
@@ -230,46 +230,52 @@
         
         // HÀM 1: BẤM NÚT BẮT ĐẦU TỪ MÀN HÌNH SETUP
         function initTest() {
-            currentTestName = document.getElementById('sw-test-select').value;
-            currentSkill = document.getElementById('sw-skill-select').value;
-            currentMode = document.getElementById('sw-mode-select').value; 
-            
-            let apiKey = document.getElementById('groq-api-key').value.trim();
-            if (apiKey) localStorage.setItem('win_groq_api_key', apiKey);
-
-            let skillsToFetch = currentSkill === 'B' ? ['S', 'W'] : [currentSkill];
-            
-            let fetchPromises = skillsToFetch.map(skill => {
-                let filePath = encodeURI(`SW/${currentTestName}/${currentTestName} ${skill}.json`);
-                // Bơm thêm TimeStamp để ép GitHub bóp nát Cache, bắt buộc tải file mới 100%
-                let noCacheUrl = filePath + "?v=" + new Date().getTime();
+            try {
+                currentTestName = document.getElementById('sw-test-select').value;
+                currentSkill = document.getElementById('sw-skill-select').value;
                 
-                return fetch(noCacheUrl).then(res => {
-                    if (!res.ok) throw new Error(`Không tìm thấy file: ${decodeURI(filePath)}`);
-                    return res.json();
-                });
-            });
+                // Tránh lỗi văng code nếu vô tình thiếu mất menu chọn chế độ
+                let modeSelect = document.getElementById('sw-mode-select');
+                currentMode = modeSelect ? modeSelect.value : "practice"; 
+                
+                let apiKey = document.getElementById('groq-api-key').value.trim();
+                if (apiKey) localStorage.setItem('win_groq_api_key', apiKey);
 
-            Promise.all(fetchPromises)
-                .then(results => {
-                    if (results.length === 1) {
-                        swData = results[0];
-                    } else {
-                        swData = {
-                            questions: results[0].questions.concat(results[1].questions),
-                            intro: results[0].intro.concat(results[1].intro),
-                            sub_intro: results[0].sub_intro 
-                        };
-                    }
-                    totalQuestions = swData.questions.length;
-                    currentQIndex = 0;
+                let skillsToFetch = currentSkill === 'B' ? ['S', 'W'] : [currentSkill];
+                
+                let fetchPromises = skillsToFetch.map(skill => {
+                    let filePath = encodeURI(`SW/${currentTestName}/${currentTestName} ${skill}.json`);
+                    let noCacheUrl = filePath + "?v=" + new Date().getTime();
                     
-                    document.getElementById('setup-screen').classList.add('hidden');
-                    document.getElementById('test-screen').classList.remove('hidden');
-                    
-                    renderQuestion();
-                })
-                .catch(err => alert("Lỗi: " + err.message));
+                    return fetch(noCacheUrl).then(res => {
+                        if (!res.ok) throw new Error(`Không tìm thấy file: ${decodeURI(filePath)}`);
+                        return res.json();
+                    });
+                });
+
+                Promise.all(fetchPromises)
+                    .then(results => {
+                        if (results.length === 1) {
+                            swData = results[0];
+                        } else {
+                            swData = {
+                                questions: results[0].questions.concat(results[1].questions),
+                                intro: results[0].intro.concat(results[1].intro),
+                                sub_intro: results[0].sub_intro 
+                            };
+                        }
+                        totalQuestions = swData.questions.length;
+                        currentQIndex = 0;
+                        
+                        document.getElementById('setup-screen').classList.add('hidden');
+                        document.getElementById('test-screen').classList.remove('hidden');
+                        
+                        renderQuestion();
+                    })
+                    .catch(err => alert("Lỗi khi tải đề: " + err.message));
+            } catch (error) {
+                alert("Lỗi hệ thống: " + error.message);
+            }
         }
 
         // HÀM 2: IN NỘI DUNG CÂU HỎI RA MÀN HÌNH
