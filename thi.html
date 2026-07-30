@@ -1150,8 +1150,9 @@
                             let qNumMatch = gSq.title.match(/\d+/);
                             if (qNumMatch) {
                                 let qNum = qNumMatch[0];
-                                // Tìm vị trí xuất hiện thứ 2 của số câu hỏi (ví dụ: "31.")
-                                let regex = new RegExp(`(?:^|>|\\n|\\s|<br\\s*\\/?>)(?:<b>|<strong>)?${qNum}\\.(?:<\\/b>|<\\/strong>)?\\s+`, 'g');
+                                // Tìm vị trí xuất hiện thứ 2 của số câu hỏi (ví dụ: "6." hoặc "31.")
+                                // Bỏ \s+ thay bằng khoảng trắng hoặc <br> để không bị xịt khi dính thẻ HTML
+                                let regex = new RegExp(`(?:^|>|\\n|\\s|<br\\s*\\/?>)(?:<b>|<strong>)?${qNum}\\.(?:<\\/b>|<\\/strong>)?(?:\\s|&nbsp;|<br\\s*\\/?>)*`, 'g');
                                 let matches = [...finalExplanation.matchAll(regex)];
                                 
                                 if (matches.length >= 2) {
@@ -1160,14 +1161,25 @@
                                     let viText = finalExplanation.substring(splitIndex).trim();
                                     finalExplanation = `<div class="eng-transcript">${engText}</div><div class="vi-translation">${viText}</div>`;
                                 } else {
-                                    // Dự phòng: Tìm theo chữ "Lời dịch" nếu định dạng bị lệch
-                                    let viMatch = finalExplanation.match(/(?:<br\s*\/?>|<\/p>|<p>)?\s*(?:<strong>|<b>)?Lời dịch/i);
-                                    if (viMatch) {
-                                        let engText = finalExplanation.substring(0, viMatch.index).trim();
-                                        let viText = finalExplanation.substring(viMatch.index).trim();
+                                    // Dự phòng 1: Tìm xem có chữ (A) xuất hiện lần 2 không (Chắc chắn 100% bắt được)
+                                    let regexA = new RegExp(`(?:^|>|\\n|\\s|<br\\s*\\/?>)(?:<b>|<strong>)?\\(A\\)(?:<\\/b>|<\\/strong>)?`, 'g');
+                                    let matchesA = [...finalExplanation.matchAll(regexA)];
+                                    
+                                    if (matchesA.length >= 2) {
+                                        let splitIndex = matchesA[1].index;
+                                        let engText = finalExplanation.substring(0, splitIndex).trim();
+                                        let viText = finalExplanation.substring(splitIndex).trim();
                                         finalExplanation = `<div class="eng-transcript">${engText}</div><div class="vi-translation">${viText}</div>`;
                                     } else {
-                                        finalExplanation = `<div class="eng-transcript">${finalExplanation}</div>`;
+                                        // Dự phòng 2: Tìm theo chữ "Lời dịch" nếu định dạng bị lệch
+                                        let viMatch = finalExplanation.match(/(?:<br\s*\/?>|<\/p>|<p>)?\s*(?:<strong>|<b>)?Lời dịch/i);
+                                        if (viMatch) {
+                                            let engText = finalExplanation.substring(0, viMatch.index).trim();
+                                            let viText = finalExplanation.substring(viMatch.index).trim();
+                                            finalExplanation = `<div class="eng-transcript">${engText}</div><div class="vi-translation">${viText}</div>`;
+                                        } else {
+                                            finalExplanation = `<div class="eng-transcript">${finalExplanation}</div>`;
+                                        }
                                     }
                                 }
                             }
