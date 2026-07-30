@@ -978,10 +978,11 @@
                 
                 let name = document.getElementById('home-student-name').value.trim();
                 let classCode = document.getElementById('home-class-code').value.trim();
+                let isTeacherAcc = (classCode === "1" && name.toLowerCase() === "admin");
                 
-                if (cScore > 0 && classCode !== "GUEST" && classCode !== "" && name !== "") {
+                if (cScore > 0 && classCode !== "GUEST" && classCode !== "" && name !== "" && !isTeacherAcc) {
                     // Đóng gói data gửi về Google Sheets chung một đường dẫn
-                    let submitUrl = GOOGLE_SCRIPT_URL + 
+                    let submitUrl = GOOGLE_SCRIPT_URL +
                         "?name=" + encodeURIComponent(name) +
                         "&classcode=" + encodeURIComponent(classCode) +
                         "&test=" + encodeURIComponent("THỬ THÁCH PART 5") +

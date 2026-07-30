@@ -844,8 +844,9 @@
             let isCustom = (selectedParts.length < availableParts.length);
             
             // XÁC ĐỊNH ĐIỀU KIỆN LÊN BẢNG XẾP HẠNG
-            // Phải thi thật, đủ 120 phút, đã đăng nhập, làm TOÀN BỘ Part, và KHÔNG PHẢI đang làm tiếp bài dở
-            if (currentMode === 'exam' && selectedTime === '120' && classCode !== "GUEST" && !isCustom && !resumeData) {
+            // Phải thi thật, đủ 120 phút, đã đăng nhập, làm TOÀN BỘ Part, KHÔNG PHẢI làm tiếp bài dở, và KHÔNG PHẢI Teacher Mode
+            let isTeacherAcc = (classCode === "1" && studentName.toLowerCase() === "admin");
+            if (currentMode === 'exam' && selectedTime === '120' && classCode !== "GUEST" && !isCustom && !resumeData && !isTeacherAcc) {
                 isValidForLeaderboard = true;
             } else {
                 isValidForLeaderboard = false;
