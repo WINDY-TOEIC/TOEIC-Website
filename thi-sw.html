@@ -162,12 +162,11 @@
             currentTestName = document.getElementById('sw-test-select').value;
             currentSkill = document.getElementById('sw-skill-select').value;
             
-            // Lắp ráp đường dẫn tới file JSON đã xử lý bằng PowerShell lúc nãy
+            // Khởi tạo đường dẫn dữ liệu
             let fileName = `${currentTestName} ${currentSkill}.json`;
-            let filePath = `SW/Processed_Data/${currentTestName}/${fileName}`;
+            let filePath = `SW/${currentTestName}/${fileName}`;
             
-            // GitHub Server
-            // dùng hàm encodeURI để biến khoảng trắng thành %20 thì GitHub mới hiểu
+            // Mã hóa URL để xử lý khoảng trắng trong tên thư mục/tệp tin trên server
             let encodedFilePath = encodeURI(filePath);
             
             // Gọi API Fetch để lấy data
