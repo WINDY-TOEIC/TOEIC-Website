@@ -236,6 +236,35 @@
         body.dark-mode .login-input { background: #333; color: #fff; border-color: #555; }
         body.dark-mode #display-user-name { color: #5ba4e5 !important; }
 
+        /* --- KHUNG CHAT TOÀN CẦU --- */
+        .chat-widget { position: fixed; bottom: 20px; right: 20px; z-index: 9999; font-family: 'Inter', Arial, sans-serif; }
+        .chat-btn-toggle { width: 60px; height: 60px; border-radius: 50%; background: #0037f4; color: white; border: none; font-size: 28px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,55,244,0.4); transition: transform 0.3s; display: flex; align-items: center; justify-content: center; }
+        .chat-btn-toggle:hover { transform: scale(1.1); }
+        .chat-panel { position: absolute; bottom: 75px; right: 0; width: 350px; height: 450px; background: white; border-radius: 12px; box-shadow: 0 5px 25px rgba(0,0,0,0.2); display: flex; flex-direction: column; overflow: hidden; transform: scale(0); transform-origin: bottom right; transition: transform 0.3s ease, opacity 0.3s ease; opacity: 0; pointer-events: none; border: 1px solid #ddd; }
+        .chat-panel.active { transform: scale(1); opacity: 1; pointer-events: auto; }
+        .chat-header { background: #0037f4; color: white; padding: 15px; font-weight: bold; font-size: 16px; display: flex; justify-content: space-between; align-items: center; }
+        .btn-close-chat { background: transparent; border: none; color: white; font-size: 25px; cursor: pointer; line-height: 1; }
+        .chat-body { flex: 1; padding: 15px; overflow-y: auto; background: #f9f9f9; display: flex; flex-direction: column; gap: 10px; }
+        .chat-msg { max-width: 80%; padding: 10px 12px; border-radius: 8px; font-size: 14px; line-height: 1.4; word-wrap: break-word; }
+        .chat-msg.other { background: #e9ecef; color: #333; align-self: flex-start; border-bottom-left-radius: 0; }
+        .chat-msg.mine { background: #0037f4; color: white; align-self: flex-end; border-bottom-right-radius: 0; }
+        .msg-sender { font-size: 11px; font-weight: bold; margin-bottom: 3px; color: #0037f4; }
+        .chat-footer { padding: 10px; background: white; border-top: 1px solid #eee; display: flex; gap: 8px; align-items: center; }
+        .chat-input { flex: 1; padding: 10px 15px; border: 1px solid #ccc; border-radius: 20px; outline: none; font-size: 14px; }
+        .btn-send-msg { background: #0037f4; color: white; border: none; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+        .btn-send-msg:hover { background: #0026a3; }
+        
+        body.dark-mode .chat-panel { background: #1e1e1e; border-color: #333; }
+        body.dark-mode .chat-body { background: #121212; }
+        body.dark-mode .chat-msg.other { background: #2a2a2a; color: #e0e0e0; }
+        body.dark-mode .msg-sender { color: #5ba4e5; }
+        body.dark-mode .chat-footer { background: #1e1e1e; border-top-color: #333; }
+        body.dark-mode .chat-input { background: #333; color: #fff; border-color: #555; }
+        
+        @media (max-width: 768px) {
+            .chat-panel { width: 90vw; right: -10px; height: 60vh; }
+        }
+
         /* --- THỬ THÁCH PART 5 --- */
         .challenge-banner { background: linear-gradient(45deg, #0037f4, #00ced1); color: white; padding: 25px; border-radius: 8px; margin-bottom: 40px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 5px 15px rgba(0, 55, 244, 0.3); }
         .challenge-banner h2 { margin: 0; font-size: 22px; text-transform: uppercase; text-shadow: 1px 1px 2px rgba(0,0,0,0.2); }
@@ -675,6 +704,24 @@
             
             <div class="modal-buttons">
                 <button class="btn-modal-red" onclick="document.getElementById('history-modal-overlay').classList.remove('active')">ĐÓNG</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- WIDGET KHUNG CHAT -->
+    <div class="chat-widget">
+        <button class="chat-btn-toggle" onclick="toggleChat()" title="Chat với học viên khác">💬</button>
+        <div class="chat-panel" id="chat-panel">
+            <div class="chat-header">
+                <span>Trò chuyện chung</span>
+                <button class="btn-close-chat" onclick="toggleChat()">×</button>
+            </div>
+            <div class="chat-body" id="chat-body">
+                <!-- Tin nhắn sẽ tự động render vào đây -->
+            </div>
+            <div class="chat-footer">
+                <input type="text" id="chat-input" class="chat-input" placeholder="Aa" onkeypress="if(event.key === 'Enter') sendChatMessage()">
+                <button class="btn-send-msg" onclick="sendChatMessage()">➤</button>
             </div>
         </div>
     </div>
@@ -1449,6 +1496,85 @@ function toggleThemePanel() {
                 } else if (event.code === 'ArrowLeft' || event.keyCode === 37) {
                     if (document.getElementById('c-review-area').style.display === 'flex') changeReviewQuestion(-1);
                 }
+            }
+        });
+
+        // --- HỆ THỐNG KHUNG CHAT ---
+        function toggleChat() {
+            let panel = document.getElementById('chat-panel');
+            panel.classList.toggle('active');
+            if(panel.classList.contains('active')) {
+                document.getElementById('chat-input').focus();
+                loadChatMessages();
+                setTimeout(() => {
+                    let body = document.getElementById('chat-body');
+                    body.scrollTop = body.scrollHeight;
+                }, 100);
+            }
+        }
+
+        function sendChatMessage() {
+            let input = document.getElementById('chat-input');
+            let msg = input.value.trim();
+            if(!msg) return;
+
+            let myName = localStorage.getItem('win_studentName');
+            let classCode = localStorage.getItem('win_classCode');
+            if(!myName || !classCode) {
+                alert("Bạn cần Đăng nhập (điền Mã lớp & Tên) phía trên Banner để chat nhé!");
+                return;
+            }
+
+            // Lưu tạm vào LocalStorage
+            let chatData = JSON.parse(localStorage.getItem('win_chat_data') || '[]');
+            let displayName = `WIN ${classCode} - ${myName}`;
+            
+            chatData.push({ 
+                sender: displayName, 
+                text: msg, 
+                time: new Date().toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}) 
+            });
+            
+            if(chatData.length > 50) chatData.shift(); // Tự động xóa tin nhắn cũ, giữ 50 tin gần nhất cho mượt web
+            localStorage.setItem('win_chat_data', JSON.stringify(chatData));
+
+            input.value = '';
+            loadChatMessages();
+            
+            let body = document.getElementById('chat-body');
+            setTimeout(() => { body.scrollTop = body.scrollHeight; }, 50);
+        }
+
+        function loadChatMessages() {
+            let chatData = JSON.parse(localStorage.getItem('win_chat_data') || '[]');
+            let myName = localStorage.getItem('win_studentName');
+            let classCode = localStorage.getItem('win_classCode');
+            let myDisplayName = myName ? `WIN ${classCode} - ${myName}` : "Unknown";
+            
+            let chatBody = document.getElementById('chat-body');
+            let html = '<div style="text-align:center; font-size:12px; color:#999; margin-bottom:10px; background: #eee; padding: 5px; border-radius: 4px;">Chào mừng đến với phòng chat! Để hiển thị với máy khác cần kết nối CSDL riêng.</div>';
+            
+            chatData.forEach(c => {
+                let isMe = (c.sender === myDisplayName);
+                let msgClass = isMe ? 'chat-msg mine' : 'chat-msg other';
+                let senderHtml = isMe ? '' : `<div class="msg-sender">${c.sender}</div>`;
+                
+                html += `
+                <div class="${msgClass}">
+                    ${senderHtml}
+                    ${c.text}
+                    ${isMe ? `<div style="font-size:9px; text-align:right; margin-top:3px; opacity:0.7;">${c.time}</div>` : `<div style="font-size:9px; text-align:left; margin-top:3px; opacity:0.6;">${c.time}</div>`}
+                </div>`;
+            });
+            chatBody.innerHTML = html;
+        }
+
+        // Lắng nghe thay đổi Storage để update chat real-time giữa các tab trên cùng 1 máy
+        window.addEventListener('storage', function(e) {
+            if(e.key === 'win_chat_data' && document.getElementById('chat-panel').classList.contains('active')) {
+                loadChatMessages();
+                let body = document.getElementById('chat-body');
+                setTimeout(() => { body.scrollTop = body.scrollHeight; }, 50);
             }
         });
     </script>
