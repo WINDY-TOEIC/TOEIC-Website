@@ -244,6 +244,27 @@
         let currentPhase = "prep"; 
         let timeLeft = 0;
         
+        function playBeep() {
+            try {
+                let ctx = new (window.AudioContext || window.webkitAudioContext)();
+                let osc = ctx.createOscillator();
+                let gainNode = ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(800, ctx.currentTime);
+                gainNode.gain.setValueAtTime(0.1, ctx.currentTime);
+                osc.connect(gainNode);
+                gainNode.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.3);
+            } catch(e) {}
+        }
+        
+        function getRealSkill(index) {
+            if (currentSkill === 'S') return 'S';
+            if (currentSkill === 'W') return 'W';
+            return index < 11 ? 'S' : 'W';
+        }
+
         // HÀM 1: BẤM NÚT BẮT ĐẦU TỪ MÀN HÌNH SETUP
         function initTest() {
             try {
