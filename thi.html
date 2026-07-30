@@ -1145,6 +1145,34 @@
                             }
                         }
 
+                        // Tách tiếng Anh và tiếng Việt cho Part 1, 2 để Teacher Mode có thể giấu tiếng Việt
+                        if (currentPartName.includes("PART 1") || currentPartName.includes("PART 2")) {
+                            let qNumMatch = gSq.title.match(/\d+/);
+                            if (qNumMatch) {
+                                let qNum = qNumMatch[0];
+                                // Tìm vị trí xuất hiện thứ 2 của số câu hỏi (ví dụ: "31.")
+                                let regex = new RegExp(`(?:^|>|\\n|\\s|<br\\s*\\/?>)(?:<b>|<strong>)?${qNum}\\.(?:<\\/b>|<\\/strong>)?\\s+`, 'g');
+                                let matches = [...finalExplanation.matchAll(regex)];
+                                
+                                if (matches.length >= 2) {
+                                    let splitIndex = matches[1].index;
+                                    let engText = finalExplanation.substring(0, splitIndex).trim();
+                                    let viText = finalExplanation.substring(splitIndex).trim();
+                                    finalExplanation = `<div class="eng-transcript">${engText}</div><div class="vi-translation">${viText}</div>`;
+                                } else {
+                                    // Dự phòng: Tìm theo chữ "Lời dịch" nếu định dạng bị lệch
+                                    let viMatch = finalExplanation.match(/(?:<br\s*\/?>|<\/p>|<p>)?\s*(?:<strong>|<b>)?Lời dịch/i);
+                                    if (viMatch) {
+                                        let engText = finalExplanation.substring(0, viMatch.index).trim();
+                                        let viText = finalExplanation.substring(viMatch.index).trim();
+                                        finalExplanation = `<div class="eng-transcript">${engText}</div><div class="vi-translation">${viText}</div>`;
+                                    } else {
+                                        finalExplanation = `<div class="eng-transcript">${finalExplanation}</div>`;
+                                    }
+                                }
+                            }
+                        }
+
                         rightHtml += `<div class="explanation ${expClass}" id="exp-${gSq.index}">
                                         <h4 style="margin-top:0; color:#003366;">${headerTitle}</h4>
                                         <div class="${contentStyle}">${finalExplanation}</div>
@@ -1504,14 +1532,14 @@
                     let engPart = document.getElementById('left-transcript-eng');
                     if (engPart) {
                         engPart.classList.remove('hidden');
+                        // Dọn dẹp class hidden rác bị kẹt trong bản chụp Auto-save cũ
+                        engPart.querySelectorAll('.hidden').forEach(e => e.classList.remove('hidden'));
                         engPart.querySelectorAll('.pre-submit-text').forEach(e => e.classList.remove('pre-submit-text'));
                     }
                     // Cố tình KHÔNG gỡ class 'hidden' của khối tiếng Việt (left-transcript-vi)
                 }
 
                 // 3. Xử lý phần expBox (Khối giải thích bên phải)
-                // Transcript của Part 1, 2, 5, 6, 7 nằm hoàn toàn trong expBox.
-                // Do đó, nếu KHÔNG PHẢI Part 3, 4 thì ta BẮT BUỘC phải hiện expBox ra.
                 let currentPartStr = (document.getElementById('current-part-label').innerText || "").toUpperCase();
                 if (!currentPartStr.includes("PART 3") && !currentPartStr.includes("PART 4")) {
                     groupItems.forEach(qIdx => {
@@ -1520,6 +1548,17 @@
                         if (expBox) { 
                             expBox.classList.remove('hidden'); 
                             expBox.querySelectorAll('.pre-submit-text').forEach(e => e.classList.remove('pre-submit-text')); 
+                            
+                            // Teacher Mode cho Part 1, 2: Ẩn lời dịch tiếng Việt và Xóa in đậm đáp án
+                            if (currentPartStr.includes("PART 1") || currentPartStr.includes("PART 2")) {
+                                let viTrans = expBox.querySelector('.vi-translation');
+                                if (viTrans) viTrans.style.display = 'none';
+                                
+                                // Ép font chữ bình thường, không in đậm
+                                expBox.querySelectorAll('b, strong').forEach(el => {
+                                    el.style.fontWeight = 'normal';
+                                });
+                            }
                         }
                     });
                 }
@@ -1528,13 +1567,34 @@
                 // Trả về mặc định (Ẩn)
                 let leftT = document.getElementById('left-transcript');
                 if (leftT) { leftT.classList.add('hidden'); leftT.style.display = 'none'; leftT.querySelectorAll('div').forEach(e => e.classList.add('pre-submit-text')); }
+                
                 let leftTContainer = document.getElementById('left-transcript-container');
-                if (leftTContainer) { leftTContainer.classList.add('hidden'); leftTContainer.style.display = 'none'; leftTContainer.querySelectorAll('div:not(.always-show)').forEach(e => e.classList.add('hidden')); leftTContainer.querySelectorAll('div').forEach(e => e.classList.add('pre-submit-text')); }
+                if (leftTContainer) { 
+                    leftTContainer.classList.add('hidden'); 
+                    leftTContainer.style.display = 'none'; 
+                    
+                    // Ẩn nhẹ nhàng các hộp to, tuyệt đối không dùng querySelectorAll add hidden vào ruột nữa
+                    let engPart = document.getElementById('left-transcript-eng');
+                    if (engPart) { engPart.classList.add('hidden'); engPart.querySelectorAll('div').forEach(e => e.classList.add('pre-submit-text')); }
+                    
+                    let viPart = document.getElementById('left-transcript-vi');
+                    if (viPart) { viPart.classList.add('hidden'); viPart.querySelectorAll('div').forEach(e => e.classList.add('pre-submit-text')); }
+                }
 
                 groupItems.forEach(qIdx => {
                     let sqIndex = flatQuestions[qIdx].sq.index;
                     let expBox = document.getElementById(`exp-${sqIndex}`);
-                    if (expBox) { expBox.classList.add('hidden'); expBox.querySelectorAll('div').forEach(e => e.classList.add('pre-submit-text')); }
+                    if (expBox) { 
+                        expBox.classList.add('hidden'); 
+                        expBox.querySelectorAll('div').forEach(e => e.classList.add('pre-submit-text')); 
+                        
+                        // Phục hồi lại Lời dịch và in đậm khi ẩn đi (Trả về mặc định)
+                        let viTrans = expBox.querySelector('.vi-translation');
+                        if (viTrans) viTrans.style.display = 'block';
+                        expBox.querySelectorAll('b, strong').forEach(el => {
+                            el.style.fontWeight = ''; 
+                        });
+                    }
                 });
             }
 
