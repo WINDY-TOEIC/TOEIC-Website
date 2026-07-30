@@ -190,7 +190,7 @@
         .leaderboard-section { background: white; border-radius: 8px; padding: 20px; margin-bottom: 40px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); border: 2px solid #f1c40f; position: relative; }
         .leaderboard-section h2 { margin-top: 0; color: #d35400; border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 20px; font-size: 17px; white-space: nowrap; display: flex; align-items: center; justify-content: center; gap: 8px; }
         .lb-tooltip-icon { background: #d35400; color: white; border-radius: 50%; width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; cursor: help; position: relative; }
-        .lb-tooltip-icon::after { content: "LUẬT VINH DANH:\A 1. Phải đăng nhập Tên & Mã Lớp.\A 2. Chọn Giao diện Thi Thật.\A 3. Chọn thi Toàn bộ các Part.\A 4. Thời gian: đúng 120 phút.\A 5. Tuyệt đối KHÔNG chuyển Tab hay mở app khác khi thi."; position: absolute; top: 30px; left: 50%; transform: translateX(-50%); background: #333; color: #fff; padding: 10px 15px; border-radius: 6px; white-space: pre; font-size: 13px; opacity: 0; visibility: hidden; transition: 0.2s; pointer-events: none; z-index: 100; box-shadow: 0 4px 6px rgba(0,0,0,0.3); font-weight: normal; line-height: 1.5; width: max-content;}
+        .lb-tooltip-icon::after { content: "LUẬT VINH DANH:\A 1. Phải đăng nhập Tên & Mã Lớp.\A 2. Chọn Giao diện Thi Thật.\A 3. Chọn thi Toàn bộ các Part.\A 4. Thời gian: đúng 120 phút.\A 5. Tuyệt đối KHÔNG chuyển Tab hay mở app khác khi thi.\A 6. Bảng vàng reset 6 tháng 1 lần."; position: absolute; top: 30px; left: 50%; transform: translateX(-50%); background: #333; color: #fff; padding: 10px 15px; border-radius: 6px; white-space: pre; font-size: 13px; opacity: 0; visibility: hidden; transition: 0.2s; pointer-events: none; z-index: 100; box-shadow: 0 4px 6px rgba(0,0,0,0.3); font-weight: normal; line-height: 1.5; width: max-content;}
         .lb-tooltip-icon:hover::after { opacity: 1; visibility: visible; }
         
         .lb-chal-tooltip { background: #009ba0; color: white; border-radius: 50%; width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; cursor: help; position: relative; }
@@ -726,19 +726,35 @@
                         return;
                     }
 
-                    // Lấy tháng và năm hiện tại để lọc (Tự động reset bảng khi sang tháng mới - Day 1)
+                    // Lấy thời gian hiện tại
                     let now = new Date();
                     let currentMonth = now.getMonth() + 1;
                     let currentYear = now.getFullYear();
+                    let currentHalfYear = Math.ceil(currentMonth / 6); // Kỳ 1: Tháng 1-6, Kỳ 2: Tháng 7-12
 
-                    // Lọc chỉ giữ lại dữ liệu thuộc Tháng Hiện Tại
-                    let currentMonthData = data.filter(row => {
-                        if (!row.time) return true;
-                        let m = row.time.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
-                        if (!m) return true;
-                        let month = parseInt(m[2]);
-                        let year = parseInt(m[3]);
-                        return month === currentMonth && year === currentYear;
+                    // Phân loại data ngay từ đầu (Thử thách = 1 tháng, Bảng vàng = 6 tháng)
+                    let mainData = [];
+                    let chalData = [];
+
+                    data.forEach(row => {
+                        let isMatchMain = true;
+                        let isMatchChal = true;
+                        
+                        if (row.time) {
+                            let match = row.time.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+                            if (match) {
+                                let m = parseInt(match[2]);
+                                let y = parseInt(match[3]);
+                                isMatchMain = (Math.ceil(m / 6) === currentHalfYear && y === currentYear);
+                                isMatchChal = (m === currentMonth && y === currentYear);
+                            }
+                        }
+
+                        if (row.test === "THỬ THÁCH PART 5") {
+                            if (isMatchChal) chalData.push(row);
+                        } else {
+                            if (isMatchMain) mainData.push(row);
+                        }
                     });
 
                     // Lọc giữ lại 1 kết quả DUY NHẤT có ĐIỂM CAO NHẤT của mỗi người
@@ -753,10 +769,6 @@
                         });
                         return Object.values(uniqueMap);
                     }
-                    
-                    // Lọc riêng dữ liệu Đề Thi Thật và Thử Thách Part 5
-                    let mainData = currentMonthData.filter(r => r.test !== "THỬ THÁCH PART 5");
-                    let chalData = currentMonthData.filter(r => r.test === "THỬ THÁCH PART 5");
 
                     // Loại bỏ trùng lặp tên người chơi (chỉ lấy điểm cao nhất)
                     mainData = keepHighestScorePerPerson(mainData);
