@@ -355,16 +355,22 @@
         <img src="logo.png" alt="Windy TOEIC Logo" style="height: 70px; margin-bottom: 10px; border-radius: 8px; background: white; padding: 5px;">
         <h1 style="letter-spacing: 2px;">WINDY TOEIC</h1>
         <p style="margin-top: 5px; font-weight: 500; font-size: 15px;">CHIA SẺ KIẾN THỨC - VỮNG BƯỚC THÀNH CÔNG</p>
+        
+        <!-- Nút Thử Thách Part 5 ở góc phải bên dưới Banner -->
+        <style>
+            .btn-chal-corner { position: absolute; bottom: 15px; right: 20px; background: linear-gradient(45deg, #00ced1, #0037f4); color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: bold; font-size: 14px; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.3); text-transform: uppercase; z-index: 100; }
+            .btn-chal-corner:hover { transform: scale(1.05); }
+            @media (max-width: 768px) { .btn-chal-corner { bottom: 10px; right: 10px; font-size: 11px; padding: 6px 10px; } }
+        </style>
+        <button class="btn-chal-corner" onclick="startChallenge()" title="Trả lời ngẫu nhiên Part 5 trong 1 phút. Đăng nhập để đua TOP!">⚡ Thử Thách Part 5 (1 Phút)</button>
     </header>
 
-    <!-- Khu vực Đăng Nhập & Nút Thử thách -->
-    <div class="login-wrapper" style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap; justify-content: center;">
+    <!-- Khu vực Đăng Nhập -->
+    <div class="login-wrapper">
         
-        <!-- Nút Thử Thách Part 5 đưa lên Header -->
-        <button style="background: linear-gradient(45deg, #00ced1, #0037f4); color: white; border: none; padding: 11px 22px; border-radius: 6px; font-weight: bold; font-size: 15px; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.3); text-transform: uppercase; margin-top: 4px;" onclick="startChallenge()" title="Trả lời ngẫu nhiên Part 5 trong 1 phút. Đăng nhập để đua TOP!" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">⚡ Thử Thách Part 5 (1 Phút)</button>
-
         <!-- Khi CHƯA đăng nhập -->
         <div id="logged-out-view" class="login-box">
+
             <div style="display: flex; align-items: center; background: #e9ecef; border: 1px solid #ccc; border-radius: 4px; padding-left: 10px;">
                 <span style="font-weight: 700; color: #0037f4;">WIN</span>
                 <input type="number" id="home-class-code" placeholder="Mã số..." class="login-input" style="border: none; width: 70px; border-radius: 0 4px 4px 0; margin-left: 5px;">
