@@ -136,12 +136,18 @@
     </div>
     
     <script>
-        // Tự động điền API Key cũ nếu học viên đã nhập lần trước
         window.onload = function() {
             let savedKey = localStorage.getItem('win_groq_api_key');
             if (savedKey) document.getElementById('groq-api-key').value = savedKey;
+            
+            let urlParams = new URLSearchParams(window.location.search);
+            let testParam = urlParams.get('test');
+            if (testParam) {
+                let selectBox = document.getElementById('sw-test-select');
+                if (selectBox) selectBox.value = testParam;
+            }
         };
-        
+
         // Hiện/ẩn Tooltip hướng dẫn API bằng cách click
         function toggleApiTooltip(event) {
             event.stopPropagation();
