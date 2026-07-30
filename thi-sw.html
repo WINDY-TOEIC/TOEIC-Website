@@ -519,14 +519,64 @@
         function skipPrepTime() {
             if (currentPhase !== "prep") return;
             
-            let timeConfig = getQuestionTime(currentSkill, currentQIndex);
+            let timeConfig = getQuestionTime(currentQIndex); // Đã fix lỗi truyền dư biến gây loạn thời gian
             currentPhase = "response";
             timeLeft = timeConfig.res;
             
             let timerBox = document.getElementById('timer-box');
             timerBox.className = "timer-box response-time";
             
-            updateTimerUI(); // Render ngay lập tức màu xanh Response Time
+            playBeep(); 
+            updateTimerUI(); 
+            
+            // Ép bật Mic ngay lập tức
+            if (getRealSkill(currentQIndex) === 'S') startRecording();
+        }
+
+        // HÀM 6: QUẢN LÝ GHI ÂM (MEDIA RECORDER) - PHỤC HỒI HÀM BỊ MẤT
+        function startRecording() {
+            try {
+                navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+                    mediaRecorder = new MediaRecorder(stream);
+                    audioChunks = [];
+                    mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+                    mediaRecorder.onstop = () => {
+                        let audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                        let audioUrl = URL.createObjectURL(audioBlob);
+                        document.getElementById('student-audio-playback').src = audioUrl;
+                    };
+                    mediaRecorder.start();
+                    
+                    document.getElementById('record-btn').classList.add('recording');
+                    document.getElementById('mic-status').innerText = "Đang Ghi Âm...";
+                    document.getElementById('mic-status').style.color = "#dc3545";
+                }).catch(e => {
+                    console.log("Lỗi Micro: ", e);
+                    document.getElementById('mic-status').innerText = "Vui lòng cấp quyền Micro!";
+                    document.getElementById('mic-status').style.color = "#dc3545";
+                });
+            } catch(e) {}
+        }
+
+        function stopRecording() {
+            if (typeof mediaRecorder !== 'undefined' && mediaRecorder && mediaRecorder.state !== 'inactive') {
+                mediaRecorder.stop();
+                mediaRecorder.stream.getTracks().forEach(track => track.stop()); // Tắt đèn đỏ micro
+                document.getElementById('record-btn').classList.remove('recording');
+                document.getElementById('mic-status').innerText = "Hoàn thành!";
+                document.getElementById('mic-status').style.color = "#28a745";
+            }
+        }
+
+        // HÀM 7: GỌI API ĐÁNH GIÁ (SẴN SÀNG CHO BƯỚC TIẾP THEO)
+        function getFeedback(skillType) {
+            let resBox = document.getElementById(skillType === 'S' ? 'eval-result-speaking' : 'eval-result-writing');
+            resBox.style.display = 'block';
+            resBox.innerHTML = "<i>Đang phân tích dữ liệu... Vui lòng chờ...</i>";
+            
+            setTimeout(() => {
+                resBox.innerHTML = "<b>Nhận xét:</b> Tính năng chấm bài AI đang chờ bạn cung cấp Prompt ở bước tiếp theo!";
+            }, 1500);
         }
 
         // BẮT PHÍM TẮT MŨI TÊN TRÁI/PHẢI
