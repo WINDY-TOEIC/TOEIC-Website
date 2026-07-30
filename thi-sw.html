@@ -53,7 +53,7 @@
         /* Styling inside Left Col */
         #intro-box { background: #e3f2fd; padding: 15px; border-radius: 6px; border-left: 4px solid #5ba4e5; margin-bottom: 20px; font-size: 14px; color: #333; line-height: 1.6;}
         #intro-box strong { color: #003366; font-size: 16px; display: block; margin-bottom: 5px;}
-        #media-box img { max-width: 100%; max-height: 40vh; object-fit: contain; border: 1px solid #ccc; border-radius: 6px; display: block; margin: 0 auto 15px auto; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        #media-box img { width: 100%; height: auto; max-height: 45vh; object-fit: contain; border: 1px solid #ccc; border-radius: 8px; display: block; margin: 0 auto 15px auto; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
         #text-box { font-size: 18px; font-weight: 500; line-height: 1.6; color: #111;}
         
         /* Styling inside Right Col (Controls) */
@@ -320,8 +320,19 @@
             if (!swData) return;
             
             let qData = swData.questions[currentQIndex];
+            let realSkill = getRealSkill(currentQIndex);
             
-            // 1. Cập nhật bộ đếm
+            // 1. Cập nhật UI theo Kỹ năng thật sự của câu đó
+            document.getElementById('part-title').innerText = realSkill === 'S' ? "TOEIC SPEAKING" : "TOEIC WRITING";
+            
+            if (realSkill === 'S') {
+                document.getElementById('speaking-action').classList.remove('hidden');
+                document.getElementById('writing-action').classList.add('hidden');
+            } else {
+                document.getElementById('speaking-action').classList.add('hidden');
+                document.getElementById('writing-action').classList.remove('hidden');
+            }
+
             document.getElementById('q-counter').innerText = `Câu ${currentQIndex + 1} / ${totalQuestions}`;
             
             // Kiểm tra và lưu API Key
@@ -338,37 +349,45 @@
             
             // Xử lý logic bóc tách Intro theo từng cụm câu hỏi
             let introHtml = "";
-            let introIndex = 0;
+            let introIndex = -1;
+            let localQIndex = (currentSkill === 'B' && realSkill === 'W') ? currentQIndex - 11 : currentQIndex;
             
-            if (currentSkill === 'S') {
-                if (currentQIndex <= 1) introIndex = 0;
-                else if (currentQIndex <= 3) introIndex = 1;
-                else if (currentQIndex <= 6) introIndex = 2;
-                else if (currentQIndex <= 9) introIndex = 3;
+            if (realSkill === 'S') {
+                if (localQIndex <= 1) introIndex = 0;
+                else if (localQIndex <= 3) introIndex = 1;
+                else if (localQIndex <= 6) introIndex = 2;
+                else if (localQIndex <= 9) introIndex = 3;
                 else introIndex = 4;
             } else {
-                if (currentQIndex <= 4) introIndex = 0;
-                else if (currentQIndex <= 6) introIndex = 1;
+                if (localQIndex <= 4) introIndex = 0;
+                else if (localQIndex <= 6) introIndex = 1;
                 else introIndex = 2;
+                if (currentSkill === 'B') introIndex += 5; // Cộng dồn với 5 cái Intro của Speaking
             }
 
-            if (swData.intro && swData.intro[introIndex]) {
+            if (introIndex !== -1 && swData.intro && swData.intro[introIndex]) {
                 introHtml += swData.intro[introIndex].content;
             }
 
             // Gắn thêm Sub-Intro (Tình huống) nếu đang ở Speaking Q5, Q6, Q7
-            if (currentSkill === 'S' && currentQIndex >= 4 && currentQIndex <= 6 && swData.sub_intro) {
+            if (realSkill === 'S' && localQIndex >= 4 && localQIndex <= 6 && swData.sub_intro) {
                 introHtml += `<div style="margin-top: 15px; border-top: 1px dashed #ccc; padding-top: 10px;"><strong>Situation:</strong> ${swData.sub_intro.content}</div>`;
             }
 
-            document.getElementById('intro-box').innerHTML = introHtml;
+            let introBox = document.getElementById('intro-box');
+            if (introHtml.trim() !== "") {
+                introBox.innerHTML = introHtml;
+                introBox.style.display = "block";
+            } else {
+                introBox.style.display = "none";
+            }
             
             // 3. Xử lý ẩn hiện nút Nav (Khóa nút 'Trước' nếu ở câu 1, khóa 'Tiếp' nếu ở câu cuối)
             document.getElementById('btn-prev').disabled = (currentQIndex === 0);
             document.getElementById('btn-next').disabled = (currentQIndex === totalQuestions - 1);
             
             // 4. Nếu là bài Writing -> Mở khóa ô gõ chữ và đếm từ
-            if (currentSkill === 'W') {
+            if (realSkill === 'W') {
                 let txtArea = document.getElementById('writing-input');
                 txtArea.value = ""; 
                 txtArea.disabled = false; 
