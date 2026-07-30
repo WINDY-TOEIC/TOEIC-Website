@@ -31,8 +31,8 @@
         .timer-bar { display: flex; justify-content: space-between; align-items: center; background: white; padding: 15px 25px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border: 1px solid #ddd;}
         .part-title { font-size: 20px; font-weight: bold; color: #003366; }
         .timer-box { font-size: 24px; font-weight: bold; text-align: center; padding: 8px 30px; border-radius: 8px; min-width: 300px;}
-        .prep-time { background: #fff3cd; color: #856404; border: 2px solid #ffeeba; }
-        .response-time { background: #d4edda; color: #155724; border: 2px solid #c3e6cb; }
+        .prep-time { background: #fff3cd; color: black; border: 2px solid #ffeeba; }
+        .response-time { background: #d4edda; color: black; border: 2px solid #c3e6cb; }
         .timer-box.hidden-time { visibility: hidden; } /* Dùng visibility để không làm xô lệch layout */
         .btn-skip { background: #6c757d; color: white; border: none; padding: 8px 20px; font-weight: bold; border-radius: 4px; cursor: pointer; transition: 0.2s; width: 150px; font-size: 15px;}
         .btn-skip:hover { background: #5a6268; }
@@ -198,7 +198,7 @@
                 <!-- Giao diện Speaking (Mic) -->
                 <div id="speaking-action" class="mic-container hidden">
                     <button class="record-btn" id="record-btn" title="Mic">🎤</button>
-                    <div class="mic-status" id="mic-status" style="width: 110px; text-align: left;">Chuẩn bị...</div>
+                    <div class="mic-status" id="mic-status" style="width: 110px; text-align: left; color: black;">...</div>
                 </div>
             </div>
             
@@ -404,8 +404,19 @@
             let fullIntroScreen = document.getElementById('full-intro-screen');
             let mainWorkspace = document.getElementById('main-workspace');
 
+            // Khởi tạo bộ nhớ tạm để ghi nhớ những màn hình Hướng dẫn đã xem qua
+            if (!window.seenIntros) window.seenIntros = [];
+
             // HÀM MỚI: Tách logic kích hoạt Timer và Audio ra riêng để chờ bấm Continue
             window.triggerQuestionStart = function() {
+                
+                // Reset lại trạng thái chữ của Micro mỗi khi qua câu mới
+                let micStatus = document.getElementById('mic-status');
+                if (micStatus) {
+                    micStatus.innerText = "...";
+                    micStatus.style.color = "black";
+                }
+
                 document.getElementById('timer-box').classList.remove('hidden-time');
                 let audioEl = document.querySelector('#media-box audio');
                 let timeConfig = getQuestionTime(currentQIndex);
@@ -413,7 +424,7 @@
 
                 if (audioEl && !isSharedRunning) {
                     document.getElementById('timer-box').className = "timer-box prep-time";
-                    document.getElementById('timer-box').innerText = "PLAYING AUDIO...";
+                    document.getElementById('timer-box').innerText = "Playing Audio...";
                     document.getElementById('btn-skip-prep').classList.add('hidden');
                     document.getElementById('dummy-space').style.display = "block";
 
@@ -428,7 +439,11 @@
                 }
             };
 
-            if (introHtml.trim() !== "") {
+            // KIỂM TRA: CHỈ HIỆN KHUNG HƯỚNG DẪN NẾU CHƯA XEM BAO GIỜ
+            if (introHtml.trim() !== "" && !window.seenIntros.includes(introIndex)) {
+                
+                window.seenIntros.push(introIndex); // Đánh dấu là đã xem để không hiện lại nữa
+                
                 introBox.innerHTML = introHtml;
                 fullIntroScreen.classList.remove('hidden');
                 mainWorkspace.classList.add('hidden');
@@ -437,7 +452,7 @@
                 // NẾU CÓ HƯỚNG DẪN -> DỪNG ĐỒNG HỒ LẠI ĐỢI
                 clearInterval(swTimerInterval);
                 document.getElementById('timer-box').className = "timer-box prep-time";
-                document.getElementById('timer-box').innerText = "READING DIRECTIONS...";
+                document.getElementById('timer-box').innerText = "Hãy đọc hướng dẫn ở dưới";
                 document.getElementById('btn-skip-prep').classList.add('hidden');
                 document.getElementById('dummy-space').style.display = "block";
             } else {
@@ -445,7 +460,7 @@
                 mainWorkspace.classList.remove('hidden');
                 document.querySelector('.nav-controls').classList.remove('hidden');
                 
-                // NẾU KHÔNG CÓ HƯỚNG DẪN -> KÍCH HOẠT CHẠY LUÔN TIMER VÀ AUDIO
+                // NẾU KHÔNG CÓ HƯỚNG DẪN HOẶC ĐÃ XEM RỒI -> KÍCH HOẠT CHẠY LUÔN TIMER VÀ AUDIO
                 triggerQuestionStart();
             }
             
@@ -580,7 +595,7 @@
             let m = Math.floor(timeLeft / 60);
             let s = timeLeft % 60;
             let timeStr = (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s);
-            let titleStr = currentPhase === "prep" ? "PREPARATION TIME" : "RESPONSE TIME";
+            let titleStr = currentPhase === "prep" ? "Preparation Time" : "Response Time";
             document.getElementById('timer-box').innerText = `${titleStr}: ${timeStr}`;
             
             // Ẩn/Hiện nút Skip và cục đệm
