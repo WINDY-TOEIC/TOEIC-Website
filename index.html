@@ -648,8 +648,7 @@
                 <!-- Vùng chứa giải thích và nút Next (Dành riêng cho mode Không giới hạn) -->
                 <div id="c-unlimited-actions" style="display: none; margin-top: 20px; border-top: 1px dashed #ccc; padding-top: 20px;">
                     <div id="c-unlimited-exp"></div>
-                    <div style="display: flex; justify-content: space-between; margin-top: 15px;">
-                        <button onclick="saveCQuestionToVocab()" style="background: #f1c40f; color: #333; border: none; padding: 10px 20px; border-radius: 6px; font-weight: bold; font-size: 16px; cursor: pointer;">⭐ Lưu Sổ Tay</button>
+                    <div style="display: flex; justify-content: flex-end; margin-top: 15px;">
                         <button onclick="loadNextCQuestion()" style="background: #0037f4; color: white; border: none; padding: 10px 30px; border-radius: 6px; font-weight: bold; font-size: 16px; cursor: pointer;">Tiếp Theo ➔</button>
                     </div>
                 </div>
@@ -732,8 +731,21 @@
         </div>
     </div>
 
-    <!-- WIDGET KHUNG CHAT -->
-    <div class="chat-widget">
+    <!-- TOOLBAR NỔI KHI BÔI ĐEN -->
+        <style>
+            .selection-toolbar.active { opacity: 1 !important; visibility: visible !important; }
+            .tb-btn:hover { background: rgba(255,255,255,0.2) !important; border-radius: 4px; }
+        </style>
+        <div id="selection-toolbar" class="selection-toolbar" style="position: absolute; background: #555; border-radius: 6px; padding: 6px 10px; display: flex; gap: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 999999; opacity: 0; visibility: hidden; transition: opacity 0.2s;">
+            <button class="tb-btn" id="tb-yellow" title="Bôi vàng" style="background: transparent; border: none; color: #f1c40f; cursor: pointer; padding: 4px 5px; font-size: 16px; font-weight: bold; display: flex; align-items: center; justify-content: center;">■</button>
+            <button class="tb-btn" id="tb-search" title="Tra từ điển" style="background: transparent; border: none; color: white; cursor: pointer; padding: 4px 5px; font-size: 14px; display: flex; align-items: center; justify-content: center;">🔍</button>
+            <button class="tb-btn" id="tb-ipa" title="Tra phiên âm IPA" style="background: transparent; border: none; color: white; cursor: pointer; padding: 4px 5px; font-size: 14px; font-weight:bold; display: flex; align-items: center; justify-content: center;">IPA</button>
+            <button class="tb-btn" id="tb-speak" title="Đọc phát âm" style="background: transparent; border: none; color: white; cursor: pointer; padding: 4px 5px; font-size: 14px; display: flex; align-items: center; justify-content: center;">🔊</button>
+            <button class="tb-btn" id="tb-save-word" title="Lưu vào Sổ tay" style="background: transparent; border: none; color: white; cursor: pointer; padding: 4px 5px; font-size: 14px; display: flex; align-items: center; justify-content: center;">⭐</button>
+        </div>
+
+        <!-- WIDGET KHUNG CHAT -->
+        <div class="chat-widget">
         <button class="chat-btn-toggle" onclick="toggleChat()" title="Chat với học viên khác">💬</button>
         <div class="chat-panel" id="chat-panel">
             <div class="chat-header">
@@ -1061,23 +1073,152 @@
             }
         }
 
-        function saveCQuestionToVocab() {
-            let sq = cQuestions[cIndex - 1]; // Lấy câu vừa làm
-            let vocabList = JSON.parse(localStorage.getItem('win_vocab') || '[]');
-            let cleanTitle = sq.title.replace(/^(\d+\.|Câu\s+\d+\:?)\s*/i, '');
-            let cleanExp = sq.explanation ? sq.explanation.replace(/(<([^>]+)>)/gi, "") : "Hãy xem lại ngữ pháp câu này.";
+        // --- LOGIC THANH CÔNG CỤ (BÔI ĐEN VĂN BẢN) ---
+        let currentSelectionRange = null;
+        
+        document.addEventListener('mouseup', function(e) {
+            let toolbar = document.getElementById('selection-toolbar');
+            if (!toolbar) return;
+            if (toolbar.contains(e.target)) return;
             
-            let newVocab = {
-                word: cleanTitle,
-                ipa: "[Part 5]",
-                type: "Grammar/Vocab",
-                meaning: cleanExp,
-                date: new Date().toLocaleDateString("vi-VN")
-            };
-            vocabList.unshift(newVocab);
-            localStorage.setItem('win_vocab', JSON.stringify(vocabList));
-            alert("Đã lưu câu hỏi vào Sổ tay từ vựng!");
-        }
+            let selection = window.getSelection();
+            let selectedText = selection.toString().trim();
+
+            if (selectedText.length > 0) {
+                currentSelectionRange = selection.getRangeAt(0).cloneRange();
+                let zoomLevel = 1.25;
+                toolbar.style.left = ((e.pageX / zoomLevel) - 80) + 'px'; 
+                toolbar.style.top = ((e.pageY / zoomLevel) - 40) + 'px'; 
+                toolbar.classList.add('active');
+            } else {
+                toolbar.classList.remove('active');
+            }
+        });
+
+        document.getElementById('tb-yellow').onclick = () => {
+            if (!currentSelectionRange) return;
+            let span = document.createElement('span');
+            span.style.backgroundColor = '#fceea7';
+            span.style.borderRadius = '2px';
+            try { currentSelectionRange.surroundContents(span); } catch(e) {}
+            window.getSelection().removeAllRanges();
+            document.getElementById('selection-toolbar').classList.remove('active');
+        };
+
+        document.getElementById('tb-speak').onclick = () => {
+            if(!currentSelectionRange) return;
+            let text = currentSelectionRange.toString().trim();
+            if(!text) return;
+            let utterance = new SpeechSynthesisUtterance(text);
+            let voices = window.speechSynthesis.getVoices();
+            let maleVoice = voices.find(v => v.lang.includes('en') && v.name.includes('Male')) || voices.find(v => v.lang === 'en-US');
+            if (maleVoice) utterance.voice = maleVoice;
+            else utterance.lang = 'en-US';
+            utterance.rate = 0.9;     
+            window.speechSynthesis.speak(utterance);
+            window.getSelection().removeAllRanges();
+            document.getElementById('selection-toolbar').classList.remove('active');
+        };
+
+        document.getElementById('tb-search').onclick = async () => {
+            if(!currentSelectionRange) return;
+            let text = currentSelectionRange.toString().trim();
+            if(!text) return;
+            let btn = document.getElementById('tb-search');
+            let oldIcon = btn.innerHTML;
+            btn.innerHTML = "⏳";
+            try {
+                let res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=vi&dt=t&q=${encodeURIComponent(text)}`);
+                let data = await res.json();
+                let translatedText = "";
+                data[0].forEach(item => { if(item[0]) translatedText += item[0]; });
+                let noteSpan = document.createElement('span');
+                noteSpan.style.color = '#e74c3c'; 
+                noteSpan.style.fontSize = '14px';
+                noteSpan.style.marginLeft = '5px';
+                noteSpan.style.fontWeight = 'bold';
+                noteSpan.innerHTML = `(${translatedText})`;
+                currentSelectionRange.collapse(false);
+                currentSelectionRange.insertNode(noteSpan);
+            } catch (err) {}
+            window.getSelection().removeAllRanges();
+            document.getElementById('selection-toolbar').classList.remove('active');
+            btn.innerHTML = oldIcon;
+        };
+
+        document.getElementById('tb-ipa').onclick = async () => {
+            if(!currentSelectionRange) return;
+            let text = currentSelectionRange.toString().trim().toLowerCase();
+            if(!text) return;
+            let btn = document.getElementById('tb-ipa');
+            let oldIcon = btn.innerHTML;
+            btn.innerHTML = "⏳";
+            let ipaText = "Không có IPA";
+            try {
+                let res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(text)}`);
+                if(res.ok) {
+                    let data = await res.json();
+                    let txt = data[0]?.phonetic || (data[0]?.phonetics.find(p => p.text)?.text);
+                    if (txt) ipaText = txt.replace(/[\/\[\]]/g, '');
+                }
+            } catch(e) {}
+            
+            let noteSpan = document.createElement('span');
+            noteSpan.style.color = '#8e44ad'; 
+            noteSpan.style.fontSize = '14px';
+            noteSpan.style.marginLeft = '5px';
+            noteSpan.style.fontWeight = 'bold';
+            noteSpan.innerHTML = `[${ipaText}]`;
+            currentSelectionRange.collapse(false);
+            currentSelectionRange.insertNode(noteSpan);
+            
+            window.getSelection().removeAllRanges();
+            document.getElementById('selection-toolbar').classList.remove('active');
+            btn.innerHTML = oldIcon;
+        };
+
+        document.getElementById('tb-save-word').onclick = async () => {
+            if(!currentSelectionRange) return;
+            let text = currentSelectionRange.toString().trim().toLowerCase();
+            if(!text) return;
+            let btn = document.getElementById('tb-save-word');
+            let oldIcon = btn.innerHTML;
+            btn.innerHTML = "⏳";
+            try {
+                let ipaText = "";
+                try {
+                    let resDict = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(text)}`);
+                    if(resDict.ok) {
+                        let dataDict = await resDict.json();
+                        let txt = dataDict[0]?.phonetic || (dataDict[0]?.phonetics.find(p => p.text)?.text);
+                        if (txt) ipaText = txt.replace(/[\/\[\]]/g, '');
+                    }
+                } catch(e) {}
+
+                let meaningText = "";
+                try {
+                    let resTrans = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=vi&dt=t&q=${encodeURIComponent(text)}`);
+                    let dataTrans = await resTrans.json();
+                    dataTrans[0].forEach(item => { if(item[0]) meaningText += item[0]; });
+                } catch(e) {}
+
+                let vocabList = JSON.parse(localStorage.getItem('win_vocab') || '[]');
+                let existingIndex = vocabList.findIndex(v => v.word.toLowerCase() === text.toLowerCase());
+                let newVocab = { word: text, ipa: ipaText ? `[${ipaText}]` : "", meaning: meaningText, date: new Date().toLocaleDateString("vi-VN") };
+                
+                if (existingIndex !== -1) vocabList[existingIndex] = newVocab;
+                else vocabList.unshift(newVocab);
+                
+                localStorage.setItem('win_vocab', JSON.stringify(vocabList));
+                btn.style.color = "#27ae60";
+                btn.innerHTML = "✔️";
+                setTimeout(() => { btn.style.color = "white"; btn.innerHTML = oldIcon; }, 1500);
+            } catch(e) {
+                btn.innerHTML = oldIcon;
+            }
+            window.getSelection().removeAllRanges();
+            document.getElementById('selection-toolbar').classList.remove('active');
+        };
 
         function endChallenge() {
             clearInterval(cTimer);
@@ -1649,8 +1790,15 @@ function toggleThemePanel() {
             let chatBody = document.getElementById('chat-body');
             let html = '<div style="text-align:center; font-size:12px; color:#999; margin-bottom:10px; background: #eee; padding: 5px; border-radius: 4px;">Đã kết nối máy chủ Chat Online!</div>';
             
+            const escapeHtml = (str) => {
+                return (str || '').replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+            };
+
             snapshot.forEach((childSnapshot) => {
                 let c = childSnapshot.val();
+                let safeText = escapeHtml(c.text);
+                let safeSender = escapeHtml(c.sender);
+                
                 let isMe = (c.sender === myDisplayName);
                 let isAdmin = (c.sender === "👑 ADMIN");
                 
@@ -1658,14 +1806,14 @@ function toggleThemePanel() {
                 
                 let senderHtml = '';
                 if (!isMe) {
-                    if (isAdmin) senderHtml = `<div class="msg-sender admin-name">${c.sender}</div>`;
-                    else senderHtml = `<div class="msg-sender">${c.sender}</div>`;
+                    if (isAdmin) senderHtml = `<div class="msg-sender admin-name">${safeSender}</div>`;
+                    else senderHtml = `<div class="msg-sender">${safeSender}</div>`;
                 }
                 
                 html += `
                 <div class="${msgClass}">
                     ${senderHtml}
-                    ${c.text}
+                    ${safeText}
                     <div style="font-size:10px; text-align:${isMe ? 'right' : 'left'}; margin-top:5px; opacity:${isAdmin ? '0.9' : '0.6'};">${c.time}</div>
                 </div>`;
             });
