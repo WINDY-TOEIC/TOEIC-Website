@@ -442,7 +442,7 @@
             // KIỂM TRA: CHỈ HIỆN KHUNG HƯỚNG DẪN NẾU CHƯA XEM BAO GIỜ
             if (introHtml.trim() !== "" && !window.seenIntros.includes(introIndex)) {
                 
-                window.seenIntros.push(introIndex); // Đánh dấu là đã xem để không hiện lại nữa
+                window.seenIntros.push(introIndex); // Đánh dấu là đã xem để không hiện lại
                 
                 introBox.innerHTML = introHtml;
                 fullIntroScreen.classList.remove('hidden');
