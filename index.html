@@ -1260,19 +1260,34 @@
                 
                 // CHỈ LƯU ĐIỂM NẾU LÀ CHẾ ĐỘ ĐUA TOP (TIMED)
                 if (cMode === 'timed' && cScore > 0 && classCode !== "GUEST" && classCode !== "" && name !== "" && !isTeacherAcc) {
-                    let submitUrl = GOOGLE_SCRIPT_URL +
-                        "?name=" + encodeURIComponent(name) +
-                        "&classcode=" + encodeURIComponent(classCode) +
-                        "&test=" + encodeURIComponent("THỬ THÁCH PART 5") +
-                        "&score=" + encodeURIComponent(cScore) +
-                        "&leaderboard=YES";
+                    (async function() {
+                        let testName = "THỬ THÁCH PART 5";
+                        let secretKey = "WINDY_SECURE_API_2026";
+                        
+                        let rawString = `${name}|${testName}|${cScore}|${secretKey}`;
+                        let encoder = new TextEncoder();
+                        let hashBuffer = await crypto.subtle.digest('SHA-256', encoder.encode(rawString));
+                        let signature = Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
 
-                    fetch(submitUrl, { mode: 'no-cors' }).then(() => {
-                        setTimeout(loadLeaderboardData, 1500); 
-                    });
+                        let submitUrl = GOOGLE_SCRIPT_URL +
+                            "?name=" + encodeURIComponent(name) +
+                            "&classcode=" + encodeURIComponent(classCode) +
+                            "&test=" + encodeURIComponent(testName) +
+                            "&score=" + encodeURIComponent(cScore) +
+                            "&leaderboard=YES" +
+                            "&sig=" + signature;
+
+                        fetch(submitUrl, { mode: 'no-cors' }).then(() => {
+                            setTimeout(loadLeaderboardData, 1500); 
+                        });
+                    })();
+                } else {
+                    showChallengeReview();
                 }
                 
-                showChallengeReview();
+                if (cMode === 'timed' && cScore > 0 && classCode !== "GUEST" && classCode !== "" && name !== "" && !isTeacherAcc) {
+                    setTimeout(() => showChallengeReview(), 100);
+                }
             }, 500);
         }
 

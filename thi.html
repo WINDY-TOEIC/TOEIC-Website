@@ -2004,19 +2004,31 @@
 
             // Gửi dữ liệu về Google Sheets (CHỈ GỬI KHI ĐÃ ĐĂNG NHẬP, KHÁCH THÌ KHÔNG GỬI ĐỂ SẠCH EXCEL)
             if (GOOGLE_SCRIPT_URL !== "" && classCode !== "GUEST") {
-                let testDisplayName = document.getElementById('setup-title').innerText;
-                let isLB = isValidForLeaderboard ? "YES" : "NO";
-                
-                let submitUrl = GOOGLE_SCRIPT_URL + 
-                    "?name=" + encodeURIComponent(studentName) +
-                    "&classcode=" + encodeURIComponent(classCode) +
-                    "&test=" + encodeURIComponent(testDisplayName) +
-                    "&score=" + encodeURIComponent(finalTotal) +
-                    "&leaderboard=" + isLB;
+                (async function() {
+                    let testDisplayName = document.getElementById('setup-title').innerText;
+                    let isLB = isValidForLeaderboard ? "YES" : "NO";
+                    let signature = "";
+                    
+                    if (isLB === "YES") {
+                        let secretKey = "WINDY_SECURE_API_2026";
+                        let rawString = `${studentName}|${testDisplayName}|${finalTotal}|${secretKey}`;
+                        let encoder = new TextEncoder();
+                        let hashBuffer = await crypto.subtle.digest('SHA-256', encoder.encode(rawString));
+                        signature = Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+                    }
+                    
+                    let submitUrl = GOOGLE_SCRIPT_URL + 
+                        "?name=" + encodeURIComponent(studentName) +
+                        "&classcode=" + encodeURIComponent(classCode) +
+                        "&test=" + encodeURIComponent(testDisplayName) +
+                        "&score=" + encodeURIComponent(finalTotal) +
+                        "&leaderboard=" + isLB +
+                        "&sig=" + signature;
 
-                fetch(submitUrl, { mode: 'no-cors' }).then(() => {
-                    console.log("Đã gửi điểm về hệ thống thành công!");
-                }).catch(err => console.log("Lỗi gửi điểm: ", err));
+                    fetch(submitUrl, { mode: 'no-cors' }).then(() => {
+                        console.log("Đã gửi điểm về hệ thống thành công!");
+                    }).catch(err => console.log("Lỗi gửi điểm: ", err));
+                })();
             }
         }
 
