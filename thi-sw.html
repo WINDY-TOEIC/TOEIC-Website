@@ -34,6 +34,12 @@
         .prep-time { background: #fff3cd; color: #856404; border: 2px solid #ffeeba; }
         .response-time { background: #d4edda; color: #155724; border: 2px solid #c3e6cb; }
         .timer-box.hidden-time { visibility: hidden; } /* Dùng visibility để không làm xô lệch layout */
+        .btn-skip { background: #6c757d; color: white; border: none; padding: 8px 20px; font-weight: bold; border-radius: 4px; cursor: pointer; transition: 0.2s; width: 150px; font-size: 15px;}
+        .btn-skip:hover { background: #5a6268; }
+        
+        .api-guide-box { background: #f8f9fa; border: 1px dashed #ccc; padding: 15px; border-radius: 6px; font-size: 13.5px; color: #444; margin-bottom: 25px; line-height: 1.6; text-align: left;}
+        .api-guide-box a { color: #0037f4; text-decoration: none; font-weight: bold;}
+        .api-guide-box a:hover { text-decoration: underline; }
         
         /* Main Content 2 Columns */
         .content-area { display: flex; gap: 20px; min-height: 50vh; align-items: stretch;}
@@ -101,8 +107,28 @@
                 <option value="W">Writing (Viết - Gõ chữ)</option>
             </select>
         </div>
+        
+        <div class="form-group">
+            <label>Khóa API AI Chấm Điểm (Bắt buộc):</label>
+            <input type="password" id="groq-api-key" placeholder="Nhập API Key bắt đầu bằng gsk_..." style="width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #ccc; font-size: 15px; outline: none;">
+        </div>
+        <div class="api-guide-box">
+            <div style="font-weight: bold; color: #dc3545; margin-bottom: 5px;">HƯỚNG DẪN LẤY API KEY (HOÀN TOÀN MIỄN PHÍ)</div>
+            1. Đăng ký tài khoản Groq: <a href="https://console.groq.com/login" target="_blank">console.groq.com/login</a><br>
+            2. Vào trang: <a href="https://console.groq.com/keys" target="_blank">console.groq.com/keys</a><br>
+            3. Bấm <b>Create API key</b>, nhập tên bất kỳ, bấm Submit, rồi Copy dãy mã đó dán vào ô trống phía trên.
+        </div>
+
         <button class="btn-start" onclick="initTest()">Bắt đầu làm bài</button>
     </div>
+    
+    <script>
+        // Tự động điền API Key cũ nếu học viên đã nhập lần trước
+        window.onload = function() {
+            let savedKey = localStorage.getItem('win_groq_api_key');
+            if (savedKey) document.getElementById('groq-api-key').value = savedKey;
+        };
+    </script>
 
     <!-- MÀN HÌNH THI -->
     <div id="test-screen" class="hidden">
@@ -110,8 +136,8 @@
         <div class="timer-bar">
             <div class="part-title" id="part-title">TOEIC SPEAKING</div>
             <div class="timer-box prep-time hidden-time" id="timer-box">PREPARATION TIME: 00:00</div>
-            <!-- Dùng div ảo để căn giữa thẻ timer -->
-            <div style="width: 150px;"></div> 
+            <button class="btn-skip hidden" id="btn-skip-prep" onclick="skipPrepTime()">BỎ QUA CHUẨN BỊ</button>
+            <div style="width: 150px;" id="dummy-space"></div> <!-- Chỗ trống ảo để giữ layout khi ẩn nút Skip -->
         </div>
         
         <div class="content-area">
@@ -213,16 +239,44 @@
             // 1. Cập nhật bộ đếm
             document.getElementById('q-counter').innerText = `Câu ${currentQIndex + 1} / ${totalQuestions}`;
             
+            // Kiểm tra và lưu API Key
+            let apiKey = document.getElementById('groq-api-key').value.trim();
+            if (apiKey) localStorage.setItem('win_groq_api_key', apiKey);
+
             // 2. Cập nhật nội dung Cột Trái (Media + Chữ)
             let mediaHtml = "";
             if (qData.audio_src && qData.audio_src !== "") {
                 mediaHtml = `<audio controls autoplay style="width: 100%; margin-bottom: 15px;"><source src="${qData.audio_src}" type="audio/mpeg"></audio>`;
             }
-            
             document.getElementById('media-box').innerHTML = mediaHtml;
-            // Dữ liệu 'question' của Zenlish đã chứa sẵn thẻ <p> hoặc <img> bên trong
             document.getElementById('text-box').innerHTML = qData.question || "";
-            document.getElementById('intro-box').innerHTML = ""; // Tạm ẩn Intro ở bước này
+            
+            // Xử lý logic bóc tách Intro theo từng cụm câu hỏi
+            let introHtml = "";
+            let introIndex = 0;
+            
+            if (currentSkill === 'S') {
+                if (currentQIndex <= 1) introIndex = 0;
+                else if (currentQIndex <= 3) introIndex = 1;
+                else if (currentQIndex <= 6) introIndex = 2;
+                else if (currentQIndex <= 9) introIndex = 3;
+                else introIndex = 4;
+            } else {
+                if (currentQIndex <= 4) introIndex = 0;
+                else if (currentQIndex <= 6) introIndex = 1;
+                else introIndex = 2;
+            }
+
+            if (swData.intro && swData.intro[introIndex]) {
+                introHtml += swData.intro[introIndex].content;
+            }
+
+            // Gắn thêm Sub-Intro (Tình huống) nếu đang ở Speaking Q5, Q6, Q7
+            if (currentSkill === 'S' && currentQIndex >= 4 && currentQIndex <= 6 && swData.sub_intro) {
+                introHtml += `<div style="margin-top: 15px; border-top: 1px dashed #ccc; padding-top: 10px;"><strong>Situation:</strong> ${swData.sub_intro.content}</div>`;
+            }
+
+            document.getElementById('intro-box').innerHTML = introHtml;
             
             // 3. Xử lý ẩn hiện nút Nav (Khóa nút 'Trước' nếu ở câu 1, khóa 'Tiếp' nếu ở câu cuối)
             document.getElementById('btn-prev').disabled = (currentQIndex === 0);
@@ -309,6 +363,31 @@
             let timeStr = (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s);
             let titleStr = currentPhase === "prep" ? "PREPARATION TIME" : "RESPONSE TIME";
             document.getElementById('timer-box').innerText = `${titleStr}: ${timeStr}`;
+            
+            // Ẩn/Hiện nút Skip và cục đệm
+            let btnSkip = document.getElementById('btn-skip-prep');
+            let dummySpace = document.getElementById('dummy-space');
+            if (currentPhase === "prep" && timeLeft > 0) {
+                btnSkip.classList.remove('hidden');
+                dummySpace.style.display = "none";
+            } else {
+                btnSkip.classList.add('hidden');
+                dummySpace.style.display = "block";
+            }
+        }
+
+        // HÀM 5: BẤM NÚT BỎ QUA THỜI GIAN CHUẨN BỊ
+        function skipPrepTime() {
+            if (currentPhase !== "prep") return;
+            
+            let timeConfig = getQuestionTime(currentSkill, currentQIndex);
+            currentPhase = "response";
+            timeLeft = timeConfig.res;
+            
+            let timerBox = document.getElementById('timer-box');
+            timerBox.className = "timer-box response-time";
+            
+            updateTimerUI(); // Render ngay lập tức màu xanh Response Time
         }
 
         // BẮT PHÍM TẮT MŨI TÊN TRÁI/PHẢI
