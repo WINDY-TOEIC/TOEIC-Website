@@ -1652,15 +1652,45 @@ function toggleThemePanel() {
             }
         }
 
-        function signIn() {
+        async function signIn() {
             let classCode = document.getElementById('home-class-code').value.trim();
             let name = document.getElementById('home-student-name').value.trim();
             
             if (classCode !== "" && name !== "") {
+                
+                // KIỂM TRA NẾU LÀ ADMIN THÌ HỎI MẬT KHẨU
+                if (classCode === "1" && name.toLowerCase() === "admin") {
+                    let pass = prompt("Tài khoản quyền lực! Vui lòng nhập mật khẩu Admin:");
+                    if (!pass) return; // Bấm hủy thì không đăng nhập nữa
+
+                    let btn = document.querySelector('.btn-signin');
+                    let oldText = btn.innerText;
+                    btn.innerText = "⏳ Wait...";
+                    btn.disabled = true;
+
+                    try {
+                        let res = await fetch(GOOGLE_SCRIPT_URL + "?action=verifyAdmin&password=" + encodeURIComponent(pass));
+                        let data = await res.json();
+                        if (!data.success) {
+                            alert("❌ Mật khẩu Admin không chính xác!");
+                            btn.innerText = oldText;
+                            btn.disabled = false;
+                            return;
+                        }
+                    } catch (err) {
+                        alert("Lỗi kết nối máy chủ. Vui lòng thử lại!");
+                        btn.innerText = oldText;
+                        btn.disabled = false;
+                        return;
+                    }
+
+                    btn.innerText = oldText;
+                    btn.disabled = false;
+                }
+
                 localStorage.setItem('win_classCode', classCode);
                 localStorage.setItem('win_studentName', name);
                 
-                // Lưu vĩnh viễn làm gợi ý
                 localStorage.setItem('win_last_class', classCode);
                 localStorage.setItem('win_last_name', name);
                 
