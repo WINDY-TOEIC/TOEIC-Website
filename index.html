@@ -1064,7 +1064,7 @@
                     else if (cTimeLeft > 0) loadNextCQuestion();
                 }, 400);
             } else {
-                // Chế độ không giới hạn -> Hiện Giải thích và Nút Lưu
+                // Chế độ k giới hạn -> Hiện Giải thích và Nút Lưu
                 let sq = cQuestions[cIndex];
                 let expBox = document.getElementById('c-unlimited-exp');
                 expBox.innerHTML = sq.explanation ? `<div class="c-review-exp">${sq.explanation}</div>` : '<i>Không có giải thích chi tiết.</i>';
