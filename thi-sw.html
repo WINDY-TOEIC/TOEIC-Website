@@ -791,25 +791,34 @@
             }
         }
 
-        // HÀM 6: QUẢN LÝ GHI ÂM (MEDIA RECORDER) - FIX LỖI MẤT TIẾNG
+        // HÀM 6: QUẢN LÝ GHI ÂM (MEDIA RECORDER) - CHẾ ĐỘ DEBUG
         let mediaRecorder;
         let audioChunks = [];
-        let audioStream; // Lưu luồng mic để tắt đúng lúc
+        let audioStream;
 
         function startRecording() {
+            console.log("--- BẮT ĐẦU QUÁ TRÌNH GHI ÂM ---");
             try {
                 navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+                    console.log("1. Đã lấy được luồng Mic:", stream.active);
+                    console.log("2. Thiết bị thu âm đang dùng là:", stream.getAudioTracks()[0].label);
+                    
                     audioStream = stream;
                     mediaRecorder = new MediaRecorder(stream);
                     audioChunks = [];
                     
                     mediaRecorder.ondataavailable = e => {
+                        console.log("3. Đang nhận dữ liệu (Chunk size):", e.data ? e.data.size : "Không có data");
                         if (e.data && e.data.size > 0) audioChunks.push(e.data);
                     };
                     
                     mediaRecorder.onstop = () => {
-                        // Gắn đúng định dạng gốc của recorder để chống lỗi câm tiếng
-                        window.currentAudioBlob = new Blob(audioChunks, { type: mediaRecorder.mimeType }); 
+                        console.log("4. Đã nhận lệnh Stop. Số lượng Chunk nhận được:", audioChunks.length);
+                        
+                        // Bỏ ép kiểu MimeType để trình duyệt tự đưa về định dạng thô an toàn nhất
+                        window.currentAudioBlob = new Blob(audioChunks); 
+                        console.log("5. Tạo Blob thành công. Dung lượng file:", window.currentAudioBlob.size, "bytes. Định dạng:", window.currentAudioBlob.type);
+                        
                         let audioUrl = URL.createObjectURL(window.currentAudioBlob);
                         let playbackEl = document.getElementById('student-audio-playback');
                         if(playbackEl) {
@@ -817,23 +826,28 @@
                             playbackEl.load(); 
                         }
                         
-                        // CHỈ TẮT MIC SAU KHI ĐÃ LƯU FILE XONG (Chống lỗi ngắt ngang buffer làm mất giọng)
                         if (audioStream) {
-                            audioStream.getTracks().forEach(track => track.stop());
+                            audioStream.getTracks().forEach(track => {
+                                track.stop();
+                                console.log("6. Đã ngắt phần cứng Mic:", track.readyState);
+                            });
                         }
                     };
                     
                     mediaRecorder.start();
+                    console.log("--- ĐÃ RA LỆNH START RECORDER ---");
                     
                     document.getElementById('record-btn').classList.add('recording');
                     document.getElementById('mic-status').innerText = "Đang Ghi Âm...";
                     document.getElementById('mic-status').style.color = "#dc3545";
                 }).catch(e => {
-                    console.log("Lỗi Micro: ", e);
+                    console.error("LỖI MICRO NGAY TỪ BƯỚC 1: ", e);
                     document.getElementById('mic-status').innerText = "Vui lòng cấp quyền Micro!";
                     document.getElementById('mic-status').style.color = "#dc3545";
                 });
-            } catch(e) {}
+            } catch(e) {
+                console.error("LỖI CÚ PHÁP TRY/CATCH: ", e);
+            }
         }
 
         function stopRecording() {

@@ -163,7 +163,7 @@
         .swatch-rainbow { background: linear-gradient(45deg, red, orange, yellow, green, blue, indigo, violet); }
         
         /* --- NÚT LÀM TIẾP --- */
-        .resume-floating-btn { position: absolute; top: 15px; left: 520px; background: #dc3545; color: white; padding: 8px 12px; border-radius: 4px; font-weight: bold; font-size: 14px; text-decoration: none; box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 100; display: none; align-items: center; transition: 0.3s; animation: pulseRed 1.5s infinite;}
+        .resume-floating-btn { position: absolute; top: 15px; left: 450px; background: #dc3545; color: white; padding: 8px 12px; border-radius: 4px; font-weight: bold; font-size: 14px; text-decoration: none; box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 100; display: none; align-items: center; transition: 0.3s; animation: pulseRed 1.5s infinite;}
         .resume-floating-btn:hover { background: #c82333; transform: scale(1.05); }
         @keyframes pulseRed { 0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); } 100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); } }
         .resume-tooltip { position: absolute; top: 100%; left: 0; margin-top: 10px; background: #333; color: #fff; padding: 8px 15px; border-radius: 6px; font-size: 13px; white-space: nowrap; opacity: 0; visibility: hidden; transition: 0.3s; font-weight: normal; pointer-events: auto; text-align: left; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
@@ -1490,11 +1490,13 @@
             if(!select) return;
             select.innerHTML = '';
             
-            let enVoices = globalVoices.filter(v => v.lang.includes('en'));
-            // Thuật toán đẩy giọng Trí tuệ nhân tạo (Neural) và Google, Siri lên đầu
+            // Lọc loại bỏ hoàn toàn giọng Microsoft, chỉ lấy giọng Tiếng Anh
+            let enVoices = globalVoices.filter(v => v.lang.includes('en') && !v.name.includes('Microsoft') && !v.name.includes('Windows'));
+            
+            // Ưu tiên Google và Siri lên đầu
             enVoices.sort((a, b) => {
-                let scoreA = (a.name.includes('Neural') || a.name.includes('Google') || a.name.includes('Siri')) ? 1 : 0;
-                let scoreB = (b.name.includes('Neural') || b.name.includes('Google') || b.name.includes('Siri')) ? 1 : 0;
+                let scoreA = (a.name.includes('Google') || a.name.includes('Siri') || a.name.includes('Samantha')) ? 1 : 0;
+                let scoreB = (b.name.includes('Google') || b.name.includes('Siri') || b.name.includes('Samantha')) ? 1 : 0;
                 return scoreB - scoreA;
             });
 
@@ -1521,7 +1523,9 @@
                 let v = voices.find(voice => voice.name === savedVoiceName);
                 if (v) return v;
             }
-            return voices.find(v => v.lang.includes('en') && v.name.includes('Male')) || voices.find(v => v.lang === 'en-US');
+            // Mặc định né Microsoft nếu chưa chọn giọng
+            let goodVoices = voices.filter(v => v.lang.includes('en') && !v.name.includes('Microsoft') && !v.name.includes('Windows'));
+            return goodVoices.find(v => v.name.includes('Google')) || goodVoices[0] || voices.find(v => v.lang === 'en-US');
         }
 
         function testSelectedVoice() {

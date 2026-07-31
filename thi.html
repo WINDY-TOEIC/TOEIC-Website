@@ -2493,15 +2493,22 @@
             let utterance = new SpeechSynthesisUtterance(textToRead);
             
             let voices = window.speechSynthesis.getVoices();
+            let savedVoiceName = localStorage.getItem('win_selected_voice');
+            let selectedVoice = null;
             
-            let maleVoice = voices.find(v => v.lang.includes('en') && v.name.includes('Male')) 
-                         || voices.find(v => v.lang.includes('en') && v.name.includes('David'))
-                         || voices.find(v => v.lang.includes('en') && v.name.includes('Guy'))
-                         || voices.find(v => v.lang.includes('en-GB')) 
-                         || voices.find(v => v.lang === 'en-US');
+            // 1. Ưu tiên lấy giọng đã cài đặt từ Landing Page
+            if (savedVoiceName) {
+                selectedVoice = voices.find(voice => voice.name === savedVoiceName);
+            }
+            
+            // 2. Nếu chưa cài, tự tìm giọng tốt nhất (Né Microsoft)
+            if (!selectedVoice) {
+                let goodVoices = voices.filter(v => v.lang.includes('en') && !v.name.includes('Microsoft') && !v.name.includes('Windows'));
+                selectedVoice = goodVoices.find(v => v.name.includes('Google')) || goodVoices[0] || voices.find(v => v.lang === 'en-US');
+            }
                          
-            if (maleVoice) {
-                utterance.voice = maleVoice;
+            if (selectedVoice) {
+                utterance.voice = selectedVoice;
             } else {
                 utterance.lang = 'en-US';
             }
