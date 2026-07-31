@@ -243,8 +243,12 @@
 
         <div class="content-area" id="main-workspace">
             <!-- Cột trái: Câu hỏi, Hình ảnh, Audio -->
-            <div class="left-col" id="left-panel">
-                <div id="media-box"></div>
+            <div class="left-col" id="left-panel" style="position: relative;">
+                <div style="position: absolute; top: 15px; right: 20px; z-index: 10;">
+                    <button class="sw-zoom-btn" onclick="zoomSWText(1)" title="Phóng to" style="background: #f8f9fa; border: 1px solid #ccc; border-radius: 4px; cursor: pointer; font-size: 16px; padding: 2px 10px; margin-left: 5px; color: #333; font-weight: bold; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">🔍+</button>
+                    <button class="sw-zoom-btn" onclick="zoomSWText(-1)" title="Thu nhỏ" style="background: #f8f9fa; border: 1px solid #ccc; border-radius: 4px; cursor: pointer; font-size: 16px; padding: 2px 10px; margin-left: 5px; color: #333; font-weight: bold; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">🔍-</button>
+                </div>
+                <div id="media-box" style="margin-top: 30px;"></div>
                 <div id="text-box"></div>
             </div>
 
@@ -298,6 +302,25 @@
             } catch(e) {}
         }
         
+        let currentSWTransSize = 23; // Cỡ chữ mặc định
+
+        function zoomSWText(step) {
+            currentSWTransSize += step * 2;
+            if (currentSWTransSize < 16) currentSWTransSize = 16;
+            if (currentSWTransSize > 35) currentSWTransSize = 35;
+            
+            // Ép cỡ chữ lên toàn bộ văn bản cột trái
+            document.querySelectorAll('#text-box, #intro-box, #text-box *, #intro-box *').forEach(el => {
+                if(el.tagName !== 'IMG' && el.tagName !== 'AUDIO' && el.tagName !== 'STRONG' && el.className !== 'sw-zoom-btn') {
+                    el.style.fontSize = currentSWTransSize + 'px';
+                }
+            });
+            // Giữ cho thẻ Tiêu đề in đậm to hơn một chút
+            document.querySelectorAll('#intro-box strong').forEach(el => {
+                el.style.fontSize = (currentSWTransSize + 2) + 'px';
+            });
+        }
+
         function getRealSkill(index) {
             if (currentSkill === 'S') return 'S';
             if (currentSkill === 'W') return 'W';
@@ -446,7 +469,6 @@
             if (!window.seenIntros) window.seenIntros = [];
 
             window.triggerQuestionStart = function() {
-                
                 let micStatus = document.getElementById('mic-status');
                 if (micStatus) {
                     micStatus.innerText = "...";
@@ -454,24 +476,34 @@
                 }
 
                 document.getElementById('timer-box').classList.remove('hidden-time');
-                
-                // MỞ RỘNG VÙNG QUÉT: Bắt mọi file Audio dù nó bị giấu ở cột trái hay ô chữ
+
+                // LỘT BỎ TOÀN BỘ QUYỀN TỰ PHÁT (AUTOPLAY) TỪ DỮ LIỆU ĐỀ THI
+                document.querySelectorAll('#left-panel audio').forEach(a => {
+                    a.removeAttribute('autoplay');
+                    a.onended = null;
+                });
+
                 let audioEl = document.querySelector('#media-box audio') || document.querySelector('#text-box audio') || document.querySelector('#intro-box audio');
-                
                 let timeConfig = getQuestionTime(currentQIndex);
                 let isSharedRunning = (timeConfig.shared && timeConfig.sharedId === activeSharedTimerId && swTimerInterval);
 
                 if (audioEl && !isSharedRunning) {
+                    // ÉP BUỘC XÓA ĐỒNG HỒ VÀ ĐỨNG CHỜ NGAY LẬP TỨC
+                    clearInterval(swTimerInterval);
                     document.getElementById('timer-box').className = "timer-box prep-time";
                     document.getElementById('timer-box').innerText = "🔊";
                     document.getElementById('btn-skip-prep').classList.add('hidden');
                     document.getElementById('dummy-space').style.display = "block";
 
-                    let playPromise = audioEl.play();
-                    if (playPromise !== undefined) playPromise.catch(e => console.log("Trình duyệt chặn Autoplay"));
-                    
                     audioEl.onended = function() { startQuestionTimer(); };
-                    audioEl.onerror = function() { startQuestionTimer(); };
+                    
+                    let playPromise = audioEl.play();
+                    if (playPromise !== undefined) {
+                        playPromise.catch(e => {
+                            console.log("Trình duyệt chặn hoặc lỗi:", e);
+                            startQuestionTimer(); // Lỗi thì mới cho chạy tiếp
+                        });
+                    }
                 } else {
                     startQuestionTimer();
                 }
@@ -509,13 +541,15 @@
                 txtArea.disabled = false; 
                 document.getElementById('word-count-num').innerText = "0";
             }
+            
+            // Ép giữ nguyên cỡ chữ hiện tại cho câu hỏi mới load
+            zoomSWText(0);
         }
 
         // HÀM 3: XỬ LÝ CHUYỂN CÂU
         function changeQuestion(step) {
-
-            let oldAudio = document.querySelector('#media-box audio');
-            if (oldAudio) { oldAudio.pause(); oldAudio.src = ""; }
+            // Tắt SẠCH SẼ mọi audio đang phát dù nó giấu ở đâu
+            document.querySelectorAll('audio').forEach(a => { a.pause(); a.src = ""; });
             
             let newIndex = currentQIndex + step;
             if (newIndex >= 0 && newIndex < totalQuestions) {
