@@ -478,6 +478,7 @@
             if (!window.seenIntros) window.seenIntros = [];
 
             window.triggerQuestionStart = function() {
+                
                 let micStatus = document.getElementById('mic-status');
                 if (micStatus) {
                     micStatus.innerText = "...";
@@ -485,33 +486,60 @@
                 }
 
                 document.getElementById('timer-box').classList.remove('hidden-time');
-
-                // LỘT BỎ TOÀN BỘ QUYỀN TỰ PHÁT (AUTOPLAY) TỪ DỮ LIỆU ĐỀ THI
-                document.querySelectorAll('#left-panel audio').forEach(a => {
-                    a.removeAttribute('autoplay');
-                    a.onended = null;
-                });
-
+                
                 let audioEl = document.querySelector('#media-box audio') || document.querySelector('#text-box audio') || document.querySelector('#intro-box audio');
                 let timeConfig = getQuestionTime(currentQIndex);
                 let isSharedRunning = (timeConfig.shared && timeConfig.sharedId === activeSharedTimerId && swTimerInterval);
 
-                if (audioEl && !isSharedRunning) {
-                    // ÉP BUỘC XÓA ĐỒNG HỒ VÀ ĐỨNG CHỜ NGAY LẬP TỨC
-                    clearInterval(swTimerInterval);
+                // HÀM CHẠY AUDIO (Tách riêng để gọi sau khi hết 45s)
+                window.playAudioSequence = function() {
                     document.getElementById('timer-box').className = "timer-box prep-time";
                     document.getElementById('timer-box').innerText = "🔊";
                     document.getElementById('btn-skip-prep').classList.add('hidden');
                     document.getElementById('dummy-space').style.display = "block";
 
-                    audioEl.onended = function() { startQuestionTimer(); };
-                    
                     let playPromise = audioEl.play();
                     if (playPromise !== undefined) {
                         playPromise.catch(e => {
                             console.log("Trình duyệt chặn hoặc lỗi:", e);
-                            startQuestionTimer(); // Lỗi thì mới cho chạy tiếp
+                            startQuestionTimer(); 
                         });
+                    }
+                    audioEl.onended = function() { startQuestionTimer(); };
+                    audioEl.onerror = function() { startQuestionTimer(); };
+                };
+
+                if (audioEl && !isSharedRunning) {
+                    let realS = getRealSkill(currentQIndex);
+                    let localQ = (currentSkill === 'B' && realS === 'W') ? currentQIndex - 11 : currentQIndex;
+
+                    // ĐẶC THÙ CÂU 8 SPEAKING: CHO 45 GIÂY ĐỌC BẢNG BIỂU TRƯỚC KHI AUDIO NÓI
+                    if (realS === 'S' && localQ === 7) {
+                        clearInterval(swTimerInterval);
+                        currentPhase = "reading"; // Chế độ đọc đề
+                        timeLeft = 45;
+
+                        document.getElementById('timer-box').className = "timer-box prep-time";
+                        document.getElementById('timer-box').innerText = "Reading Time: 00:45";
+                        document.getElementById('btn-skip-prep').innerText = "Skip";
+                        document.getElementById('btn-skip-prep').classList.remove('hidden');
+                        document.getElementById('dummy-space').style.display = "none";
+
+                        swTimerInterval = setInterval(() => {
+                            timeLeft--;
+                            let m = Math.floor(timeLeft / 60);
+                            let s = timeLeft % 60;
+                            let timeStr = (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s);
+                            document.getElementById('timer-box').innerText = `Reading Time: ${timeStr}`;
+
+                            if (timeLeft <= 0) {
+                                clearInterval(swTimerInterval);
+                                playBeep();
+                                window.playAudioSequence(); // Hết 45s đọc thì bật Audio câu hỏi
+                            }
+                        }, 1000);
+                    } else {
+                        window.playAudioSequence(); // Các câu khác thì phát Audio luôn
                     }
                 } else {
                     startQuestionTimer();
@@ -676,10 +704,14 @@
             let titleStr = currentPhase === "prep" ? "Preparation Time" : "Response Time";
             document.getElementById('timer-box').innerText = `${titleStr}: ${timeStr}`;
             
-            // Ẩn/Hiện nút Skip và cục đệm
             let btnSkip = document.getElementById('btn-skip-prep');
             let dummySpace = document.getElementById('dummy-space');
-            if (currentPhase === "prep" && timeLeft > 0) {
+            
+            // MỚI: Hiện nút Skip trong giờ Chuẩn bị, HOẶC trong giờ Ghi âm của phần Speaking
+            let showSkip = (currentPhase === "prep" || (currentPhase === "response" && getRealSkill(currentQIndex) === 'S')) && timeLeft > 0;
+            
+            if (showSkip) {
+                btnSkip.innerText = currentPhase === "prep" ? "Skip" : "Nộp sớm";
                 btnSkip.classList.remove('hidden');
                 dummySpace.style.display = "none";
             } else {
@@ -688,42 +720,66 @@
             }
         }
 
-        // HÀM BỔ SUNG: NỘP BÀI WRITING (Phục hồi hàm bị mất)
+        // HÀM BỔ SUNG: NỘP BÀI WRITING 
         function submitWritingEarly() {
             if(!confirm("Bạn có chắc chắn muốn nộp câu hỏi này?")) return;
             clearInterval(swTimerInterval);
             swTimerInterval = null;
             activeSharedTimerId = null;
             document.getElementById('timer-box').innerText = "ĐÃ NỘP";
-            document.getElementById('writing-input').disabled = true; // Khóa luôn ô gõ chữ
+            document.getElementById('writing-input').disabled = true; 
             
             if (currentMode === 'practice') {
-                // Chế độ luyện tập -> Hiện nút Đánh giá AI
                 let evalBtn = document.getElementById('btn-eval-writing');
                 if (evalBtn) evalBtn.classList.remove('hidden');
             } else {
-                // Chế độ thi thật -> Thông báo để học viên tự bấm qua câu
                 alert("Đã ghi nhận bài làm! Vui lòng bấm 'Câu tiếp' để chuyển sang câu tiếp theo.");
             }
         }
 
-        // HÀM 5: BẤM NÚT BỎ QUA THỜI GIAN CHUẨN BỊ
+        // HÀM 5: BẤM NÚT BỎ QUA THỜI GIAN
         function skipPrepTime() {
-
-            if (currentPhase !== "prep") return;
-            
-            let timeConfig = getQuestionTime(currentQIndex); // Đã fix lỗi truyền dư biến gây loạn thời gian
-            currentPhase = "response";
-            timeLeft = timeConfig.res;
-            
-            let timerBox = document.getElementById('timer-box');
-            timerBox.className = "timer-box response-time";
-            
-            playBeep(); 
-            updateTimerUI(); 
-            
-            // Ép bật Mic ngay lập tức
-            if (getRealSkill(currentQIndex) === 'S') startRecording();
+            if (currentPhase === "reading") {
+                // Đang trong 45s đọc bảng biểu -> Bỏ qua để nghe Audio Câu hỏi luôn
+                clearInterval(swTimerInterval);
+                playBeep();
+                if (typeof window.playAudioSequence === 'function') window.playAudioSequence();
+            }
+            else if (currentPhase === "prep") {
+                let timeConfig = getQuestionTime(currentQIndex); 
+                currentPhase = "response";
+                timeLeft = timeConfig.res;
+                
+                let timerBox = document.getElementById('timer-box');
+                timerBox.className = "timer-box response-time";
+                
+                playBeep(); 
+                updateTimerUI(); 
+                
+                // Ép bật Mic ngay lập tức
+                if (getRealSkill(currentQIndex) === 'S') startRecording();
+            } 
+            else if (currentPhase === "response" && getRealSkill(currentQIndex) === 'S') {
+                if(!confirm("Bạn có chắc chắn muốn nộp câu này sớm?")) return;
+                
+                clearInterval(swTimerInterval);
+                document.getElementById('timer-box').innerText = "ĐÃ NỘP";
+                playBeep();
+                
+                stopRecording();
+                
+                let btnSkip = document.getElementById('btn-skip-prep');
+                if(btnSkip) btnSkip.classList.add('hidden');
+                let dummySpace = document.getElementById('dummy-space');
+                if(dummySpace) dummySpace.style.display = "block";
+                
+                if (currentMode === 'exam') {
+                    setTimeout(() => changeQuestion(1), 2000);
+                } else {
+                    let fbBtn = document.getElementById('practice-feedback-speaking');
+                    if(fbBtn) fbBtn.classList.remove('hidden');
+                }
+            }
         }
 
         // HÀM 6: QUẢN LÝ GHI ÂM (MEDIA RECORDER) - PHỤC HỒI HÀM BỊ MẤT
