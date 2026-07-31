@@ -212,18 +212,10 @@
             <div style="display: flex; align-items: center; justify-content: center; gap: 20px; flex: 2;">
                 <div class="timer-box prep-time hidden-time" id="timer-box">PREPARATION TIME: 00:00</div>
                 <!-- Giao diện Speaking (Mic) -->
-                <div id="speaking-action" class="mic-container hidden" style="flex-direction: column; width: 100%;">
+                <div id="speaking-action" class="mic-container hidden" style="width: auto;">
                     <div style="display: flex; align-items: center; gap: 10px;">
                         <button class="record-btn" id="record-btn" title="Mic">🎤</button>
                         <div class="mic-status" id="mic-status" style="width: 110px; text-align: left; color: black;">...</div>
-                    </div>
-                    
-                    <div id="practice-feedback-speaking" class="hidden" style="margin-top: 15px; width: 100%; text-align: center;">
-                        <audio id="student-audio-playback" controls style="width: 100%; max-width: 400px; margin-bottom: 10px;"></audio>
-                        <br>
-                        <button onclick="getFeedback('S')" style="background: #0037f4; color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">Chấm Điểm</button>
-
-                        <div id="eval-result-speaking" style="display: none; background: #fff; border: 1px solid #5ba4e5; border-radius: 6px; padding: 15px; text-align: left; font-size: 15px; line-height: 1.6; max-height: 300px; overflow-y: auto;"></div>
                     </div>
                 </div>
             </div>
@@ -253,8 +245,17 @@
                 <div id="text-box" style="margin-top: 0;"></div>
             </div>
 
-            <!-- Cột phải: Khu vực Tương tác (Writing) -->
-            <div class="right-col" id="right-panel">
+            <!-- Cột phải: Khu vực Tương tác -->
+            <div class="right-col" id="right-panel" style="position: relative;">
+                
+                <!-- Giao diện Feedback Speaking (Đã dời sang cột phải) -->
+                <div id="practice-feedback-speaking" class="hidden" style="width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                    <h3 style="margin-top: 0; color: #003366; margin-bottom: 20px;">KIỂM TRA LẠI BÀI NÓI</h3>
+                    <audio id="student-audio-playback" controls style="width: 100%; max-width: 400px; margin-bottom: 20px;"></audio>
+                    <button onclick="getFeedback('S')" style="background: #0037f4; color: white; border: none; padding: 12px 30px; border-radius: 6px; font-weight: bold; font-size: 16px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2);">✨ Chấm Điểm</button>
+                    <div id="eval-result-speaking" style="display: none; width: 100%; background: #fff; border: 1px solid #5ba4e5; border-radius: 6px; padding: 20px; text-align: left; font-size: 16px; line-height: 1.6; margin-top: 20px; overflow-y: auto; max-height: 40vh;"></div>
+                </div>
+
                 <!-- Giao diện Writing -->
                 <div id="writing-action" class="hidden" style="width: 100%; height: 100%; display: flex; flex-direction: column;">
                     <textarea class="sw-textarea" id="writing-input" placeholder="Bắt đầu gõ câu trả lời của bạn vào đây..." disabled oninput="document.getElementById('word-count-num').innerText = this.value.trim().split(/\s+/).filter(w => w.length > 0).length;"></textarea>
@@ -798,13 +799,20 @@
         let audioStream;
 
         function startRecording() {
-            console.log("--- BẮT ĐẦU QUÁ TRÌNH GHI ÂM ---");
+            console.log("--- BẮT ĐẦU YÊU CẦU QUYỀN MICRO ---");
             try {
                 navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
-                    console.log("1. Đã lấy được luồng Mic:", stream.active);
-                    console.log("2. Thiết bị thu âm đang dùng là:", stream.getAudioTracks()[0].label);
+                    let micLabel = stream.getAudioTracks()[0].label;
+                    console.log("1. Cấp quyền thành công. Thiết bị thu:", micLabel);
+                    
+                    // CẢNH BÁO NẾU TRÌNH DUYỆT CHỌN NHẦM STEREO MIX (Chỉ thu tiếng máy tính, không thu giọng người)
+                    if (micLabel.toLowerCase().includes("stereo mix") || micLabel.toLowerCase().includes("mix")) {
+                        alert("⚠️ CẢNH BÁO: Trình duyệt đang dùng 'Stereo Mix' để thu âm. File ghi âm của bạn sẽ không có tiếng! Vui lòng bấm vào biểu tượng Micro trên thanh địa chỉ trình duyệt để đổi sang Micro thật.");
+                    }
                     
                     audioStream = stream;
+                    
+                    // Thử ép định dạng chuẩn để tránh lỗi trình duyệt tự chọn định dạng lạ
                     mediaRecorder = new MediaRecorder(stream);
                     audioChunks = [];
                     
@@ -907,6 +915,15 @@
                     resBox.innerHTML = `<i>⏳ <b>Bản dịch bóc băng:</b> "${studentAnswer}"<br><br>Đang chấm điểm...</i>`;
                 }
 
+                let realS = getRealSkill(currentQIndex);
+                let localQ = (currentSkill === 'B' && realS === 'W') ? currentQIndex - 11 : currentQIndex;
+                let suggestionFormat = `<div style="color:#27ae60; margin-top:8px;"><b>Gợi ý làm bài:</b> [Viết lại hoặc bổ sung câu trả lời hoàn chỉnh để đạt điểm cao]</div>`;
+                
+                // Part 1 Speaking (Read aloud) không cần gợi ý làm bài
+                if (realS === 'S' && localQ <= 1) {
+                    suggestionFormat = ``; 
+                }
+
                 let prompt = `Bạn là Giám khảo TOEIC chuyên nghiệp của ETS. Hãy chấm điểm phần thi ${skillType === 'S' ? 'Speaking' : 'Writing'} này.
 Nội dung câu hỏi/yêu cầu: "${qText}"
 Câu trả lời của học viên: "${studentAnswer}"
@@ -919,7 +936,7 @@ Hãy tự xác định đây là dạng câu hỏi nào dựa vào nội dung v�
 TRẢ VỀ ĐÚNG ĐỊNH DẠNG HTML SAU (TUYỆT ĐỐI KHÔNG BỌC TRONG MARKDOWN CODE BLOCK HAY DẤU \`\`\`):
 <div style="color:#d35400; font-size:18px;"><b>ĐIỂM THÔ ƯỚC LƯỢNG:</b> [Điểm]/[Tối đa]</div>
 <div style="color:#111; margin-top:8px;"><b>Nhận xét chi tiết:</b> [Chỉ ra lỗi sai ngữ pháp, từ vựng, độ trôi chảy, phát âm hoặc sự liên quan đến đề bài]</div>
-<div style="color:#27ae60; margin-top:8px;"><b>Gợi ý bài làm xuất sắc (Max Score):</b> [Viết lại hoặc bổ sung câu trả lời hoàn chỉnh để đạt điểm tuyệt đối]</div>`;
+${suggestionFormat}`;
 
                 // TỰ ĐỘNG HỎI GROQ DANH SÁCH MODEL ĐANG CÒN SỐNG
                 let modelsRes = await fetch("https://api.groq.com/openai/v1/models", {
