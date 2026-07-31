@@ -250,7 +250,7 @@
                 
                 <!-- Giao diện Feedback Speaking (Đã dời sang cột phải) -->
                 <div id="practice-feedback-speaking" class="hidden" style="width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 30px;">
-                    <button onclick="getFeedback('S')" style="background: #0037f4; color: white; border: none; padding: 12px 30px; border-radius: 6px; font-weight: bold; font-size: 16px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2); margin-bottom: 20px;">✨ Chấm Điểm</button>
+                    <button onclick="getFeedback('S')" style="background: #0037f4; color: white; border: none; padding: 12px 30px; border-radius: 6px; font-weight: bold; font-size: 16px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2); margin-bottom: 20px; white-space: nowrap;">✨ Chấm Điểm</button>
                     <audio id="student-audio-playback" controls style="width: 100%; max-width: 400px; margin-bottom: 20px;"></audio>
                     <div id="eval-result-speaking" style="display: none; width: 100%; background: #fff; border: 1px solid #5ba4e5; border-radius: 6px; padding: 20px; text-align: left; font-size: 16px; line-height: 1.6; overflow-y: auto; max-height: 50vh;"></div>
                 </div>
@@ -260,8 +260,8 @@
                     <textarea class="sw-textarea" id="writing-input" placeholder="Bắt đầu gõ câu trả lời của bạn vào đây..." disabled oninput="document.getElementById('word-count-num').innerText = this.value.trim().split(/\s+/).filter(w => w.length > 0).length;"></textarea>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
                         <div style="display: flex; gap: 15px;">
-                            <button id="btn-submit-w" onclick="submitWritingEarly()" style="background: #28a745; color: white; border: none; padding: 10px 25px; border-radius: 6px; font-weight: bold; font-size: 15px; cursor: pointer; box-shadow: 0 4px 6px rgba(40,167,69,0.3); transition: 0.2s;">Nộp Bài</button>
-                            <button id="btn-eval-writing" class="hidden" onclick="getFeedback('W')" style="background: #0037f4; color: white; border: none; padding: 10px 25px; border-radius: 6px; font-weight: bold; font-size: 15px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,55,244,0.3); transition: 0.2s;">✨ Chấm Điểm</button>
+                            <button id="btn-submit-w" onclick="submitWritingEarly()" style="background: #28a745; color: white; border: none; padding: 10px 25px; border-radius: 6px; font-weight: bold; font-size: 15px; cursor: pointer; box-shadow: 0 4px 6px rgba(40,167,69,0.3); transition: 0.2s; white-space: nowrap;">Nộp Bài</button>
+                            <button id="btn-eval-writing" class="hidden" onclick="getFeedback('W')" style="background: #0037f4; color: white; border: none; padding: 10px 25px; border-radius: 6px; font-weight: bold; font-size: 15px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,55,244,0.3); transition: 0.2s; white-space: nowrap;">✨ Chấm Điểm</button>
                         </div>
                         <div class="word-count" style="margin-top: 0; font-size: 15px;">Word count: <span id="word-count-num">0</span></div>
                     </div>
@@ -991,7 +991,9 @@
 
                 let realS = getRealSkill(currentQIndex);
                 let localQ = (currentSkill === 'B' && realS === 'W') ? currentQIndex - 11 : currentQIndex;
-                let suggestionFormat = `<div style="color:#27ae60; margin-top:8px;"><b>Gợi ý làm bài (Suggested Answer):</b> [BẮT BUỘC: Viết lại một câu trả lời mẫu hoàn chỉnh bằng TIẾNG ANH chuẩn xác để đạt điểm tối đa]</div>`;
+                
+                // Gắn nút cái loa và ép AI xuất nội dung vào thẻ <span> để hàm JS đọc được
+                let suggestionFormat = `<div class="ai-suggestion-box" style="color:#27ae60; margin-top:8px;"><b>Gợi ý làm bài (Suggested Answer): <button onclick="speakSuggestion(this)" style="background:transparent; border:none; cursor:pointer; font-size:18px; padding:0; margin-left:5px; vertical-align:middle; transition:0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="Nghe đọc mẫu">🔊</button></b><br><span class="suggestion-text">[BẮT BUỘC: Viết lại một câu trả lời mẫu hoàn chỉnh bằng TIẾNG ANH chuẩn xác để đạt điểm tối đa]</span></div>`;
                 
                 // Part 1 Speaking (Read aloud) không cần gợi ý làm bài
                 if (realS === 'S' && localQ <= 1) {
@@ -1065,6 +1067,52 @@ ${suggestionFormat}`;
             } finally {
                 evalBtn.disabled = false;
             }
+        }
+
+        // HÀM ĐỌC GIỌNG MẪU (SUGGESTED ANSWER) BẰNG GIỌNG XỊN
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.onvoiceschanged = function() { window.speechSynthesis.getVoices(); };
+            window.speechSynthesis.getVoices();
+        }
+
+        function speakSuggestion(btn) {
+            let container = btn.closest('.ai-suggestion-box');
+            if (!container) return;
+            
+            let textSpan = container.querySelector('.suggestion-text');
+            let textToRead = "";
+            if (textSpan) {
+                textToRead = textSpan.innerText.trim();
+            } else {
+                // Dự phòng nếu con AI xuất thiếu thẻ span
+                textToRead = container.innerText.replace(/Gợi ý làm bài \(Suggested Answer\):/i, '').replace('🔊', '').trim();
+            }
+
+            if(!textToRead) return;
+
+            let utterance = new SpeechSynthesisUtterance(textToRead);
+            let voices = window.speechSynthesis.getVoices();
+            let savedVoiceName = localStorage.getItem('win_selected_voice');
+            let selectedVoice = null;
+            
+            // Đồng bộ lấy đúng giọng mà học viên đã set bên trang chủ
+            if (savedVoiceName) {
+                selectedVoice = voices.find(voice => voice.name === savedVoiceName);
+            }
+            if (!selectedVoice) {
+                let goodVoices = voices.filter(v => v.lang.includes('en') && !v.name.includes('Microsoft') && !v.name.includes('Windows'));
+                selectedVoice = goodVoices.find(v => v.name.includes('Google')) || goodVoices[0] || voices.find(v => v.lang === 'en-US');
+            }
+                         
+            if (selectedVoice) {
+                utterance.voice = selectedVoice;
+            } else {
+                utterance.lang = 'en-US';
+            }
+            
+            utterance.rate = 0.9;
+            window.speechSynthesis.cancel();
+            window.speechSynthesis.speak(utterance);
         }
 
         // BẮT PHÍM TẮT MŨI TÊN TRÁI/PHẢI
