@@ -868,9 +868,16 @@
         }
 
         function loadLeaderboardData() {
-            fetch(GOOGLE_SCRIPT_URL + "?action=getLeaderboard")
+            // Thêm timestamp vào URL để vô hiệu hóa cache của trình duyệt
+            let noCacheUrl = GOOGLE_SCRIPT_URL + "?action=getLeaderboard&t=" + new Date().getTime();
+            
+            fetch(noCacheUrl)
                 .then(res => res.json())
                 .then(data => {
+                    // IN DỮ LIỆU GỐC RA CONSOLE ĐỂ TÌM LỖI
+                    console.log("=== DỮ LIỆU TỪ GOOGLE SCRIPT ===");
+                    console.log(data);
+                    
                     let mainContainer = document.getElementById('lb-container');
                     let chalContainer = document.getElementById('lb-challenge-container');
                     
