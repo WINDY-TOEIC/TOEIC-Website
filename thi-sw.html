@@ -212,9 +212,18 @@
             <div style="display: flex; align-items: center; justify-content: center; gap: 20px; flex: 2;">
                 <div class="timer-box prep-time hidden-time" id="timer-box">PREPARATION TIME: 00:00</div>
                 <!-- Giao diện Speaking (Mic) -->
-                <div id="speaking-action" class="mic-container hidden">
-                    <button class="record-btn" id="record-btn" title="Mic">🎤</button>
-                    <div class="mic-status" id="mic-status" style="width: 110px; text-align: left; color: black;">...</div>
+                <div id="speaking-action" class="mic-container hidden" style="flex-direction: column; width: 100%;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <button class="record-btn" id="record-btn" title="Mic">🎤</button>
+                        <div class="mic-status" id="mic-status" style="width: 110px; text-align: left; color: black;">...</div>
+                    </div>
+                    
+                    <div id="practice-feedback-speaking" class="hidden" style="margin-top: 15px; width: 100%; text-align: center;">
+                        <audio id="student-audio-playback" controls style="width: 100%; max-width: 400px; margin-bottom: 10px;"></audio>
+                        <br>
+                        <button onclick="getFeedback('S')" style="background: #0037f4; color: white; border: none; padding: 10px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">✨ Đánh giá bằng AI (Groq)</button>
+                        <div id="eval-result-speaking" style="display: none; background: #fff; border: 1px solid #5ba4e5; border-radius: 6px; padding: 15px; text-align: left; font-size: 15px; line-height: 1.6; max-height: 300px; overflow-y: auto;"></div>
+                    </div>
                 </div>
             </div>
             
@@ -243,10 +252,14 @@
             <div class="right-col" id="right-panel">
                 <!-- Giao diện Writing -->
                 <div id="writing-action" class="hidden" style="width: 100%; height: 100%; display: flex; flex-direction: column;">
-                    <textarea class="sw-textarea" id="writing-input" placeholder="Bắt đầu gõ câu trả lời của bạn vào đây..." disabled></textarea>
-                    <div class="word-count">Word count: <span id="word-count-num">0</span></div>
+                    <textarea class="sw-textarea" id="writing-input" placeholder="Bắt đầu gõ câu trả lời của bạn vào đây..." disabled oninput="document.getElementById('word-count-num').innerText = this.value.trim().split(/\s+/).filter(w => w.length > 0).length;"></textarea>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+                        <button onclick="submitWritingEarly()" style="background: #28a745; color: white; border: none; padding: 6px 15px; border-radius: 4px; font-weight: bold; cursor: pointer;">✔ Nộp Sớm</button>
+                        <button id="btn-eval-writing" class="hidden" onclick="getFeedback('W')" style="background: #0037f4; color: white; border: none; padding: 6px 15px; border-radius: 4px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">✨ Đánh giá AI</button>
+                        <div class="word-count" style="margin-top: 0;">Word count: <span id="word-count-num">0</span></div>
+                    </div>
+                    <div id="eval-result-writing" style="display: none; background: #fff; border: 1px solid #5ba4e5; border-radius: 6px; padding: 15px; text-align: left; font-size: 15px; line-height: 1.6; margin-top: 15px; max-height: 250px; overflow-y: auto;"></div>
                 </div>
-            </div>
         </div>
 
         <div class="nav-controls">
@@ -654,9 +667,10 @@
                     audioChunks = [];
                     mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
                     mediaRecorder.onstop = () => {
-                        let audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-                        let audioUrl = URL.createObjectURL(audioBlob);
-                        document.getElementById('student-audio-playback').src = audioUrl;
+                        window.currentAudioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                        let audioUrl = URL.createObjectURL(window.currentAudioBlob);
+                        let playbackEl = document.getElementById('student-audio-playback');
+                        if(playbackEl) playbackEl.src = audioUrl;
                     };
                     mediaRecorder.start();
                     
@@ -681,15 +695,96 @@
             }
         }
 
-        // HÀM 7: GỌI API ĐÁNH GIÁ (SẴN SÀNG CHO BƯỚC TIẾP THEO)
-        function getFeedback(skillType) {
+        // HÀM 7: GỌI API ĐÁNH GIÁ BẰNG GROQ (WHISPER & LLAMA3)
+        async function getFeedback(skillType) {
+            let apiKey = localStorage.getItem('win_groq_api_key');
+            if (!apiKey) {
+                alert("Vui lòng nhập Groq API Key ở màn hình chọn đề!");
+                return;
+            }
+
             let resBox = document.getElementById(skillType === 'S' ? 'eval-result-speaking' : 'eval-result-writing');
-            resBox.style.display = 'block';
-            resBox.innerHTML = "<i>Đang phân tích dữ liệu... Vui lòng chờ...</i>";
+            let evalBtn = skillType === 'S' ? document.querySelector('#practice-feedback-speaking button') : document.getElementById('btn-eval-writing');
             
-            setTimeout(() => {
-                resBox.innerHTML = "<b>Nhận xét:</b> Tính năng chấm bài AI đang chờ bạn cung cấp Prompt ở bước tiếp theo!";
-            }, 1500);
+            evalBtn.disabled = true;
+            resBox.style.display = 'block';
+            resBox.innerHTML = "<i>⏳ Đang phân tích dữ liệu bằng AI... Vui lòng chờ vài giây...</i>";
+            
+            let qData = swData.questions[currentQIndex];
+            // Nếu câu hỏi rỗng, lấy dữ liệu từ IntroBox
+            let qText = qData.question || document.getElementById('intro-box').innerText.replace(/<[^>]*>?/gm, '').trim();
+            let studentAnswer = "";
+
+            try {
+                if (skillType === 'W') {
+                    studentAnswer = document.getElementById('writing-input').value.trim();
+                    if (!studentAnswer) throw new Error("Bạn chưa viết câu trả lời!");
+                } else {
+                    if (!window.currentAudioBlob) throw new Error("Chưa có file ghi âm! Hãy làm bài trước.");
+                    resBox.innerHTML = "<i>⏳ AI đang nghe và bóc băng ghi âm (Whisper)...</i>";
+                    
+                    let formData = new FormData();
+                    formData.append("file", window.currentAudioBlob, "audio.webm");
+                    formData.append("model", "whisper-large-v3");
+
+                    let whisperRes = await fetch("https://api.groq.com/openai/v1/audio/transcriptions", {
+                        method: "POST",
+                        headers: { "Authorization": `Bearer ${apiKey}` },
+                        body: formData
+                    });
+                    
+                    if (!whisperRes.ok) throw new Error("Không thể gọi API Whisper. Hãy kiểm tra lại API Key!");
+                    let whisperData = await whisperRes.json();
+                    studentAnswer = whisperData.text.trim();
+                    if (!studentAnswer) throw new Error("AI không nghe rõ bạn nói gì. Vui lòng ghi âm lại to và rõ hơn!");
+                    
+                    resBox.innerHTML = `<i>⏳ <b>Bản dịch bóc băng:</b> "${studentAnswer}"<br><br>Đang chấm điểm...</i>`;
+                }
+
+                let prompt = `Bạn là Giám khảo TOEIC chuyên nghiệp của ETS. Hãy chấm điểm phần thi ${skillType === 'S' ? 'Speaking' : 'Writing'} này.
+Nội dung câu hỏi/yêu cầu: "${qText}"
+Câu trả lời của học viên: "${studentAnswer}"
+
+Tiêu chí chấm điểm:
+- Speaking: Q1-2, Q3-4, Q5-7, Q8-10 (0-3 điểm). Q11 (0-5 điểm).
+- Writing: Q1-5 (0-3 điểm). Q6-7 (0-4 điểm). Q8 (0-5 điểm).
+Hãy tự xác định đây là dạng câu hỏi nào dựa vào nội dung và chấm điểm thô.
+
+TRẢ VỀ ĐÚNG ĐỊNH DẠNG HTML SAU (TUYỆT ĐỐI KHÔNG BỌC TRONG MARKDOWN CODE BLOCK HAY DẤU \`\`\`):
+<div style="color:#d35400; font-size:18px;"><b>ĐIỂM THÔ ƯỚC LƯỢNG:</b> [Điểm]/[Tối đa]</div>
+<div style="color:#111; margin-top:8px;"><b>Nhận xét chi tiết:</b> [Chỉ ra lỗi sai ngữ pháp, từ vựng, độ trôi chảy, phát âm hoặc sự liên quan đến đề bài]</div>
+<div style="color:#27ae60; margin-top:8px;"><b>Gợi ý bài làm xuất sắc (Max Score):</b> [Viết lại hoặc bổ sung câu trả lời hoàn chỉnh để đạt điểm tuyệt đối]</div>`;
+
+                let chatRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${apiKey}`,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        model: "llama3-70b-8192", // Dùng model mạnh nhất của Llama3 để chấm
+                        messages: [{ role: "user", content: prompt }],
+                        temperature: 0.1 // Cài đặt mức độ sáng tạo thấp để chấm điểm chuẩn xác
+                    })
+                });
+
+                if (!chatRes.ok) throw new Error("Lỗi API Llama3 (Chấm điểm). Kiểm tra lại API Key!");
+                let chatData = await chatRes.json();
+                
+                // Dọn dẹp markdown nếu AI lỡ xuất ra
+                let feedbackHtml = chatData.choices[0].message.content.replace(/```html|```/gi, '').trim();
+                
+                if (skillType === 'S') {
+                    feedbackHtml = `<div style="background:#f4f6f9; padding:10px; border-radius:4px; margin-bottom:15px; font-style:italic; border-left: 3px solid #555;"><b>Bản dịch bóc băng của bạn:</b> "${studentAnswer}"</div>` + feedbackHtml;
+                }
+                
+                resBox.innerHTML = feedbackHtml;
+                
+            } catch (err) {
+                resBox.innerHTML = `<b style="color:red;">Lỗi: ${err.message}</b>`;
+            } finally {
+                evalBtn.disabled = false;
+            }
         }
 
         // BẮT PHÍM TẮT MŨI TÊN TRÁI/PHẢI
