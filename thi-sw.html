@@ -260,9 +260,10 @@
                     </div>
                     <div id="eval-result-writing" style="display: none; background: #fff; border: 1px solid #5ba4e5; border-radius: 6px; padding: 15px; text-align: left; font-size: 15px; line-height: 1.6; margin-top: 15px; max-height: 250px; overflow-y: auto;"></div>
                 </div>
-        </div>
+            </div> <!-- Đóng thẻ right-col -->
+        </div> <!-- ĐÓNG THẺ content-area TẠI ĐÂY ĐỂ TRẢ NAV VỀ ĐÚNG VỊ TRÍ -->
 
-        <div class="nav-controls">
+        <div class="nav-controls">>
             <button class="btn-nav" id="btn-prev" onclick="changeQuestion(-1)">← Câu trước</button>
             <div class="q-counter" id="q-counter">Câu 1</div>
             <button class="btn-nav" id="btn-next" onclick="changeQuestion(1)">Câu tiếp →</button>
@@ -377,7 +378,7 @@
             
             if (realSkill === 'S') {
                 document.getElementById('speaking-action').classList.remove('hidden');
-                document.getElementById('right-panel').classList.add('hidden');
+                document.getElementById('right-panel').classList.remove('hidden'); // Bỏ .add('hidden') để giữ nguyên khung chia đôi
                 document.getElementById('writing-action').classList.add('hidden');
             } else {
                 document.getElementById('speaking-action').classList.add('hidden');
@@ -453,13 +454,16 @@
                 }
 
                 document.getElementById('timer-box').classList.remove('hidden-time');
-                let audioEl = document.querySelector('#media-box audio');
+                
+                // MỞ RỘNG VÙNG QUÉT: Bắt mọi file Audio dù nó bị giấu ở cột trái hay ô chữ
+                let audioEl = document.querySelector('#media-box audio') || document.querySelector('#text-box audio') || document.querySelector('#intro-box audio');
+                
                 let timeConfig = getQuestionTime(currentQIndex);
                 let isSharedRunning = (timeConfig.shared && timeConfig.sharedId === activeSharedTimerId && swTimerInterval);
 
                 if (audioEl && !isSharedRunning) {
                     document.getElementById('timer-box').className = "timer-box prep-time";
-                    document.getElementById('timer-box').innerText = "🔊 ĐANG PHÁT AUDIO...";
+                    document.getElementById('timer-box').innerText = "🔊";
                     document.getElementById('btn-skip-prep').classList.add('hidden');
                     document.getElementById('dummy-space').style.display = "block";
 
