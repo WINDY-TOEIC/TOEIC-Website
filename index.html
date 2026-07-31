@@ -895,10 +895,41 @@
                         let isMatchChal = true;
                         
                         if (row.time) {
-                            let match = row.time.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
-                            if (match) {
-                                let m = parseInt(match[2]);
-                                let y = parseInt(match[3]);
+                            let m = 0;
+                            let y = 0;
+                            
+                            // 1. Nếu Google Sheet trả về chuẩn ISO (Vd: 2026-08-01T...)
+                            if (row.time.includes('T') && row.time.includes('Z')) {
+                                let d = new Date(row.time);
+                                m = d.getMonth() + 1;
+                                y = d.getFullYear();
+                            } else {
+                                // 2. Nếu trả về dạng chuỗi Ngày/Tháng/Năm
+                                let match = row.time.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+                                if (match) {
+                                    let p1 = parseInt(match[1]);
+                                    let p2 = parseInt(match[2]);
+                                    y = parseInt(match[3]);
+                                    
+                                    // Sửa lỗi lộn Ngày/Tháng do Apps Script mặc định xuất US Format (M/D/YYYY)
+                                    if (p1 > 12) {
+                                        m = p2; // Nếu phần đầu > 12, chắc chắn nó là Ngày -> phần 2 là Tháng
+                                    } else if (p2 > 12) {
+                                        m = p1; // Ngược lại
+                                    } else {
+                                        // An toàn nhất: Ép JS tự đọc thời gian
+                                        let d = new Date(row.time);
+                                        if (!isNaN(d.getTime())) {
+                                            m = d.getMonth() + 1;
+                                        } else {
+                                            m = p2; // Fallback
+                                        }
+                                    }
+                                }
+                            }
+                            
+                            // Chỉ lọc khi thực sự lấy được Tháng và Năm
+                            if (m !== 0 && y !== 0) {
                                 isMatchMain = (Math.ceil(m / 6) === currentHalfYear && y === currentYear);
                                 isMatchChal = (m === currentMonth && y === currentYear);
                             }
