@@ -672,8 +672,13 @@
 
         // HÀM 3: XỬ LÝ CHUYỂN CÂU
         function changeQuestion(step) {
-            // Tắt SẠCH SẼ mọi audio đang phát dù nó giấu ở đâu
-            document.querySelectorAll('audio').forEach(a => { a.pause(); a.src = ""; });
+            // Tắt SẠCH SẼ mọi audio đang phát dù nó giấu ở đâu (Xóa sạch src và load lại để hủy bộ đệm)
+            document.querySelectorAll('audio').forEach(a => { a.pause(); a.removeAttribute('src'); a.load(); });
+            
+            // HỦY DIỆT MICRO NGAY LẬP TỨC: Ép ngắt kết nối phần cứng Mic nếu đang bật
+            if (typeof audioStream !== 'undefined' && audioStream) {
+                audioStream.getTracks().forEach(track => track.stop());
+            }
             
             let newIndex = currentQIndex + step;
             if (newIndex >= 0 && newIndex < totalQuestions) {

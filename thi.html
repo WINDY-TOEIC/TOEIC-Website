@@ -1014,8 +1014,8 @@
                         leftHtml += `
                         <div class="speed-controls">
                             <span>Tốc độ: </span>
-                            <button class="speed-btn ${currentAudioSpeed === 0.5 ? 'active' : ''}" id="sp-05" onclick="setSpeed(0.5)">-50%</button>
-                            <button class="speed-btn ${currentAudioSpeed === 0.75 ? 'active' : ''}" id="sp-075" onclick="setSpeed(0.75)">-25%</button>
+                            <button class="speed-btn ${currentAudioSpeed === 0.7 ? 'active' : ''}" id="sp-07" onclick="setSpeed(0.7)">-30%</button>
+                            <button class="speed-btn ${currentAudioSpeed === 0.8 ? 'active' : ''}" id="sp-08" onclick="setSpeed(0.8)">-20%</button>
                             <button class="speed-btn ${currentAudioSpeed === 0.9 ? 'active' : ''}" id="sp-09" onclick="setSpeed(0.9)">-10%</button>
                             <button class="speed-btn ${currentAudioSpeed === 1.0 ? 'active' : ''}" id="sp-1" onclick="setSpeed(1.0)">Chuẩn</button>
                             <button class="speed-btn ${currentAudioSpeed === 1.1 ? 'active' : ''}" id="sp-11" onclick="setSpeed(1.1)">+10%</button>
@@ -1132,6 +1132,10 @@
                     let extractedTranscript = "";
                     
                     if (finalExplanation) {
+                        // Dọn dẹp dấu ">" rác bị dính ở đầu câu hoặc trước số thứ tự câu
+                        finalExplanation = finalExplanation.replace(/(^|<br\s*\/?>|<\/?(?:p|div|b|strong)[^>]*>)\s*>\s*/gi, '$1');
+                        finalExplanation = finalExplanation.replace(/>\s*(\d+\.)/g, '$1');
+                        
                         let currentPartName = (document.getElementById('current-part-label').innerText || "").toUpperCase();
                         
                         // Chỉ lấy Transcript ở câu cuối cùng của nhóm trong Part 3 hoặc 4
@@ -1686,8 +1690,8 @@
                 audioEl.playbackRate = rate;
             }
             document.querySelectorAll('.speed-btn').forEach(btn => btn.classList.remove('active'));
-            if(rate === 0.5) document.getElementById('sp-05').classList.add('active');
-            if(rate === 0.75) document.getElementById('sp-075').classList.add('active');
+            if(rate === 0.7) document.getElementById('sp-07').classList.add('active');
+            if(rate === 0.8) document.getElementById('sp-08').classList.add('active');
             if(rate === 0.9) document.getElementById('sp-09').classList.add('active');
             if(rate === 1.0) document.getElementById('sp-1').classList.add('active');
             if(rate === 1.1) document.getElementById('sp-11').classList.add('active');
