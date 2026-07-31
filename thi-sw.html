@@ -494,6 +494,12 @@
             // TƯỚC QUYỀN TỰ ĐỘNG PHÁT AUDIO (AUTOPLAY) TỪ MÃ HTML CỦA ĐỀ THI
             rawQText = rawQText.replace(/autoplay/gi, '');
             
+            // BỘ LỌC BỔ SUNG: GIỮ CHẶT TÌNH HUỐNG (SITUATION) TRÊN MÀN HÌNH CHO Q5-7 SPEAKING
+            if (realSkill === 'S' && localQIndex >= 4 && localQIndex <= 6 && swData.sub_intro) {
+                let situationHtml = `<div style="margin-bottom: 15px; border-bottom: 1px dashed #ccc; padding-bottom: 10px; font-size: 19px; color: #003366;"><strong>Situation:</strong> ${swData.sub_intro.content}</div>`;
+                rawQText = situationHtml + rawQText;
+            }
+            
             document.getElementById('text-box').innerHTML = rawQText;
 
             if (shouldShowIntro && introIndex !== -1 && swData.intro && swData.intro[introIndex]) {
@@ -626,7 +632,12 @@
                 document.querySelector('.timer-bar').style.display = 'flex'; 
                 document.querySelector('.nav-controls').classList.remove('hidden');
                 
-                triggerQuestionStart();
+                // Fix lỗi đồng hồ không chờ Audio: Thêm độ trễ 100ms để trình duyệt kịp load thẻ <audio> vào DOM trước khi phát
+                setTimeout(() => {
+                    if (typeof triggerQuestionStart === 'function') {
+                        triggerQuestionStart();
+                    }
+                }, 100);
             }
             
             document.getElementById('btn-prev').disabled = (currentQIndex === 0);
@@ -1006,7 +1017,7 @@
                 let localQ = (currentSkill === 'B' && realS === 'W') ? currentQIndex - 11 : currentQIndex;
                 
                 // Gắn nút cái loa và ép AI xuất nội dung vào thẻ <span> để hàm JS đọc được
-                let suggestionFormat = `<div class="ai-suggestion-box" style="color:#27ae60; margin-top:8px;"><b>Gợi ý làm bài (Suggested Answer): <button onclick="speakSuggestion(this)" style="background:transparent; border:none; cursor:pointer; font-size:18px; padding:0; margin-left:5px; vertical-align:middle; transition:0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="Nghe đọc mẫu">🔊</button></b><br><span class="suggestion-text">[BẮT BUỘC: Viết lại một câu trả lời mẫu hoàn chỉnh bằng TIẾNG ANH chuẩn xác để đạt điểm tối đa]</span></div>`;
+                let suggestionFormat = `<div class="ai-suggestion-box" style="color:#27ae60; margin-top:8px;"><b>Gợi ý làm bài (Suggested Answer): <button onclick="speakSuggestion(this)" style="background:transparent; border:none; cursor:pointer; font-size:18px; padding:0; margin-left:5px; vertical-align:middle; transition:0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="Nghe đọc mẫu">🔊</button></b><br><span class="suggestion-text">[MUST DO: Write a perfect, full-length sample answer in 100% ENGLISH. Absolutely NO Vietnamese here]</span></div>`;
                 
                 // Part 1 Speaking (Read aloud) không cần gợi ý làm bài
                 if (realS === 'S' && localQ <= 1) {
@@ -1021,11 +1032,12 @@ Câu trả lời của học viên: "${studentAnswer}"
 Tiêu chí chấm điểm:
 - Speaking: Q1-2, Q3-4, Q5-7, Q8-10 (0-3 điểm). Q11 (0-5 điểm).
 - Writing: Q1-5 (0-3 điểm). Q6-7 (0-4 điểm). Q8 (0-5 điểm).
-Hãy tự xác định đây là dạng câu hỏi nào dựa vào nội dung và chấm điểm thô.
+Hãy tự xác định đây là dạng câu hỏi nào dựa vào nội dung và chấm điểm thô. 
+Lưu ý: Bạn nhận xét bằng Tiếng Việt, nhưng phần "Suggested Answer" BẮT BUỘC phải viết bằng 100% Tiếng Anh.
 
 TRẢ VỀ ĐÚNG ĐỊNH DẠNG HTML SAU (TUYỆT ĐỐI KHÔNG BỌC TRONG MARKDOWN CODE BLOCK HAY DẤU \`\`\`):
 <div style="color:#d35400; font-size:18px;"><b>ĐIỂM THÔ ƯỚC LƯỢNG:</b> [Điểm]/[Tối đa]</div>
-<div style="color:#111; margin-top:8px;"><b>Nhận xét chi tiết:</b> [Chỉ ra lỗi sai ngữ pháp, từ vựng, độ trôi chảy, phát âm hoặc sự liên quan đến đề bài]</div>
+<div style="color:#111; margin-top:8px;"><b>Nhận xét chi tiết:</b> [Chỉ ra lỗi sai ngữ pháp, từ vựng, độ liên kết hoặc sự liên quan đến đề bài bằng tiếng Việt]</div>
 ${suggestionFormat}`;
 
                 // TỰ ĐỘNG HỎI GROQ DANH SÁCH MODEL ĐANG CÒN SỐNG

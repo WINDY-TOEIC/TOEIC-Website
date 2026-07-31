@@ -2211,6 +2211,11 @@
                     }
                 }
             }
+            
+            // BỔ SUNG: Ép đồng bộ lại giao diện Teacher Mode sau khi Undo (Chặn hiện Lời dịch)
+            if (typeof handleTeacherHotkeys === 'function' && classCode === "1" && studentName.toLowerCase() === "admin" && currentMode === 'practice' && !isSubmitted) {
+                handleTeacherHotkeys('sync');
+            }
             // ---------------------------------------------------------------------------------
         }
 
