@@ -874,9 +874,15 @@
             fetch(noCacheUrl)
                 .then(res => res.json())
                 .then(data => {
-                    // IN DỮ LIỆU GỐC RA CONSOLE ĐỂ TÌM LỖI
-                    console.log("=== DỮ LIỆU TỪ GOOGLE SCRIPT ===");
-                    console.log(data);
+                    // DEBUG: IN TRỰC TIẾP DỮ LIỆU 5 DÒNG CUỐI CÙNG ĐỂ TÌM LỖI
+                    console.log("=== BẮT ĐẦU DEBUG CHÍNH XÁC ===");
+                    let debugData = data.slice(-5); // Lấy 5 dòng cuối cùng (của Nhật Linh, Hồng Thịnh)
+                    console.log("Dữ liệu thực tế web nhận được:");
+                    console.log(JSON.stringify(debugData, null, 2));
+                    
+                    let now = new Date();
+                    console.log("Biến currentMonth trên web đang là:", now.getMonth() + 1);
+                    console.log("===============================");
                     
                     let mainContainer = document.getElementById('lb-container');
                     let chalContainer = document.getElementById('lb-challenge-container');
