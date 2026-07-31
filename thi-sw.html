@@ -791,28 +791,38 @@
             }
         }
 
-        // HÀM 6: QUẢN LÝ GHI ÂM (MEDIA RECORDER) - PHỤC HỒI HÀM BỊ MẤT
+        // HÀM 6: QUẢN LÝ GHI ÂM (MEDIA RECORDER) - FIX LỖI MẤT TIẾNG
         let mediaRecorder;
         let audioChunks = [];
+        let audioStream; // Lưu luồng mic để tắt đúng lúc
 
         function startRecording() {
             try {
                 navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+                    audioStream = stream;
                     mediaRecorder = new MediaRecorder(stream);
                     audioChunks = [];
+                    
                     mediaRecorder.ondataavailable = e => {
-                        if (e.data.size > 0) audioChunks.push(e.data); // Loại bỏ các frame rỗng
+                        if (e.data && e.data.size > 0) audioChunks.push(e.data);
                     };
+                    
                     mediaRecorder.onstop = () => {
-                        // Thả rỗng định dạng type để trình duyệt tự quyết định (Sửa lỗi tịt âm thanh trên Safari/Edge)
-                        window.currentAudioBlob = new Blob(audioChunks); 
+                        // Gắn đúng định dạng gốc của recorder để chống lỗi câm tiếng
+                        window.currentAudioBlob = new Blob(audioChunks, { type: mediaRecorder.mimeType }); 
                         let audioUrl = URL.createObjectURL(window.currentAudioBlob);
                         let playbackEl = document.getElementById('student-audio-playback');
                         if(playbackEl) {
                             playbackEl.src = audioUrl;
-                            playbackEl.load(); // Ép trình duyệt nạp lại file mới
+                            playbackEl.load(); 
+                        }
+                        
+                        // CHỈ TẮT MIC SAU KHI ĐÃ LƯU FILE XONG (Chống lỗi ngắt ngang buffer làm mất giọng)
+                        if (audioStream) {
+                            audioStream.getTracks().forEach(track => track.stop());
                         }
                     };
+                    
                     mediaRecorder.start();
                     
                     document.getElementById('record-btn').classList.add('recording');
@@ -829,7 +839,7 @@
         function stopRecording() {
             if (typeof mediaRecorder !== 'undefined' && mediaRecorder && mediaRecorder.state !== 'inactive') {
                 mediaRecorder.stop();
-                mediaRecorder.stream.getTracks().forEach(track => track.stop()); // Tắt đèn đỏ micro
+                // KHÔNG TẮT MIC Ở ĐÂY NỮA VÌ SẼ LÀM FILE BỊ RỖNG RUỘT. ĐÃ DỜI VÀO HÀM onstop Ở TRÊN.
                 document.getElementById('record-btn').classList.remove('recording');
                 document.getElementById('mic-status').innerText = "Hoàn thành!";
                 document.getElementById('mic-status').style.color = "#28a745";
