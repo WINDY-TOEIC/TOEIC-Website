@@ -1147,16 +1147,17 @@
 
                         // Tách tiếng Anh và tiếng Việt cho Part 1, 2 để Teacher Mode có thể giấu tiếng Việt
                         if (currentPartName.includes("PART 1") || currentPartName.includes("PART 2")) {
+                            
+                            // Luôn luôn tạo nút Zoom cho Part 1, 2 dù câu hỏi có chứa con số hay không
+                            let zoomBtnsPart12 = `
+                                <div style="float: right; margin-top: -30px;">
+                                    <button onclick="zoomTranscript(1)" title="Phóng to" style="background: #f8f9fa; border: 1px solid #ccc; border-radius: 4px; cursor: pointer; font-size: 14px; padding: 2px 8px; margin-left: 5px; color: #333; font-weight: bold; box-shadow: 0 1px 2px rgba(0,0,0,0.1);">🔍+</button>
+                                    <button onclick="zoomTranscript(-1)" title="Thu nhỏ" style="background: #f8f9fa; border: 1px solid #ccc; border-radius: 4px; cursor: pointer; font-size: 14px; padding: 2px 8px; margin-left: 5px; color: #333; font-weight: bold; box-shadow: 0 1px 2px rgba(0,0,0,0.1);">🔍-</button>
+                                </div>`;
+                                
                             let qNumMatch = gSq.title.match(/\d+/);
                             if (qNumMatch) {
                                 let qNum = qNumMatch[0];
-                                
-                                // Khai báo cụm nút Zoom kéo lệch lên -30px để nằm ngang hàng với Tiêu đề Transcript
-                                let zoomBtnsPart12 = `
-                                    <div style="float: right; margin-top: -30px;">
-                                        <button onclick="zoomTranscript(1)" title="Phóng to" style="background: #f8f9fa; border: 1px solid #ccc; border-radius: 4px; cursor: pointer; font-size: 14px; padding: 2px 8px; margin-left: 5px; color: #333; font-weight: bold; box-shadow: 0 1px 2px rgba(0,0,0,0.1);">🔍+</button>
-                                        <button onclick="zoomTranscript(-1)" title="Thu nhỏ" style="background: #f8f9fa; border: 1px solid #ccc; border-radius: 4px; cursor: pointer; font-size: 14px; padding: 2px 8px; margin-left: 5px; color: #333; font-weight: bold; box-shadow: 0 1px 2px rgba(0,0,0,0.1);">🔍-</button>
-                                    </div>`;
 
                                 // Tìm vị trí xuất hiện thứ 2 của số câu hỏi (ví dụ: "6." hoặc "31.")
                                 // Bỏ \s+ thay bằng khoảng trắng hoặc <br> để không bị xịt khi dính thẻ HTML
@@ -1190,6 +1191,9 @@
                                         }
                                     }
                                 }
+                            } else {
+                                // Nếu câu hỏi không chứa số (như Câu 1 bị lỗi format), vẫn gắn nút Zoom bình thường
+                                finalExplanation = `${zoomBtnsPart12}<div class="eng-transcript trans-content-text" style="font-size: ${currentTransSize}px;">${finalExplanation}</div>`;
                             }
                         }
 

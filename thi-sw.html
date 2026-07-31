@@ -279,6 +279,8 @@
         let swTimerInterval; 
         let currentPhase = "prep"; 
         let timeLeft = 0;
+        let currentMode = "practice"; // Khai báo biến an toàn chống lỗi văng nút Bắt đầu
+        let activeSharedTimerId = null; 
         
         function playBeep() {
             try {
