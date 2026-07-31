@@ -51,11 +51,11 @@
         .right-col { flex: 1; border: 1px solid #ddd; padding: 25px; border-radius: 8px; background: #fafafa; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: inset 0 0 10px rgba(0,0,0,0.02);}
         
         /* Styling inside Left Col */
-        #intro-box { background: #e3f2fd; padding: 15px; border-radius: 6px; border-left: 4px solid #5ba4e5; margin-bottom: 20px; font-size: 15px; color: #333; line-height: 1.6;}
-        #intro-box strong { color: #003366; font-size: 17px; display: block; margin-bottom: 5px;}
+        #intro-box { background: #e3f2fd; padding: 20px; border-radius: 6px; border-left: 4px solid #5ba4e5; margin-bottom: 20px; font-size: 19px; color: #333; line-height: 1.6;}
+        #intro-box strong { color: #003366; font-size: 21px; display: block; margin-bottom: 5px;}
         #intro-box img { max-width: 100%; max-height: 250px; object-fit: contain; margin: 15px 0; border: 1px solid #ccc; border-radius: 4px; }
         #media-box img { max-width: 100%; height: auto; max-height: 35vh; object-fit: contain; border: 1px solid #ccc; border-radius: 8px; display: block; margin: 0 auto 15px auto; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
-        #text-box { font-size: 18px; font-weight: 500; line-height: 1.6; color: #111;}
+        #text-box { font-size: 23px; font-weight: 500; line-height: 1.6; color: #111;}
         
         /* Bắt tất cả ảnh nằm lẩn trong câu hỏi và ép thu nhỏ, xóa thanh cuộn lỗi do HTML của đề thi */
         #text-box * { max-width: 100% !important; }
@@ -292,6 +292,7 @@
             document.getElementById('full-intro-screen').classList.add('hidden');
             document.getElementById('main-workspace').classList.remove('hidden');
             document.querySelector('.nav-controls').classList.remove('hidden'); 
+            document.querySelector('.timer-bar').style.display = 'flex'; // Hiện lại thanh đồng hồ
             
             // Kích hoạt Audio và Đồng hồ tính giờ sau khi học viên đã bấm Continue
             if (typeof triggerQuestionStart === 'function') {
@@ -403,30 +404,34 @@
             }
 
             if (introIndex !== -1 && swData.intro && swData.intro[introIndex]) {
+               if (shouldShowIntro && introIndex !== -1 && swData.intro && swData.intro[introIndex]) {
                 let rawIntro = swData.intro[introIndex].content;
-                // FIX CHỮ LỘN XỘN VÀ ẢNH HỎNG: 
-                // 1. Dọn dẹp lỗi xuống dòng vô duyên trước các dấu chấm, phẩy, hai chấm
-                rawIntro = rawIntro.replace(/(?:<br\s*\/?>|\n)\s*([.:,;])/g, '$1');
-                // 2. Chèn thuộc tính onerror để tự động ẩn ảnh đi nếu link ảnh trong thư viện bị chết
+                
+                // BỘ LỌC MẠNH MẼ CHỮA LỖI XUỐNG DÒNG VÔ DUYÊN CỦA ĐỀ THI
+                rawIntro = rawIntro.replace(/Directions\s*(?:<br\s*\/?>|\n)+\s*:/gi, 'Directions:'); // Fix lỗi Directions :
+                rawIntro = rawIntro.replace(/Click on\s*(?:<br\s*\/?>|\n)+\s*(Next|Back|Continue)\s*(?:<br\s*\/?>|\n)+\s*/gi, 'Click on $1 '); // Fix lỗi Click on Continue to go on.
+                rawIntro = rawIntro.replace(/(Next|Back|Continue)\s*(?:<br\s*\/?>|\n)+\s*\./gi, '$1.'); // Fix lỗi Next .
+                rawIntro = rawIntro.replace(/\s*(?:<br\s*\/?>|\n)+\s*(?=[.:,;!?])/gi, ''); // Xóa mọi xuống dòng đứng trước dấu chấm phẩy
+                rawIntro = rawIntro.replace(/\s+([.:,;!?])/g, '$1'); 
                 rawIntro = rawIntro.replace(/<img/gi, '<img onerror="this.style.display=\\\'none\\\'"');
+                
                 introHtml += rawIntro;
             }
 
             if (realSkill === 'S' && localQIndex >= 4 && localQIndex <= 6 && swData.sub_intro) {
-                introHtml += `<div style="margin-top: 15px; border-top: 1px dashed #ccc; padding-top: 10px;"><strong>Situation:</strong> ${swData.sub_intro.content}</div>`;
+                if (localQIndex === 4) {
+                    introHtml += `<div style="margin-top: 15px; border-top: 1px dashed #ccc; padding-top: 10px;"><strong>Situation:</strong> ${swData.sub_intro.content}</div>`;
+                }
             }
 
             let introBox = document.getElementById('intro-box');
             let fullIntroScreen = document.getElementById('full-intro-screen');
             let mainWorkspace = document.getElementById('main-workspace');
 
-            // Khởi tạo bộ nhớ tạm để ghi nhớ những màn hình Hướng dẫn đã xem qua
             if (!window.seenIntros) window.seenIntros = [];
 
-            // HÀM MỚI: Tách logic kích hoạt Timer và Audio ra riêng để chờ bấm Continue
             window.triggerQuestionStart = function() {
                 
-                // Reset lại trạng thái chữ của Micro mỗi khi qua câu mới
                 let micStatus = document.getElementById('mic-status');
                 if (micStatus) {
                     micStatus.innerText = "...";
@@ -440,11 +445,10 @@
 
                 if (audioEl && !isSharedRunning) {
                     document.getElementById('timer-box').className = "timer-box prep-time";
-                    document.getElementById('timer-box').innerText = "Playing Audio...";
+                    document.getElementById('timer-box').innerText = "🔊 ĐANG PHÁT AUDIO...";
                     document.getElementById('btn-skip-prep').classList.add('hidden');
                     document.getElementById('dummy-space').style.display = "block";
 
-                    // Ép phát Audio
                     let playPromise = audioEl.play();
                     if (playPromise !== undefined) playPromise.catch(e => console.log("Trình duyệt chặn Autoplay"));
                     
@@ -458,25 +462,23 @@
             // KIỂM TRA: CHỈ HIỆN KHUNG HƯỚNG DẪN NẾU CHƯA XEM BAO GIỜ
             if (introHtml.trim() !== "" && !window.seenIntros.includes(introIndex)) {
                 
-                window.seenIntros.push(introIndex); // Đánh dấu là đã xem để không hiện lại
+                window.seenIntros.push(introIndex); 
                 
                 introBox.innerHTML = introHtml;
                 fullIntroScreen.classList.remove('hidden');
                 mainWorkspace.classList.add('hidden');
+                
+                // ẨN HOÀN TOÀN THANH ĐỒNG HỒ VÀ THANH CHUYỂN CÂU KHI ĐANG ĐỌC HƯỚNG DẪN
+                document.querySelector('.timer-bar').style.display = 'none'; 
                 document.querySelector('.nav-controls').classList.add('hidden'); 
                 
-                // NẾU CÓ HƯỚNG DẪN -> DỪNG ĐỒNG HỒ LẠI 
                 clearInterval(swTimerInterval);
-                document.getElementById('timer-box').className = "timer-box prep-time";
-                document.getElementById('timer-box').innerText = "Hãy đọc hướng dẫn ở dưới";
-                document.getElementById('btn-skip-prep').classList.add('hidden');
-                document.getElementById('dummy-space').style.display = "block";
             } else {
                 fullIntroScreen.classList.add('hidden');
                 mainWorkspace.classList.remove('hidden');
+                document.querySelector('.timer-bar').style.display = 'flex'; 
                 document.querySelector('.nav-controls').classList.remove('hidden');
                 
-                // NẾU KHÔNG CÓ HƯỚNG DẪN HOẶC ĐÃ XEM RỒI -> KÍCH HOẠT CHẠY LUÔN TIMER VÀ AUDIO
                 triggerQuestionStart();
             }
             
