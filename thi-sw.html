@@ -625,10 +625,8 @@
                 }
             };
 
-            // KIỂM TRA: CHỈ HIỆN KHUNG HƯỚNG DẪN NẾU CHƯA XEM BAO GIỜ
-            if (introHtml.trim() !== "" && !window.seenIntros.includes(introIndex)) {
-                
-                window.seenIntros.push(introIndex); 
+            // KIỂM TRA: LUÔN HIỆN KHUNG HƯỚNG DẪN KHI QUAY LẠI CÂU ĐẦU TIÊN CỦA MỖI PART
+            if (introHtml.trim() !== "") {
                 
                 introBox.innerHTML = introHtml;
                 fullIntroScreen.classList.remove('hidden');
@@ -672,8 +670,15 @@
 
         // HÀM 3: XỬ LÝ CHUYỂN CÂU
         function changeQuestion(step) {
-            // Tắt SẠCH SẼ mọi audio đang phát dù nó giấu ở đâu (Xóa sạch src và load lại để hủy bộ đệm)
-            document.querySelectorAll('audio').forEach(a => { a.pause(); a.removeAttribute('src'); a.load(); });
+            // Tắt SẠCH SẼ mọi audio đang phát và XÓA SẠCH GHOST EVENT (Chống dội ngược onerror làm nhảy đồng hồ)
+            document.querySelectorAll('audio').forEach(a => {
+                a.onended = null; 
+                a.onerror = null; 
+                a.querySelectorAll('source').forEach(s => s.onerror = null);
+                a.pause(); 
+                a.removeAttribute('src'); 
+                a.load(); 
+            });
             
             // HỦY DIỆT MICRO NGAY LẬP TỨC: Ép ngắt kết nối phần cứng Mic nếu đang bật
             if (typeof audioStream !== 'undefined' && audioStream) {
