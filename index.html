@@ -1675,7 +1675,7 @@ function toggleThemePanel() {
                 
                 // KIỂM TRA NẾU LÀ ADMIN THÌ HỎI MẬT KHẨU
                 if (classCode === "1" && name.toLowerCase() === "admin") {
-                    let pass = prompt("Tài khoản quyền lực! Vui lòng nhập mật khẩu Admin:");
+                    let pass = prompt("Vui lòng nhập mật khẩu Admin:");
                     if (!pass) return; // Bấm hủy thì không đăng nhập nữa
 
                     let btn = document.querySelector('.btn-signin');
@@ -1813,7 +1813,7 @@ function toggleThemePanel() {
             lastChatTime = Date.now();
             
             let isTeacherAcc = (classCode === "1" && myName.toLowerCase() === "admin");
-            let displayName = isTeacherAcc ? "👑 ADMIN" : `WIN ${classCode} - ${myName}`;
+            let displayName = isTeacherAcc ? "ADMIN" : `WIN ${classCode} - ${myName}`;
             let timeStr = new Date().toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'});
             
             chatRef.push({
