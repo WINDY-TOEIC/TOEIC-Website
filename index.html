@@ -959,8 +959,12 @@
 
             let testFiles = [];
             document.querySelectorAll('.test-card:not(.disabled-test)').forEach(card => {
-                let match = card.getAttribute('href').match(/\?test=([^&]+)/);
-                if (match) testFiles.push(match[1]);
+                let href = card.getAttribute('href');
+                // CHỈ gom các đề Listening & Reading (thi.html), LOẠI BỎ hoàn toàn đề S&W (thi-sw.html)
+                if (href && href.includes('thi.html?test=')) {
+                    let match = href.match(/\?test=([^&]+)/);
+                    if (match) testFiles.push(match[1]);
+                }
             });
             if (testFiles.length === 0) testFiles = ['ets-2026-test-1']; 
             
