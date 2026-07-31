@@ -258,10 +258,12 @@
                 <!-- Giao diện Writing -->
                 <div id="writing-action" class="hidden" style="width: 100%; height: 100%; display: flex; flex-direction: column;">
                     <textarea class="sw-textarea" id="writing-input" placeholder="Bắt đầu gõ câu trả lời của bạn vào đây..." disabled oninput="document.getElementById('word-count-num').innerText = this.value.trim().split(/\s+/).filter(w => w.length > 0).length;"></textarea>
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
-                        <button onclick="submitWritingEarly()" style="background: #28a745; color: white; border: none; padding: 6px 15px; border-radius: 4px; font-weight: bold; cursor: pointer;">Nộp</button>
-                        <button id="btn-eval-writing" class="hidden" onclick="getFeedback('W')" style="background: #0037f4; color: white; border: none; padding: 6px 15px; border-radius: 4px; font-weight: bold; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">Chấm Điểm</button>
-                        <div class="word-count" style="margin-top: 0;">Word count: <span id="word-count-num">0</span></div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
+                        <div style="display: flex; gap: 15px;">
+                            <button id="btn-submit-w" onclick="submitWritingEarly()" style="background: #28a745; color: white; border: none; padding: 10px 25px; border-radius: 6px; font-weight: bold; font-size: 15px; cursor: pointer; box-shadow: 0 4px 6px rgba(40,167,69,0.3); transition: 0.2s;">Nộp Bài</button>
+                            <button id="btn-eval-writing" class="hidden" onclick="getFeedback('W')" style="background: #0037f4; color: white; border: none; padding: 10px 25px; border-radius: 6px; font-weight: bold; font-size: 15px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,55,244,0.3); transition: 0.2s;">✨ Chấm Điểm</button>
+                        </div>
+                        <div class="word-count" style="margin-top: 0; font-size: 15px;">Word count: <span id="word-count-num">0</span></div>
                     </div>
                     <div id="eval-result-writing" style="display: none; background: #fff; border: 1px solid #5ba4e5; border-radius: 6px; padding: 15px; text-align: left; font-size: 15px; line-height: 1.6; margin-top: 15px; max-height: 250px; overflow-y: auto;"></div>
                 </div>
@@ -622,6 +624,10 @@
                 txtArea.value = ""; 
                 txtArea.disabled = false; 
                 document.getElementById('word-count-num').innerText = "0";
+                
+                // Phục hồi lại nút Nộp Bài cho câu mới
+                let submitBtn = document.getElementById('btn-submit-w');
+                if(submitBtn) submitBtn.style.display = 'block';
             }
             
             // Ép giữ nguyên cỡ chữ hiện tại cho câu hỏi mới load
@@ -772,6 +778,9 @@
             activeSharedTimerId = null;
             document.getElementById('timer-box').innerText = "ĐÃ NỘP";
             document.getElementById('writing-input').disabled = true; 
+            
+            let submitBtn = document.getElementById('btn-submit-w');
+            if(submitBtn) submitBtn.style.display = 'none'; // Ẩn nút nộp đi cho gọn
             
             if (currentMode === 'practice') {
                 let evalBtn = document.getElementById('btn-eval-writing');
@@ -982,7 +991,7 @@
 
                 let realS = getRealSkill(currentQIndex);
                 let localQ = (currentSkill === 'B' && realS === 'W') ? currentQIndex - 11 : currentQIndex;
-                let suggestionFormat = `<div style="color:#27ae60; margin-top:8px;"><b>Gợi ý làm bài:</b> [Viết lại hoặc bổ sung câu trả lời hoàn chỉnh để đạt điểm cao]</div>`;
+                let suggestionFormat = `<div style="color:#27ae60; margin-top:8px;"><b>Gợi ý làm bài (Suggested Answer):</b> [BẮT BUỘC: Viết lại một câu trả lời mẫu hoàn chỉnh bằng TIẾNG ANH chuẩn xác để đạt điểm tối đa]</div>`;
                 
                 // Part 1 Speaking (Read aloud) không cần gợi ý làm bài
                 if (realS === 'S' && localQ <= 1) {
