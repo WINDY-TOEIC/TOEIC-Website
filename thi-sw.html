@@ -507,10 +507,9 @@
             }
         }
 
-        let activeSharedTimerId = null; // Biến nhớ đồng hồ chung (Dành cho Writing)
-
         // HÀM 3: XỬ LÝ CHUYỂN CÂU
         function changeQuestion(step) {
+
             let oldAudio = document.querySelector('#media-box audio');
             if (oldAudio) { oldAudio.pause(); oldAudio.src = ""; }
             
