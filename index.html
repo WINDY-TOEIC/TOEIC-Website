@@ -115,9 +115,15 @@
         .no-history { text-align: center; color: #777; font-style: italic; padding: 20px; }
         
         /* Dropdown Lịch sử trên Banner */
-        .history-wrapper { position: absolute; top: 15px; left: 115px; z-index: 100; }
+        .history-wrapper { position: absolute; top: 15px; left: 165px; z-index: 100; }
         .dark-mode-btn { position: absolute; top: 15px; left: 65px; background: rgba(255,255,255,0.2); border: none; border-radius: 4px; padding: 8px 12px; cursor: pointer; color: white; font-size: 16px; z-index: 100; transition: 0.2s;}
         .dark-mode-btn:hover { background: rgba(255,255,255,0.4); }
+        
+        .voice-btn:hover { background: rgba(255,255,255,0.4) !important; }
+        .voice-panel { position: absolute; top: 55px; left: 115px; background: white; padding: 15px; border-radius: 6px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 101; display: none; flex-direction: column; gap: 10px; text-align: left; width: 300px; color: #333; }
+        .voice-panel.active { display: flex; }
+        body.dark-mode .voice-panel { background: #1e1e1e; border-color: #333; color: #e0e0e0; }
+        body.dark-mode .voice-panel select { background: #333; color: #fff; border-color: #555; }
         .btn-history-toggle { background: rgba(255,255,255,0.2); color: white; border: none; padding: 8px 12px; font-size: 14px; font-weight: 600; border-radius: 4px; cursor: pointer; transition: 0.2s; }
         .btn-history-toggle:hover { background: rgba(255,255,255,0.4); }
         .history-dropdown { display: none; position: absolute; left: 0; top: 40px; width: 420px; max-width: 90vw; background: white; border-radius: 8px; box-shadow: 0 5px 20px rgba(0,0,0,0.3); border: 1px solid #e1e4e8; padding: 20px; z-index: 101; text-align: left; color: #333; }
@@ -320,7 +326,9 @@
             /* Tinh chỉnh nhỏ lại các nút trên cùng để không đè nhau */
             .theme-btn { top: 10px; left: 5px; padding: 6px 8px; font-size: 13px; }
             .dark-mode-btn { top: 10px; left: 45px; padding: 6px 8px; font-size: 13px; }
-            .history-wrapper { top: 10px; left: 85px; }
+            .voice-btn { top: 10px !important; left: 85px !important; padding: 6px 8px !important; font-size: 13px !important; }
+            .history-wrapper { top: 10px; left: 125px; }
+            .voice-panel { left: 5px; width: 95vw; }
             .btn-history-toggle { font-size: 11px; padding: 6px 8px; }
             .resume-floating-btn { top: 10px; left: auto; right: 5px; font-size: 11px; padding: 6px 8px; }
 
@@ -349,10 +357,18 @@
 
     <header id="main-banner" style="display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; background-size: cover; background-position: center; transition: background 0.3s;">
         
-        <!-- Khu vực đổi màu nền & Dark mode -->
+        <!-- Khu vực đổi màu nền, Dark mode & Giọng đọc -->
         <button class="theme-btn" onclick="toggleThemePanel()" title="Đổi màu nền">🎨</button>
         <button class="dark-mode-btn" id="dark-mode-btn-index" onclick="toggleDarkMode()" title="Bật/Tắt Chế độ tối">🌙</button>
+        <button class="voice-btn" onclick="toggleVoicePanel()" title="Cài đặt giọng đọc" style="position: absolute; top: 15px; left: 115px; background: rgba(255,255,255,0.2); border: none; border-radius: 4px; padding: 8px 12px; cursor: pointer; color: white; font-size: 16px; z-index: 100; transition: 0.2s;">🗣️</button>
         
+        <div id="voice-panel" class="voice-panel">
+            <h3 style="margin: 0 0 5px 0; font-size: 15px; color: #0037f4;">🗣️ Chọn giọng đọc Tiếng Anh</h3>
+            <p style="font-size: 12px; color: #666; margin: 0 0 10px 0;">Giọng này sẽ được dùng để đọc các từ vựng mà bạn tra cứu.</p>
+            <select id="voice-select" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; font-size: 14px;" onchange="saveVoiceSelection()"></select>
+            <button onclick="testSelectedVoice()" style="background: #28a745; color: white; border: none; padding: 8px; border-radius: 4px; font-weight: bold; cursor: pointer; margin-top: 5px;">🔊 Nghe Thử</button>
+        </div>
+
         <!-- Nút Lịch Sử & Sổ Tay -->
         <div class="history-wrapper">
             <div style="display: flex; gap: 10px;">
@@ -1101,15 +1117,34 @@
             let text = currentSelectionRange.toString().trim();
             if(!text) return;
             let utterance = new SpeechSynthesisUtterance(text);
-            let voices = window.speechSynthesis.getVoices();
-            let maleVoice = voices.find(v => v.lang.includes('en') && v.name.includes('Male')) || voices.find(v => v.lang === 'en-US');
-            if (maleVoice) utterance.voice = maleVoice;
+            let voice = getSelectedVoiceObj();
+            if (voice) utterance.voice = voice;
             else utterance.lang = 'en-US';
             utterance.rate = 0.9;     
             window.speechSynthesis.speak(utterance);
             window.getSelection().removeAllRanges();
             document.getElementById('selection-toolbar').classList.remove('active');
         };
+
+        // Lắng nghe thao tác click chuột trên toàn trang để đóng menu dropdown
+        document.addEventListener('click', function(event) {
+            let themePanel = document.getElementById('theme-panel');
+            let themeBtn = document.querySelector('.theme-btn');
+            let historyDropdown = document.getElementById('history-dropdown');
+            let historyBtn = document.querySelector('.btn-history-toggle');
+            let voicePanel = document.getElementById('voice-panel');
+            let voiceBtn = document.querySelector('.voice-btn');
+
+            if (themePanel && themePanel.classList.contains('active')) {
+                if (!themePanel.contains(event.target) && !themeBtn.contains(event.target)) themePanel.classList.remove('active');
+            }
+            if (historyDropdown && historyDropdown.classList.contains('active')) {
+                if (!historyDropdown.contains(event.target) && !historyBtn.contains(event.target)) historyDropdown.classList.remove('active');
+            }
+            if (voicePanel && voicePanel.classList.contains('active')) {
+                if (!voicePanel.contains(event.target) && !voiceBtn.contains(event.target)) voicePanel.classList.remove('active');
+            }
+        });
 
         document.getElementById('tb-save-word').onclick = async () => {
             if(!currentSelectionRange) return;
@@ -1385,22 +1420,76 @@
             container.innerHTML = html;
         }
 
-        // --- ĐỌC TỪ VỰNG TRONG SỔ TAY ---
-        // Ép trình duyệt tải giọng đọc ngầm ngay từ lúc mở web
+        // --- CHỨC NĂNG CÀI ĐẶT GIỌNG ĐỌC XỊN ---
+        let globalVoices = [];
         if ('speechSynthesis' in window) {
-            window.speechSynthesis.onvoiceschanged = function() { window.speechSynthesis.getVoices(); };
-            window.speechSynthesis.getVoices();
+            window.speechSynthesis.onvoiceschanged = function() {
+                globalVoices = window.speechSynthesis.getVoices();
+                loadVoicesToDropdown();
+            };
+            globalVoices = window.speechSynthesis.getVoices();
+        }
+
+        function toggleVoicePanel() {
+            document.getElementById('voice-panel').classList.toggle('active');
+            if(globalVoices.length === 0) {
+                globalVoices = window.speechSynthesis.getVoices();
+                loadVoicesToDropdown();
+            }
+        }
+
+        function loadVoicesToDropdown() {
+            let select = document.getElementById('voice-select');
+            if(!select) return;
+            select.innerHTML = '';
+            
+            let enVoices = globalVoices.filter(v => v.lang.includes('en'));
+            // Thuật toán đẩy giọng Trí tuệ nhân tạo (Neural) và Google, Siri lên đầu
+            enVoices.sort((a, b) => {
+                let scoreA = (a.name.includes('Neural') || a.name.includes('Google') || a.name.includes('Siri')) ? 1 : 0;
+                let scoreB = (b.name.includes('Neural') || b.name.includes('Google') || b.name.includes('Siri')) ? 1 : 0;
+                return scoreB - scoreA;
+            });
+
+            enVoices.forEach(v => {
+                let opt = document.createElement('option');
+                opt.value = v.name;
+                opt.textContent = `${v.name} (${v.lang})`;
+                select.appendChild(opt);
+            });
+
+            let savedVoice = localStorage.getItem('win_selected_voice');
+            if (savedVoice) select.value = savedVoice;
+        }
+
+        function saveVoiceSelection() {
+            let select = document.getElementById('voice-select');
+            localStorage.setItem('win_selected_voice', select.value);
+        }
+
+        function getSelectedVoiceObj() {
+            let savedVoiceName = localStorage.getItem('win_selected_voice');
+            let voices = window.speechSynthesis.getVoices();
+            if (savedVoiceName) {
+                let v = voices.find(voice => voice.name === savedVoiceName);
+                if (v) return v;
+            }
+            return voices.find(v => v.lang.includes('en') && v.name.includes('Male')) || voices.find(v => v.lang === 'en-US');
+        }
+
+        function testSelectedVoice() {
+            let utterance = new SpeechSynthesisUtterance("Hello! This is a sample of my voice. I am ready to help you learn English.");
+            let voice = getSelectedVoiceObj();
+            if(voice) utterance.voice = voice;
+            utterance.rate = 0.9;
+            window.speechSynthesis.cancel(); // Dừng âm thanh cũ nếu bấm liên tục
+            window.speechSynthesis.speak(utterance);
         }
 
         function speakVocab(word) {
             let utterance = new SpeechSynthesisUtterance(word);
-            let voices = window.speechSynthesis.getVoices();
-            let maleVoice = voices.find(v => v.lang.includes('en') && v.name.includes('Male')) 
-                         || voices.find(v => v.lang.includes('en') && v.name.includes('David'))
-                         || voices.find(v => v.lang.includes('en') && v.name.includes('Guy'))
-                         || voices.find(v => v.lang.includes('en-GB')) 
-                         || voices.find(v => v.lang === 'en-US');
-            if (maleVoice) utterance.voice = maleVoice;
+            let voice = getSelectedVoiceObj();
+            if(voice) utterance.voice = voice;
             else utterance.lang = 'en-US';
             utterance.rate = 0.9;     
             window.speechSynthesis.speak(utterance);
