@@ -59,8 +59,11 @@
         
         /* Bắt tất cả ảnh nằm lẩn trong câu hỏi và ép thu nhỏ, xóa thanh cuộn lỗi do HTML của đề thi */
         #text-box * { max-width: 100% !important; }
-        #text-box div, #text-box p, #text-box figure { overflow: hidden !important; }
-        #text-box img { 
+        
+        /* Ép lề các đoạn văn khít lại, không cho tạo khoảng trắng dư thừa */
+        #text-box div, #text-box p, #text-box figure { overflow: hidden !important; margin-top: 0 !important; margin-bottom: 12px !important; }
+        
+        #text-box img {
             max-width: 100% !important; 
             height: auto !important; 
             max-height: 40vh !important; 
@@ -484,8 +487,9 @@
                 rawQText = rawQText.replace(/<img[^>]+>/gi, '');
             }
             
-            // Xóa các thẻ paragraph rỗng gây ra khoảng trắng thừa trong bài Email
-            rawQText = rawQText.replace(/<p>\s*(?:<br\s*\/?>|&nbsp;|\s)*<\/p>/gi, '');
+            // LỌC ĐỊNH DẠNG TỐI ĐA: Quét sạch mọi khoảng trắng thừa
+            rawQText = rawQText.replace(/<(p|div)>\s*(?:<br\s*\/?>|&nbsp;|\s)*<\/\1>/gi, ''); // Xóa sạch các thẻ <p> hoặc <div> rỗng
+            rawQText = rawQText.replace(/(?:<br\s*\/?>\s*){3,}/gi, '<br><br>'); // Gom tất cả các thẻ <br> liên tiếp nhau lại, ép tối đa chỉ được cách 1 dòng trống
             
             // TƯỚC QUYỀN TỰ ĐỘNG PHÁT AUDIO (AUTOPLAY) TỪ MÃ HTML CỦA ĐỀ THI
             rawQText = rawQText.replace(/autoplay/gi, '');
