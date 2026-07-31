@@ -1622,7 +1622,7 @@
                 });
             }
 
-            // Bước 2: Bôi màu Đáp án
+            // Bước 2: Bôi màu Đáp án và Phục hồi in đậm Transcript
             if (teacherRevealStep === 2) {
                 groupItems.forEach(qIdx => {
                     let correctObj = flatQuestions[qIdx].sq.choices.find(c => c.choice_right_answer);
@@ -1632,6 +1632,17 @@
                         if (input.value === correctChoice) label.classList.add('correct');
                         else if (input.checked && input.value !== correctChoice) label.classList.add('wrong');
                     });
+                    
+                    let currentPartStr = (document.getElementById('current-part-label').innerText || "").toUpperCase();
+                    if (currentPartStr.includes("PART 1") || currentPartStr.includes("PART 2")) {
+                        let sqIndex = flatQuestions[qIdx].sq.index;
+                        let expBox = document.getElementById(`exp-${sqIndex}`);
+                        if (expBox) {
+                            expBox.querySelectorAll('b, strong').forEach(el => {
+                                el.style.fontWeight = 'bold';
+                            });
+                        }
+                    }
                 });
             } else {
                 groupItems.forEach(qIdx => {
