@@ -419,10 +419,9 @@
             }
 
             if (introIndex !== -1 && swData.intro && swData.intro[introIndex]) {
-               if (shouldShowIntro && introIndex !== -1 && swData.intro && swData.intro[introIndex]) {
                 let rawIntro = swData.intro[introIndex].content;
                 
-                // BỘ LỌC MẠNH MẼ CHỮA LỖI XUỐNG DÒNG VÔ DUYÊN CỦA ĐỀ THI
+                // BỘ LỌC CHỮA LỖI XUỐNG DÒNG 
                 rawIntro = rawIntro.replace(/Directions\s*(?:<br\s*\/?>|\n)+\s*:/gi, 'Directions:'); // Fix lỗi Directions :
                 rawIntro = rawIntro.replace(/Click on\s*(?:<br\s*\/?>|\n)+\s*(Next|Back|Continue)\s*(?:<br\s*\/?>|\n)+\s*/gi, 'Click on $1 '); // Fix lỗi Click on Continue to go on.
                 rawIntro = rawIntro.replace(/(Next|Back|Continue)\s*(?:<br\s*\/?>|\n)+\s*\./gi, '$1.'); // Fix lỗi Next .

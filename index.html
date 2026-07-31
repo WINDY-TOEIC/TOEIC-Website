@@ -737,9 +737,6 @@
             .tb-btn:hover { background: rgba(255,255,255,0.2) !important; border-radius: 4px; }
         </style>
         <div id="selection-toolbar" class="selection-toolbar" style="position: absolute; background: #555; border-radius: 6px; padding: 6px 10px; display: flex; gap: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 999999; opacity: 0; visibility: hidden; transition: opacity 0.2s;">
-            <button class="tb-btn" id="tb-yellow" title="Bôi vàng" style="background: transparent; border: none; color: #f1c40f; cursor: pointer; padding: 4px 5px; font-size: 16px; font-weight: bold; display: flex; align-items: center; justify-content: center;">■</button>
-            <button class="tb-btn" id="tb-search" title="Tra từ điển" style="background: transparent; border: none; color: white; cursor: pointer; padding: 4px 5px; font-size: 14px; display: flex; align-items: center; justify-content: center;">🔍</button>
-            <button class="tb-btn" id="tb-ipa" title="Tra phiên âm IPA" style="background: transparent; border: none; color: white; cursor: pointer; padding: 4px 5px; font-size: 14px; font-weight:bold; display: flex; align-items: center; justify-content: center;">IPA</button>
             <button class="tb-btn" id="tb-speak" title="Đọc phát âm" style="background: transparent; border: none; color: white; cursor: pointer; padding: 4px 5px; font-size: 14px; display: flex; align-items: center; justify-content: center;">🔊</button>
             <button class="tb-btn" id="tb-save-word" title="Lưu vào Sổ tay" style="background: transparent; border: none; color: white; cursor: pointer; padding: 4px 5px; font-size: 14px; display: flex; align-items: center; justify-content: center;">⭐</button>
         </div>
@@ -1095,16 +1092,6 @@
             }
         });
 
-        document.getElementById('tb-yellow').onclick = () => {
-            if (!currentSelectionRange) return;
-            let span = document.createElement('span');
-            span.style.backgroundColor = '#fceea7';
-            span.style.borderRadius = '2px';
-            try { currentSelectionRange.surroundContents(span); } catch(e) {}
-            window.getSelection().removeAllRanges();
-            document.getElementById('selection-toolbar').classList.remove('active');
-        };
-
         document.getElementById('tb-speak').onclick = () => {
             if(!currentSelectionRange) return;
             let text = currentSelectionRange.toString().trim();
@@ -1118,63 +1105,6 @@
             window.speechSynthesis.speak(utterance);
             window.getSelection().removeAllRanges();
             document.getElementById('selection-toolbar').classList.remove('active');
-        };
-
-        document.getElementById('tb-search').onclick = async () => {
-            if(!currentSelectionRange) return;
-            let text = currentSelectionRange.toString().trim();
-            if(!text) return;
-            let btn = document.getElementById('tb-search');
-            let oldIcon = btn.innerHTML;
-            btn.innerHTML = "⏳";
-            try {
-                let res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=vi&dt=t&q=${encodeURIComponent(text)}`);
-                let data = await res.json();
-                let translatedText = "";
-                data[0].forEach(item => { if(item[0]) translatedText += item[0]; });
-                let noteSpan = document.createElement('span');
-                noteSpan.style.color = '#e74c3c'; 
-                noteSpan.style.fontSize = '14px';
-                noteSpan.style.marginLeft = '5px';
-                noteSpan.style.fontWeight = 'bold';
-                noteSpan.innerHTML = `(${translatedText})`;
-                currentSelectionRange.collapse(false);
-                currentSelectionRange.insertNode(noteSpan);
-            } catch (err) {}
-            window.getSelection().removeAllRanges();
-            document.getElementById('selection-toolbar').classList.remove('active');
-            btn.innerHTML = oldIcon;
-        };
-
-        document.getElementById('tb-ipa').onclick = async () => {
-            if(!currentSelectionRange) return;
-            let text = currentSelectionRange.toString().trim().toLowerCase();
-            if(!text) return;
-            let btn = document.getElementById('tb-ipa');
-            let oldIcon = btn.innerHTML;
-            btn.innerHTML = "⏳";
-            let ipaText = "Không có IPA";
-            try {
-                let res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(text)}`);
-                if(res.ok) {
-                    let data = await res.json();
-                    let txt = data[0]?.phonetic || (data[0]?.phonetics.find(p => p.text)?.text);
-                    if (txt) ipaText = txt.replace(/[\/\[\]]/g, '');
-                }
-            } catch(e) {}
-            
-            let noteSpan = document.createElement('span');
-            noteSpan.style.color = '#8e44ad'; 
-            noteSpan.style.fontSize = '14px';
-            noteSpan.style.marginLeft = '5px';
-            noteSpan.style.fontWeight = 'bold';
-            noteSpan.innerHTML = `[${ipaText}]`;
-            currentSelectionRange.collapse(false);
-            currentSelectionRange.insertNode(noteSpan);
-            
-            window.getSelection().removeAllRanges();
-            document.getElementById('selection-toolbar').classList.remove('active');
-            btn.innerHTML = oldIcon;
         };
 
         document.getElementById('tb-save-word').onclick = async () => {
