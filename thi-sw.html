@@ -496,11 +496,13 @@
                 rawIntro = rawIntro.replace(/(click on)\s*(?:<[^>]+>|\s)*(Back)\s*(?:<[^>]+>|\s)*\./gi, '$1 $2.');
                 rawIntro = rawIntro.replace(/(Click on)\s*(?:<[^>]+>|\s)*(Continue)\s*(?:<[^>]+>|\s)*(to go on\.)/gi, '$1 $2 $3');
                 
-                // Xử lý riêng cho Hướng dẫn Writing Q1-5 (Thu nhỏ chữ và chèn ảnh mẫu)
+                // Xử lý riêng cho Hướng dẫn Writing Q1-5 (Thu nhỏ chữ và chèn ảnh nội bộ)
                 if (realSkill === 'W' && localQIndex === 0) {
-                    // Bạn có thể thay đường link 'https://placehold.co/400x250?text=Example+Image' dưới đây bằng link ảnh của bạn
-                    rawIntro = rawIntro.replace(/<img[^>]*>/i, '<img src="https://placehold.co/400x250?text=Example+Image" alt="Example Image" style="max-width:100%; border-radius:8px; margin: 15px 0; border: 1px solid #ccc;">');
-                    rawIntro = '<div style="font-size: 16px; line-height: 1.5;">' + rawIntro + '</div>';
+                    // Chèn đường dẫn ảnh có sẵn trong thư mục máy tính của bạn
+                    rawIntro = rawIntro.replace(/<img[^>]*>/i, '<img src="Sample/sample 1.png" alt="Example Image" style="max-width:100%; max-height:220px; object-fit:contain; border-radius:8px; margin: 15px 0; border: 1px solid #ccc; display: block;">');
+                    
+                    // Ép toàn bộ các thẻ (kể cả in đậm, p, div) bên trong hướng dẫn này phải nhỏ lại
+                    rawIntro = '<style>#intro-w-q1, #intro-w-q1 * { font-size: 14.5px !important; line-height: 1.5 !important; }</style><div id="intro-w-q1">' + rawIntro + '</div>';
                 } else {
                     rawIntro = rawIntro.replace(/<img/gi, '<img onerror="this.style.display=\\\'none\\\'"');
                 }
