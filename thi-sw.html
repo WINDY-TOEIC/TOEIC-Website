@@ -563,14 +563,28 @@
                     document.getElementById('btn-skip-prep').classList.add('hidden');
                     document.getElementById('dummy-space').style.display = "block";
 
+                    // Ép trình duyệt đọc lại thẻ <source> trước khi play để tránh lỗi DOM chưa load xong
+                    audioEl.load();
+
                     let playPromise = audioEl.play();
                     if (playPromise !== undefined) {
                         playPromise.catch(e => {
-                            console.log("Trình duyệt chặn hoặc lỗi:", e);
-                            startQuestionTimer(); 
+                            console.log("Trình duyệt chặn Play:", e);
+                            // TUYỆT ĐỐI KHÔNG GỌI startQuestionTimer() Ở ĐÂY NỮA!
+                            // Nếu bị chặn, Audio sẽ đứng im và ĐỒNG HỒ SẼ CHỜ học viên tự bấm nút Play bằng tay.
                         });
                     }
-                    audioEl.onended = function() { startQuestionTimer(); };
+                    
+                    // ĐỒNG HỒ CHỈ ĐƯỢC CHẠY KHI AUDIO THỰC SỰ ĐÃ PHÁT XONG
+                    audioEl.onended = function() { 
+                        startQuestionTimer(); 
+                    };
+                    
+                    // CHỈ KHỞI ĐỘNG ĐỒNG HỒ NGAY LẬP TỨC NẾU FILE AUDIO THỰC SỰ BỊ HỎNG 404 KHÔNG TÌM THẤY
+                    let sourceEl = audioEl.querySelector('source');
+                    if (sourceEl) {
+                        sourceEl.onerror = function() { startQuestionTimer(); };
+                    }
                     audioEl.onerror = function() { startQuestionTimer(); };
                 };
 
@@ -632,12 +646,10 @@
                 document.querySelector('.timer-bar').style.display = 'flex'; 
                 document.querySelector('.nav-controls').classList.remove('hidden');
                 
-                // Fix lỗi đồng hồ không chờ Audio: Thêm độ trễ 100ms để trình duyệt kịp load thẻ <audio> vào DOM trước khi phát
-                setTimeout(() => {
-                    if (typeof triggerQuestionStart === 'function') {
-                        triggerQuestionStart();
-                    }
-                }, 100);
+                // Trả về lệnh gốc chạy ngay lập tức để giữ quyền User Gesture (Bấm nút chuyển câu)
+                if (typeof triggerQuestionStart === 'function') {
+                    triggerQuestionStart();
+                }
             }
             
             document.getElementById('btn-prev').disabled = (currentQIndex === 0);

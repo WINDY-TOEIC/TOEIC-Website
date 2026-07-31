@@ -1560,7 +1560,10 @@
                         engPart.querySelectorAll('.hidden').forEach(e => e.classList.remove('hidden'));
                         engPart.querySelectorAll('.pre-submit-text').forEach(e => e.classList.remove('pre-submit-text'));
                     }
-                    // Cố tình KHÔNG gỡ class 'hidden' của khối tiếng Việt (left-transcript-vi)
+                    
+                    // BỔ SUNG: Ép ẩn tuyệt đối khối tiếng Việt để chống lỗi hiện lại sau khi Ctrl+Z
+                    let viPart = document.getElementById('left-transcript-vi');
+                    if (viPart) viPart.classList.add('hidden');
                 }
 
                 // 3. Xử lý phần expBox (Khối giải thích bên phải)
@@ -1585,9 +1588,16 @@
                             }
                         }
                     });
+                } else {
+                    // NẾU LÀ PART 3 HOẶC 4 -> ÉP ẨN TRIỆT ĐỂ KHỐI DỊCH BÊN PHẢI (CHỐNG LỖI HIỆN LẠI KHI CTRL+Z)
+                    groupItems.forEach(qIdx => {
+                        let sqIndex = flatQuestions[qIdx].sq.index;
+                        let expBox = document.getElementById(`exp-${sqIndex}`);
+                        if (expBox) expBox.classList.add('hidden');
+                    });
                 }
-                
             } else {
+
                 // Trả về mặc định (Ẩn)
                 let leftT = document.getElementById('left-transcript');
                 if (leftT) { leftT.classList.add('hidden'); leftT.style.display = 'none'; leftT.querySelectorAll('div').forEach(e => e.classList.add('pre-submit-text')); }
@@ -2186,8 +2196,11 @@
             // --- ĐỒNG BỘ LẠI CÁC NÚT BẤM SAU KHI CTRL+Z (Bảo vệ nút Giải Thích, Gắn Cờ, Đáp Án) ---
             // Để khối này chạy SAU CÙNG. Khi HTML của cả cột trái và phải đều đã nằm trên màn hình,
             // vòng lặp sẽ quét trúng và áp đặt trạng thái Thu gọn/Giải thích lên 100% văn bản.
-            // 1. Phục hồi đúng trạng thái Thu gọn / Giải thích hiện tại
-            if (typeof isExpCollapsed !== 'undefined') {
+            
+            let isTeacherActive = (classCode === "1" && studentName.toLowerCase() === "admin" && currentMode === 'practice' && !isSubmitted);
+            
+            // 1. Phục hồi đúng trạng thái Thu gọn / Giải thích hiện tại (BỎ QUA NẾU LÀ TEACHER MODE)
+            if (typeof isExpCollapsed !== 'undefined' && !isTeacherActive) {
                 document.querySelectorAll('.explanation:not(.always-show)').forEach(el => {
                     if (isExpCollapsed) el.classList.add('hidden');
                     else el.classList.remove('hidden');
