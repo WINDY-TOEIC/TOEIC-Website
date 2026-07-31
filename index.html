@@ -902,27 +902,27 @@
                         let isMatchChal = true;
                         
                         if (row.time) {
+                            // Ép về String an toàn tuyệt đối
+                            let timeStr = String(row.time).trim();
                             let m = 0;
                             let y = 0;
                             
-                            if (row.time.includes('T') && row.time.includes('Z')) {
-                                let d = new Date(row.time);
+                            // 1. Xử lý chuẩn ISO (Nếu dữ liệu bị ép kiểu Date)
+                            if (timeStr.includes('T')) {
+                                let d = new Date(timeStr);
                                 m = d.getMonth() + 1;
                                 y = d.getFullYear();
                             } else {
-                                let match = row.time.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+                                // 2. Xử lý chuỗi Text (Mở rộng Regex bắt cả dấu / hoặc -)
+                                let match = timeStr.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
                                 if (match) {
-                                    let p1 = parseInt(match[1]); // Ngày hoặc Tháng
-                                    let p2 = parseInt(match[2]); // Tháng hoặc Ngày
+                                    let p1 = parseInt(match[1]);
+                                    let p2 = parseInt(match[2]);
                                     y = parseInt(match[3]);
                                     
-                                    // BẮT BUỘC ĐỌC CHUẨN: Vì đã set form lưu là DD/MM/YYYY, p2 luôn luôn là Tháng.
-                                    // Trừ trường hợp Google tự đảo lại thành US (MM/DD/YYYY) thì p2 sẽ > 12.
-                                    if (p2 > 12) {
-                                        m = p1; // Nếu p2 > 12, chắc chắn p1 là Tháng
-                                    } else {
-                                        m = p2; // Ngược lại, p2 đích thị là Tháng
-                                    }
+                                    if (p2 > 12) m = p1; 
+                                    else if (p1 > 12) m = p2;
+                                    else m = p2; // Mặc định p2 là Tháng vì ta đã lưu DD/MM/YYYY
                                 }
                             }
                             
@@ -932,7 +932,10 @@
                             }
                         }
 
-                        if (row.test === "THỬ THÁCH PART 5") {
+                        // LỌC KHOẢNG TRẮNG RÁC (TRIM) VÀ ÉP IN HOA CHỐNG LỖI SO SÁNH
+                        let testName = String(row.test || "").trim().toUpperCase();
+
+                        if (testName === "THỬ THÁCH PART 5") {
                             if (isMatchChal) chalData.push(row);
                         } else {
                             if (isMatchMain) mainData.push(row);
