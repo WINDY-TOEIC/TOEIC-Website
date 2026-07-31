@@ -487,6 +487,9 @@
             // Xóa các thẻ paragraph rỗng gây ra khoảng trắng thừa trong bài Email
             rawQText = rawQText.replace(/<p>\s*(?:<br\s*\/?>|&nbsp;|\s)*<\/p>/gi, '');
             
+            // TƯỚC QUYỀN TỰ ĐỘNG PHÁT AUDIO (AUTOPLAY) TỪ MÃ HTML CỦA ĐỀ THI
+            rawQText = rawQText.replace(/autoplay/gi, '');
+            
             document.getElementById('text-box').innerHTML = rawQText;
 
             if (shouldShowIntro && introIndex !== -1 && swData.intro && swData.intro[introIndex]) {
@@ -534,7 +537,12 @@
 
                 document.getElementById('timer-box').classList.remove('hidden-time');
                 
-                let audioEl = document.querySelector('#media-box audio') || document.querySelector('#text-box audio') || document.querySelector('#intro-box audio');
+                // ƯU TIÊN TÌM AUDIO Ở CÂU HỎI HIỆN TẠI TRƯỚC. CHỈ TÌM AUDIO HƯỚNG DẪN NẾU KHUNG HƯỚNG DẪN ĐANG MỞ.
+                let audioEl = document.querySelector('#media-box audio') || document.querySelector('#text-box audio');
+                if (!audioEl && !document.getElementById('full-intro-screen').classList.contains('hidden')) {
+                    audioEl = document.querySelector('#intro-box audio');
+                }
+                
                 let timeConfig = getQuestionTime(currentQIndex);
                 let isSharedRunning = (timeConfig.shared && timeConfig.sharedId === activeSharedTimerId && swTimerInterval);
 
@@ -608,6 +616,7 @@
                 
                 clearInterval(swTimerInterval);
             } else {
+                introBox.innerHTML = ""; // XÓA SẠCH RÁC AUDIO CỦA CÂU TRƯỚC ĐỂ KHÔNG BẮT NHẦM
                 fullIntroScreen.classList.add('hidden');
                 mainWorkspace.classList.remove('hidden');
                 document.querySelector('.timer-bar').style.display = 'flex'; 
