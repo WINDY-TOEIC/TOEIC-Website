@@ -249,11 +249,10 @@
             <div class="right-col" id="right-panel" style="position: relative;">
                 
                 <!-- Giao diện Feedback Speaking (Đã dời sang cột phải) -->
-                <div id="practice-feedback-speaking" class="hidden" style="width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-                    <h3 style="margin-top: 0; color: #003366; margin-bottom: 20px;">KIỂM TRA LẠI BÀI NÓI</h3>
+                <div id="practice-feedback-speaking" class="hidden" style="width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 30px;">
+                    <button onclick="getFeedback('S')" style="background: #0037f4; color: white; border: none; padding: 12px 30px; border-radius: 6px; font-weight: bold; font-size: 16px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2); margin-bottom: 20px;">✨ Chấm Điểm</button>
                     <audio id="student-audio-playback" controls style="width: 100%; max-width: 400px; margin-bottom: 20px;"></audio>
-                    <button onclick="getFeedback('S')" style="background: #0037f4; color: white; border: none; padding: 12px 30px; border-radius: 6px; font-weight: bold; font-size: 16px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2);">✨ Chấm Điểm</button>
-                    <div id="eval-result-speaking" style="display: none; width: 100%; background: #fff; border: 1px solid #5ba4e5; border-radius: 6px; padding: 20px; text-align: left; font-size: 16px; line-height: 1.6; margin-top: 20px; overflow-y: auto; max-height: 40vh;"></div>
+                    <div id="eval-result-speaking" style="display: none; width: 100%; background: #fff; border: 1px solid #5ba4e5; border-radius: 6px; padding: 20px; text-align: left; font-size: 16px; line-height: 1.6; overflow-y: auto; max-height: 50vh;"></div>
                 </div>
 
                 <!-- Giao diện Writing -->
@@ -454,27 +453,57 @@
                 if (currentSkill === 'B' && shouldShowIntro) introIndex += 5; 
             }
 
-            // GIẢI QUYẾT VẤN ĐỀ: GIỮ LẠI HÌNH ẢNH CHO Q8-10 SPEAKING MÀ KHÔNG BỊ MẤT
+            // BỘ LỌC: GIỮ CHẶT HÌNH ẢNH LỊCH TRÌNH CHO Q8-10 SPEAKING
             if (realSkill === 'S' && localQIndex >= 7 && localQIndex <= 9) {
+                let persistentImgHtml = "";
+                // 1. Quét tìm ảnh trong Hướng dẫn của cụm này
                 if (swData.intro && swData.intro[3]) {
-                    let imgMatch = swData.intro[3].content.match(/<img[^>]+>/i);
-                    if (imgMatch) mediaHtml += imgMatch[0]; // Bốc tấm ảnh từ Hướng dẫn chèn luôn vào khung làm bài
+                    let matches = swData.intro[3].content.match(/<img[^>]+>/gi);
+                    if (matches) persistentImgHtml += matches.join('');
+                }
+                // 2. Quét tìm ảnh trong nội dung câu hỏi số 8 (phòng hờ JSON đặt nhầm ảnh vào text)
+                if (swData.questions && swData.questions[7] && swData.questions[7].question) {
+                    let matches = swData.questions[7].question.match(/<img[^>]+>/gi);
+                    if (matches) persistentImgHtml += matches.join('');
+                }
+                
+                // Đảm bảo chèn ảnh vào mediaHtml và gắn thêm thuộc tính chống lỗi
+                if (persistentImgHtml && !mediaHtml.includes('<img')) {
+                    persistentImgHtml = persistentImgHtml.replace(/<img/gi, '<img onerror="this.style.display=\\\'none\\\'"');
+                    mediaHtml += persistentImgHtml;
                 }
             }
 
             document.getElementById('media-box').innerHTML = mediaHtml;
-            document.getElementById('text-box').innerHTML = qData.question || "";
+            
+            // Data Sanitization: Clean up redundant images and formatting
+            let rawQText = qData.question || "";
+            if (realSkill === 'S' && localQIndex >= 7 && localQIndex <= 9) {
+                rawQText = rawQText.replace(/<img[^>]+>/gi, '');
+            }
+            
+            // Xóa các thẻ paragraph rỗng gây ra khoảng trắng thừa trong bài Email
+            rawQText = rawQText.replace(/<p>\s*(?:<br\s*\/?>|&nbsp;|\s)*<\/p>/gi, '');
+            
+            document.getElementById('text-box').innerHTML = rawQText;
 
             if (shouldShowIntro && introIndex !== -1 && swData.intro && swData.intro[introIndex]) {
                 let rawIntro = swData.intro[introIndex].content;
                 
-                // BỘ LỌC HỦY DIỆT: Xóa sạch các thẻ <br>, <div> nằm kẹt giữa chữ
+                // Data Sanitization: Format layout and clean up redundant tags
                 rawIntro = rawIntro.replace(/(Directions)\s*(?:<[^>]+>|\s)*:/gi, '$1:');
                 rawIntro = rawIntro.replace(/(clicking on)\s*(?:<[^>]+>|\s)*(Next)\s*(?:<[^>]+>|\s)*\./gi, '$1 $2.');
                 rawIntro = rawIntro.replace(/(click on)\s*(?:<[^>]+>|\s)*(Back)\s*(?:<[^>]+>|\s)*\./gi, '$1 $2.');
                 rawIntro = rawIntro.replace(/(Click on)\s*(?:<[^>]+>|\s)*(Continue)\s*(?:<[^>]+>|\s)*(to go on\.)/gi, '$1 $2 $3');
                 
-                rawIntro = rawIntro.replace(/<img/gi, '<img onerror="this.style.display=\\\'none\\\'"');
+                // Xử lý riêng cho Hướng dẫn Writing Q1-5 (Thu nhỏ chữ và chèn ảnh mẫu)
+                if (realSkill === 'W' && localQIndex === 0) {
+                    // Bạn có thể thay đường link 'https://placehold.co/400x250?text=Example+Image' dưới đây bằng link ảnh của bạn
+                    rawIntro = rawIntro.replace(/<img[^>]*>/i, '<img src="https://placehold.co/400x250?text=Example+Image" alt="Example Image" style="max-width:100%; border-radius:8px; margin: 15px 0; border: 1px solid #ccc;">');
+                    rawIntro = '<div style="font-size: 16px; line-height: 1.5;">' + rawIntro + '</div>';
+                } else {
+                    rawIntro = rawIntro.replace(/<img/gi, '<img onerror="this.style.display=\\\'none\\\'"');
+                }
                 
                 introHtml += rawIntro;
             }
