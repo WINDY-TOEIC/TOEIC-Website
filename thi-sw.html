@@ -946,6 +946,40 @@
                     resBox.innerHTML = `<i>⏳ <b>Bản dịch bóc băng:</b> "${studentAnswer}"<br><br>Đang chấm điểm...</i>`;
                 }
 
+                // --- TÍCH HỢP GROUND TRUTH (MÔ TẢ ẢNH) TỪ FILE descriptions.txt ---
+                let imageDesc = "";
+                // Tìm tất cả ảnh đang có trên màn hình (Bỏ qua ảnh ví dụ Sample)
+                let imgEls = document.querySelectorAll('#media-box img, #text-box img, #intro-box img');
+                let filename = "";
+                for (let img of imgEls) {
+                    let src = img.getAttribute('src');
+                    if (src && !src.includes('sample 1.png') && !src.includes('placehold')) {
+                        filename = src.split('/').pop(); // Lấy tên file, ví dụ: zenlish-1-traveler-wait.jpg
+                        break;
+                    }
+                }
+                
+                if (filename) {
+                    try {
+                        let descRes = await fetch('SW Media/descriptions.txt');
+                        if (descRes.ok) {
+                            let descText = await descRes.text();
+                            let lines = descText.split('\n');
+                            let found = false;
+                            for (let line of lines) {
+                                line = line.trim();
+                                if (line === filename) {
+                                    found = true;
+                                } else if (found) {
+                                    // Gặp tên file ảnh tiếp theo hoặc tên Test mới thì dừng lại
+                                    if (line.endsWith('.jpg') || line.endsWith('.png') || line.endsWith('.jpeg') || line.startsWith('test ')) break;
+                                    if (line !== "") imageDesc += line + " ";
+                                }
+                            }
+                        }
+                    } catch(e) { console.log("Không tải được descriptions.txt"); }
+                }
+
                 let realS = getRealSkill(currentQIndex);
                 let localQ = (currentSkill === 'B' && realS === 'W') ? currentQIndex - 11 : currentQIndex;
                 let suggestionFormat = `<div style="color:#27ae60; margin-top:8px;"><b>Gợi ý làm bài:</b> [Viết lại hoặc bổ sung câu trả lời hoàn chỉnh để đạt điểm cao]</div>`;
@@ -957,6 +991,7 @@
 
                 let prompt = `Bạn là Giám khảo TOEIC chuyên nghiệp của ETS. Hãy chấm điểm phần thi ${skillType === 'S' ? 'Speaking' : 'Writing'} này.
 Nội dung câu hỏi/yêu cầu: "${qText}"
+${imageDesc ? `\nMô tả thực tế của bức tranh trên màn hình là: "${imageDesc.trim()}". (Chỉ trừ điểm nếu thí sinh tả sai lệch hẳn so với mô tả này. Nếu thí sinh tả những chi tiết hợp lý có thể tồn tại trong bối cảnh đó thì cứ châm chước qua).` : ''}
 Câu trả lời của học viên: "${studentAnswer}"
 
 Tiêu chí chấm điểm:
