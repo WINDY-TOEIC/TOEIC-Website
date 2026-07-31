@@ -670,7 +670,6 @@
 
         // HÀM 3: XỬ LÝ CHUYỂN CÂU
         function changeQuestion(step) {
-            // Tắt SẠCH SẼ mọi audio đang phát và XÓA SẠCH GHOST EVENT (Chống dội ngược onerror làm nhảy đồng hồ)
             document.querySelectorAll('audio').forEach(a => {
                 a.onended = null; 
                 a.onerror = null; 
@@ -680,9 +679,12 @@
                 a.load(); 
             });
             
-            // HỦY DIỆT MICRO NGAY LẬP TỨC: Ép ngắt kết nối phần cứng Mic nếu đang bật
             if (typeof audioStream !== 'undefined' && audioStream) {
                 audioStream.getTracks().forEach(track => track.stop());
+            }
+            
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
             }
             
             let newIndex = currentQIndex + step;
@@ -1100,8 +1102,14 @@ ${suggestionFormat}`;
                 }
                 let chatData = await chatRes.json();
                 
-                // Dọn dẹp markdown nếu AI lỡ xuất ra
                 let feedbackHtml = chatData.choices[0].message.content.replace(/```html|```/gi, '').trim();
+                
+                if (realS === 'S' && localQ <= 1) {
+                    let cutIndex = feedbackHtml.search(/(Gợi ý làm bài|Suggested Answer)/i);
+                    if (cutIndex !== -1) {
+                        feedbackHtml = feedbackHtml.substring(0, cutIndex).trim();
+                    }
+                }
                 
                 if (skillType === 'S') {
                     feedbackHtml = `<div style="background:#f4f6f9; padding:10px; border-radius:4px; margin-bottom:15px; font-style:italic; border-left: 3px solid #555;"><b>Bản dịch bóc băng của bạn:</b> "${studentAnswer}"</div>` + feedbackHtml;
