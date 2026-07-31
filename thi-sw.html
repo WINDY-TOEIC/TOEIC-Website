@@ -399,9 +399,21 @@
             // 1. Cập nhật UI theo Kỹ năng thật sự của câu đó
             document.getElementById('part-title').innerText = realSkill === 'S' ? "TOEIC SPEAKING" : "TOEIC WRITING";
             
+            // RESET MỌI KẾT QUẢ/ĐÁNH GIÁ/GHI ÂM CỦA CÂU CŨ TRƯỚC KHI RENDER CÂU MỚI
+            window.currentAudioBlob = null;
+            let spFeedback = document.getElementById('practice-feedback-speaking');
+            if(spFeedback) spFeedback.classList.add('hidden');
+            let spEval = document.getElementById('eval-result-speaking');
+            if(spEval) { spEval.style.display = 'none'; spEval.innerHTML = ''; }
+            
+            let wrEvalBtn = document.getElementById('btn-eval-writing');
+            if(wrEvalBtn) wrEvalBtn.classList.add('hidden');
+            let wrEval = document.getElementById('eval-result-writing');
+            if(wrEval) { wrEval.style.display = 'none'; wrEval.innerHTML = ''; }
+
             if (realSkill === 'S') {
                 document.getElementById('speaking-action').classList.remove('hidden');
-                document.getElementById('right-panel').classList.remove('hidden'); // Bỏ .add('hidden') để giữ nguyên khung chia đôi
+                document.getElementById('right-panel').classList.remove('hidden'); 
                 document.getElementById('writing-action').classList.add('hidden');
             } else {
                 document.getElementById('speaking-action').classList.add('hidden');
@@ -722,7 +734,6 @@
 
         // HÀM BỔ SUNG: NỘP BÀI WRITING 
         function submitWritingEarly() {
-            if(!confirm("Bạn có chắc chắn muốn nộp câu hỏi này?")) return;
             clearInterval(swTimerInterval);
             swTimerInterval = null;
             activeSharedTimerId = null;
@@ -760,8 +771,6 @@
                 if (getRealSkill(currentQIndex) === 'S') startRecording();
             } 
             else if (currentPhase === "response" && getRealSkill(currentQIndex) === 'S') {
-                if(!confirm("Bạn có chắc chắn muốn nộp câu này sớm?")) return;
-                
                 clearInterval(swTimerInterval);
                 document.getElementById('timer-box').innerText = "ĐÃ NỘP";
                 playBeep();
@@ -783,17 +792,26 @@
         }
 
         // HÀM 6: QUẢN LÝ GHI ÂM (MEDIA RECORDER) - PHỤC HỒI HÀM BỊ MẤT
+        let mediaRecorder;
+        let audioChunks = [];
+
         function startRecording() {
             try {
                 navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
                     mediaRecorder = new MediaRecorder(stream);
                     audioChunks = [];
-                    mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+                    mediaRecorder.ondataavailable = e => {
+                        if (e.data.size > 0) audioChunks.push(e.data); // Loại bỏ các frame rỗng
+                    };
                     mediaRecorder.onstop = () => {
-                        window.currentAudioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                        // Thả rỗng định dạng type để trình duyệt tự quyết định (Sửa lỗi tịt âm thanh trên Safari/Edge)
+                        window.currentAudioBlob = new Blob(audioChunks); 
                         let audioUrl = URL.createObjectURL(window.currentAudioBlob);
                         let playbackEl = document.getElementById('student-audio-playback');
-                        if(playbackEl) playbackEl.src = audioUrl;
+                        if(playbackEl) {
+                            playbackEl.src = audioUrl;
+                            playbackEl.load(); // Ép trình duyệt nạp lại file mới
+                        }
                     };
                     mediaRecorder.start();
                     
