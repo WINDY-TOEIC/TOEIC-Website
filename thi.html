@@ -2411,16 +2411,26 @@
             // 2. Hàm gọi Free Dictionary
             const fetchFreeDict = async (word) => {
                 let res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`);
-                if(!res.ok) return null;
-                let data = await res.json();
+                if (!res.ok) return null;
+                let textData = await res.text();
+                let data = JSON.parse(textData);
+                
                 let phonetics = data[0]?.phonetics || [];
                 let txt = data[0]?.phonetic;
                 let ukItem = phonetics.find(p => p.text && p.audio && p.audio.includes('-uk'));
+                
                 if (ukItem) txt = ukItem.text;
                 else {
                     let textItem = phonetics.find(p => p.text);
                     if (textItem) txt = textItem.text;
                 }
+                
+                // Fallback: Quét toàn bộ JSON tìm đoạn kẹp giữa 2 dấu / /
+                if (!txt) {
+                    let match = textData.match(/\/[^\/]+\//);
+                    if (match) txt = match[0];
+                }
+                
                 return txt ? formatIPA(txt) : null;
             };
 
@@ -2448,37 +2458,7 @@
                 if (!ipaText) throw new Error("Free Dictionary failed");
 
             } catch (err) {
-                // Bước C: NẾU TỪ ĐIỂN VẪN TỊT NGÒI -> GỌI GROQ AI BÙ VÀO 
-                try {
-                    let _k1 = "Z3NrX3NjbHNqUGpqWnhzbWZt";
-                    let _k2 = "Z2s2Q3RwV0dkeWIzRlk5Wk1F";
-                    let _k3 = "VHU4SThhWVVsdkxWVFFuVHVBVTY=";
-                    
-                    let groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-                        method: 'POST',
-                        headers: {
-                            'Authorization': `Bearer ${atob(_k1 + _k2 + _k3)}`,
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            model: "llama3-8b-8192",
-                            messages: [{
-                                role: "system",
-                                content: "You are an Oxford English Dictionary. Output ONLY the raw UK IPA for the word. Use standard Oxford symbols (use 'r' not 'ɹ'). No brackets, no slashes, no extra text."
-                            }, {
-                                role: "user",
-                                content: text
-                            }],
-                            temperature: 0.1,
-                            max_tokens: 15
-                        })
-                    });
-                    if(!groqRes.ok) throw new Error("Groq API block");
-                    let groqData = await groqRes.json();
-                    ipaText = formatIPA(groqData.choices[0].message.content.trim()); 
-                } catch (groqErr) {
-                    ipaText = "Không có IPA"; 
-                }
+                ipaText = "Không có IPA"; 
             } finally {
                 // IN KẾT QUẢ RA MÀN HÌNH MƯỢT MÀ
                 let noteSpan = document.createElement('span');
