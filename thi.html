@@ -1667,7 +1667,10 @@
                 });
             }
 
-            try { saveActionState(); } catch(e) {}
+            // BẢO VỆ LỊCH SỬ UNDO: Tuyệt đối không chụp Snapshot mới nếu đang chạy lệnh 'sync' (do Ctrl+Z gọi)
+            if (action !== 'sync') {
+                try { saveActionState(); } catch(e) {}
+            }
         }
 
         function toggleTranscript(id) {
