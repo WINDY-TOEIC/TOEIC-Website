@@ -1129,14 +1129,15 @@
                     let headerTitle = isSubmitted ? "Nội dung & Dịch nghĩa / Đáp án:" : "Transcript:";
                     
                     let finalExplanation = gSq.explanation;
-                    let extractedTranscript = "";
-                    
-                    if (finalExplanation) {
-                        // Dọn dẹp dấu ">" rác bị dính ở đầu câu hoặc trước số thứ tự câu
-                        finalExplanation = finalExplanation.replace(/(^|<br\s*\/?>|<\/?(?:p|div|b|strong)[^>]*>)\s*>\s*/gi, '$1');
-                        finalExplanation = finalExplanation.replace(/>\s*(\d+\.)/g, '$1');
+                        let extractedTranscript = "";
                         
-                        let currentPartName = (document.getElementById('current-part-label').innerText || "").toUpperCase();
+                        if (finalExplanation) {
+                            // SỬA LỖI: Dọn dẹp an toàn dấu ">" rác mà TUYỆT ĐỐI KHÔNG làm hỏng thẻ HTML
+                            finalExplanation = finalExplanation.replace(/(<br\s*\/?>)\s*(?:>|&gt;)\s*/gi, '$1');
+                            finalExplanation = finalExplanation.replace(/(^|\n)\s*(?:>|&gt;)\s*/g, '$1');
+                            finalExplanation = finalExplanation.replace(/(<\/[a-zA-Z]+>)\s*(?:>|&gt;)\s*/g, '$1');
+                            
+                            let currentPartName = (document.getElementById('current-part-label').innerText || "").toUpperCase();
                         
                         // Chỉ lấy Transcript ở câu cuối cùng của nhóm trong Part 3 hoặc 4
                         if ((currentPartName.includes("PART 3") || currentPartName.includes("PART 4")) && gItem.idx === groupItems[groupItems.length - 1].idx) {
