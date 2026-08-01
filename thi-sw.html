@@ -969,8 +969,8 @@
                     mediaRecorder.onstop = () => {
                         console.log("4. Đã nhận lệnh Stop. Số lượng Chunk nhận được:", audioChunks.length);
                         
-                        // Bỏ ép kiểu MimeType để trình duyệt tự đưa về định dạng thô an toàn nhất
-                        window.currentAudioBlob = new Blob(audioChunks); 
+                        // FIX LỖI IOS SAFARI: Bắt buộc phải trả lại đúng định dạng (MimeType) mà thiết bị vừa thu âm
+                        window.currentAudioBlob = new Blob(audioChunks, { type: mediaRecorder.mimeType }); 
                         console.log("5. Tạo Blob thành công. Dung lượng file:", window.currentAudioBlob.size, "bytes. Định dạng:", window.currentAudioBlob.type);
                         
                         let audioUrl = URL.createObjectURL(window.currentAudioBlob);
