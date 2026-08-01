@@ -93,6 +93,42 @@
         .btn-nav:hover:not(:disabled) { background: #002244; }
         .btn-nav:disabled { opacity: 0.5; cursor: not-allowed; }
         .q-counter { font-weight: 800; font-size: 20px; color: #003366; background: #e3f2fd; padding: 5px 20px; border-radius: 20px; border: 1px solid #5ba4e5;}
+        
+        /* --- GIAO DIỆN ĐIỆN THOẠI (MOBILE RESPONSIVE S&W) --- */
+        @media (max-width: 768px) {
+            body { zoom: 1 !important; transform: none !important; overflow-x: hidden; }
+            .test-header { flex-direction: column; gap: 10px; padding: 15px 10px; }
+            .header-left { font-size: 15px; width: 100%; justify-content: center; text-align: center; }
+            #setup-screen { margin: 15px 10px; padding: 20px 15px; }
+            #test-screen { padding: 10px; }
+            
+            /* Ép dọc 2 cột, đưa phần làm bài xuống dưới */
+            .content-area { flex-direction: column !important; }
+            .left-col, .right-col { flex: none !important; width: 100% !important; max-height: none !important; padding: 15px !important; overflow: visible !important; }
+            
+            /* Sắp xếp lại thanh đồng hồ */
+            .timer-bar { flex-direction: column !important; gap: 12px; padding: 15px 10px !important; }
+            .timer-bar > div { flex: none !important; width: 100% !important; justify-content: center !important; }
+            .timer-box { min-width: 0 !important; width: 100% !important; font-size: 16px !important; padding: 8px !important; }
+            .part-title { font-size: 17px !important; text-align: center; }
+            .btn-skip { width: 100% !important; padding: 10px !important; }
+            #dummy-space { display: none !important; }
+            
+            /* Sắp xếp lại thanh điều hướng */
+            .nav-controls { flex-wrap: wrap; gap: 10px; padding: 15px 10px !important; justify-content: space-between !important; }
+            .btn-nav { flex: 1; padding: 10px 5px !important; font-size: 13px !important; }
+            .q-counter { order: -1; width: 100%; text-align: center; margin-bottom: 5px; }
+            
+            /* Tối ưu chữ, khung hiển thị và Audio */
+            .api-tooltip-box { left: auto; right: -10px; transform: none; width: 90vw; }
+            .sw-zoom-btn { display: none !important; } /* Ẩn nút zoom chữ trên mobile */
+            #intro-box { font-size: 15px !important; }
+            #intro-box strong { font-size: 17px !important; }
+            #text-box { font-size: 16px !important; }
+            #student-audio-playback { max-width: 100% !important; }
+            #full-intro-screen { padding: 20px 15px !important; }
+            .mic-status { font-size: 14px !important; width: auto !important;}
+        }
     </style>
 </head>
 <body>
