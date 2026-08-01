@@ -868,22 +868,11 @@
         }
 
         function loadLeaderboardData() {
-            // Thêm timestamp vào URL để vô hiệu hóa cache của trình duyệt
             let noCacheUrl = GOOGLE_SCRIPT_URL + "?action=getLeaderboard&t=" + new Date().getTime();
             
             fetch(noCacheUrl)
                 .then(res => res.json())
                 .then(data => {
-                    // DEBUG: IN TRỰC TIẾP DỮ LIỆU 5 DÒNG CUỐI CÙNG ĐỂ TÌM LỖI
-                    console.log("=== BẮT ĐẦU DEBUG CHÍNH XÁC ===");
-                    let debugData = data.slice(-5); // Lấy 5 dòng cuối cùng (của Nhật Linh, Hồng Thịnh)
-                    console.log("Dữ liệu thực tế web nhận được:");
-                    console.log(JSON.stringify(debugData, null, 2));
-                    
-                    let now = new Date();
-                    console.log("Biến currentMonth trên web đang là:", now.getMonth() + 1);
-                    console.log("===============================");
-                    
                     let mainContainer = document.getElementById('lb-container');
                     let chalContainer = document.getElementById('lb-challenge-container');
                     
@@ -897,48 +886,46 @@
                     let now = new Date();
                     let currentMonth = now.getMonth() + 1;
                     let currentYear = now.getFullYear();
-                    let currentHalfYear = Math.ceil(currentMonth / 6); // Kỳ 1: Tháng 1-6, Kỳ 2: Tháng 7-12
+                    let currentHalfYear = Math.ceil(currentMonth / 6);
 
-                    // Phân loại data ngay từ đầu (Thử thách = 1 tháng, Bảng vàng = 6 tháng)
                     let mainData = [];
                     let chalData = [];
 
                     data.forEach(row => {
-                        let isMatchMain = true;
-                        let isMatchChal = true;
+                        let isMatchMain = false;
+                        let isMatchChal = false;
                         
                         if (row.time) {
-                            // Ép về String an toàn tuyệt đối
                             let timeStr = String(row.time).trim();
-                            let m = 0;
                             let y = 0;
                             
-                            // 1. Xử lý chuẩn ISO (Nếu dữ liệu bị ép kiểu Date)
                             if (timeStr.includes('T')) {
                                 let d = new Date(timeStr);
-                                m = d.getMonth() + 1;
-                                y = d.getFullYear();
-                            } else {
-                                // 2. Xử lý chuỗi Text (Mở rộng Regex bắt cả dấu / hoặc -)
-                                let match = timeStr.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
-                                if (match) {
-                                    let p1 = parseInt(match[1]);
-                                    let p2 = parseInt(match[2]);
-                                    y = parseInt(match[3]);
+                                if (!isNaN(d.getTime())) {
+                                    let m1 = d.getMonth() + 1;
+                                    let m2 = d.getDate();
+                                    y = d.getFullYear();
                                     
-                                    if (p2 > 12) m = p1; 
-                                    else if (p1 > 12) m = p2;
-                                    else m = p2; // Mặc định p2 là Tháng vì ta đã lưu DD/MM/YYYY
+                                    if (y === currentYear) {
+                                        if (Math.ceil(m1 / 6) === currentHalfYear || Math.ceil(m2 / 6) === currentHalfYear) isMatchMain = true;
+                                        if (m1 === currentMonth || m2 === currentMonth) isMatchChal = true;
+                                    }
                                 }
-                            }
-                            
-                            if (m !== 0 && y !== 0) {
-                                isMatchMain = (Math.ceil(m / 6) === currentHalfYear && y === currentYear);
-                                isMatchChal = (m === currentMonth && y === currentYear);
+                            } else {
+                                let matchVN = timeStr.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
+                                if (matchVN) {
+                                    let p1 = parseInt(matchVN[1]);
+                                    let p2 = parseInt(matchVN[2]);
+                                    y = parseInt(matchVN[3]);
+                                    
+                                    if (y === currentYear) {
+                                        if (Math.ceil(p1 / 6) === currentHalfYear || Math.ceil(p2 / 6) === currentHalfYear) isMatchMain = true;
+                                        if (p1 === currentMonth || p2 === currentMonth) isMatchChal = true;
+                                    }
+                                }
                             }
                         }
 
-                        // LỌC KHOẢNG TRẮNG RÁC (TRIM) VÀ ÉP IN HOA CHỐNG LỖI SO SÁNH
                         let testName = String(row.test || "").trim().toUpperCase();
 
                         if (testName === "THỬ THÁCH PART 5") {
