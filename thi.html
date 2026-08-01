@@ -2425,21 +2425,24 @@
             };
 
             try {
-                // Bước A: Thử gọi từ gốc
-                ipaText = await fetchFreeDict(text);
-                
-                // Bước B: Nếu không có (thường do số nhiều, V-ing, ED), thử cắt đuôi tìm từ gốc
-                if (!ipaText) {
-                    let baseWord = text;
-                    if (text.endsWith('ies')) baseWord = text.slice(0, -3) + 'y';
-                    else if (text.endsWith('es')) baseWord = text.slice(0, -2);
-                    else if (text.endsWith('s')) baseWord = text.slice(0, -1);
-                    else if (text.endsWith('ing')) baseWord = text.slice(0, -3);
-                    else if (text.endsWith('ed')) baseWord = text.slice(0, -2);
-                    
-                    if (baseWord !== text) {
-                        ipaText = await fetchFreeDict(baseWord);
-                    }
+                // TẠO DANH SÁCH TỪ KHÓA ĐỂ THỬ (Ưu tiên từ gốc trước, sau đó mới thử các biến thể cắt đuôi)
+                let candidates = [text];
+                if (text.endsWith('ies')) candidates.push(text.slice(0, -3) + 'y');
+                if (text.endsWith('es')) candidates.push(text.slice(0, -2)); 
+                if (text.endsWith('s') && !text.endsWith('ss')) candidates.push(text.slice(0, -1)); // Bọc lót cho từ như vegetables -> vegetable
+                if (text.endsWith('ing')) {
+                    candidates.push(text.slice(0, -3)); // VD: playing -> play
+                    candidates.push(text.slice(0, -3) + 'e'); // VD: making -> make
+                }
+                if (text.endsWith('ed')) {
+                    candidates.push(text.slice(0, -2)); // VD: played -> play
+                    candidates.push(text.slice(0, -1)); // VD: baked -> bake
+                }
+
+                // Chạy vòng lặp thử từng từ (Lấy luôn cái đầu tiên có kết quả)
+                for (let word of candidates) {
+                    ipaText = await fetchFreeDict(word);
+                    if (ipaText) break; // Tìm thấy IPA là thoát ngay lập tức!
                 }
 
                 if (!ipaText) throw new Error("Free Dictionary failed");
