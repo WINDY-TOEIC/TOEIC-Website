@@ -1105,8 +1105,10 @@
                     suggestionFormat = ``; 
                 }
 
+                let extraInstruction = (realS === 'S' && localQ <= 1) ? "\nYêu cầu đề bài là đọc lại y chang thông điệp được viết trên màn hình." : "";
+
                 let prompt = `Bạn là Giám khảo TOEIC chuyên nghiệp của ETS. Hãy chấm điểm phần thi ${skillType === 'S' ? 'Speaking' : 'Writing'} này.
-Nội dung câu hỏi/yêu cầu: "${qText}"
+Nội dung câu hỏi/yêu cầu: "${qText}"${extraInstruction}
 ${imageDesc ? `\nMô tả thực tế của bức tranh trên màn hình là: "${imageDesc.trim()}". (Chỉ trừ điểm nếu thí sinh tả sai lệch hẳn so với mô tả này. Nếu thí sinh tả những chi tiết hợp lý có thể tồn tại trong bối cảnh đó thì cứ châm chước qua).` : ''}
 Câu trả lời của học viên: "${studentAnswer}"
 
