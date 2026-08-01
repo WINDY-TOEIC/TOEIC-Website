@@ -1401,7 +1401,7 @@
             if(currentBtn) currentBtn.classList.add('current');
             
             // Xóa lịch sử Undo/Redo khi qua nhóm câu hỏi mới
-            setTimeout(initHistoryState, 100);
+            initHistoryState();
         }
 
         // --- CÁC HÀM XỬ LÝ CHUYÊN SÂU ---
@@ -2337,7 +2337,8 @@
         
         document.getElementById('tb-search').onclick = async () => {
             if(!currentSelectionRange) return;
-            let text = currentSelectionRange.toString().trim();
+            let lockedRange = currentSelectionRange;
+            let text = lockedRange.toString().trim();
             if(!text) return;
 
             let btnSearch = document.getElementById('tb-search');
@@ -2359,7 +2360,7 @@
                 // Thêm hàm unwrap để khi xóa ❌ nó gỡ luôn màu nền xanh
                 noteSpan.innerHTML = `(${translatedText}) <span class="del-note" onclick="let p = this.parentElement; let prev = p.previousSibling; if(prev && prev.classList && prev.classList.contains('hl-word-blue')) { while(prev.firstChild) p.parentNode.insertBefore(prev.firstChild, prev); prev.remove(); } p.remove(); saveActionState();">❌</span>`;
                 
-                let range = currentSelectionRange;
+                let range = lockedRange;
                 try {
                     let wrapSpan = document.createElement('span');
                     wrapSpan.className = 'hl-word-blue';
@@ -2386,8 +2387,9 @@
         // --- TÍNH NĂNG TRA IPA (FREE DICTIONARY + GROQ AI) ---
         document.getElementById('tb-ipa').onclick = async () => {
             if(!currentSelectionRange) return;
+            let lockedRange = currentSelectionRange;
             // Ép thành chữ thường để tra từ điển chuẩn xác hơn
-            let text = currentSelectionRange.toString().trim().toLowerCase();
+            let text = lockedRange.toString().trim().toLowerCase();
             if(!text) return;
 
             let btnIpa = document.getElementById('tb-ipa');
@@ -2480,7 +2482,7 @@
                 // Thêm hàm unwrap để khi xóa ❌ nó gỡ luôn màu nền tím
                 noteSpan.innerHTML = `[${ipaText}] <span class="del-note" onclick="let p = this.parentElement; let prev = p.previousSibling; if(prev && prev.classList && prev.classList.contains('hl-word-purple')) { while(prev.firstChild) p.parentNode.insertBefore(prev.firstChild, prev); prev.remove(); } p.remove(); saveActionState();">❌</span>`;
                 
-                let range = currentSelectionRange;
+                let range = lockedRange;
                 try {
                     let wrapSpan = document.createElement('span');
                     wrapSpan.className = 'hl-word-purple';
