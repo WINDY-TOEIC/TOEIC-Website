@@ -1172,7 +1172,7 @@
                                 if (matches.length >= 2) {
                                     let splitIndex = matches[1].index;
                                     let engText = finalExplanation.substring(0, splitIndex).trim() + "</div></div></div>";
-                                    let viText = finalExplanation.substring(splitIndex).trim() + "</div></div></div>";
+                                    let viText = finalExplanation.substring(splitIndex).trim().replace(/^(?:>|&gt;)\s*/, '') + "</div></div></div>";
                                     finalExplanation = `${zoomBtnsPart12}<div class="eng-transcript trans-content-text" style="font-size: ${currentTransSize}px;">${engText}</div><div class="vi-translation trans-content-text" style="font-size: ${currentTransSize}px; margin-top: 10px;">${viText}</div>`;
                                 } else {
                                     // Dự phòng 1: Tìm xem có chữ (A) xuất hiện lần 2 không (Chắc chắn 100% bắt được)
@@ -1182,14 +1182,14 @@
                                     if (matchesA.length >= 2) {
                                         let splitIndex = matchesA[1].index;
                                         let engText = finalExplanation.substring(0, splitIndex).trim() + "</div></div></div>";
-                                    let viText = finalExplanation.substring(splitIndex).trim() + "</div></div></div>";
+                                        let viText = finalExplanation.substring(splitIndex).trim().replace(/^(?:>|&gt;)\s*/, '') + "</div></div></div>";
                                         finalExplanation = `${zoomBtnsPart12}<div class="eng-transcript trans-content-text" style="font-size: ${currentTransSize}px;">${engText}</div><div class="vi-translation trans-content-text" style="font-size: ${currentTransSize}px; margin-top: 10px;">${viText}</div>`;
                                     } else {
                                         // Dự phòng 2: Tìm theo chữ "Lời dịch" nếu định dạng bị lệch
                                         let viMatch = finalExplanation.match(/(?:<br\s*\/?>|<\/p>|<p>)?\s*(?:<strong>|<b>)?Lời dịch/i);
                                         if (viMatch) {
                                             let engText = finalExplanation.substring(0, viMatch.index).trim() + "</div></div></div>";
-                                            let viText = finalExplanation.substring(viMatch.index).trim() + "</div></div></div>";
+                                            let viText = finalExplanation.substring(viMatch.index).trim().replace(/^(?:>|&gt;)\s*/, '') + "</div></div></div>";
                                             finalExplanation = `${zoomBtnsPart12}<div class="eng-transcript trans-content-text" style="font-size: ${currentTransSize}px;">${engText}</div><div class="vi-translation trans-content-text" style="font-size: ${currentTransSize}px; margin-top: 10px;">${viText}</div>`;
                                         } else {
                                             finalExplanation = `${zoomBtnsPart12}<div class="eng-transcript trans-content-text" style="font-size: ${currentTransSize}px;">${finalExplanation}</div>`;

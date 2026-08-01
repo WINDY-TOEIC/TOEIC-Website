@@ -599,6 +599,12 @@
                     document.getElementById('btn-skip-prep').classList.add('hidden');
                     document.getElementById('dummy-space').style.display = "block";
 
+                    // BỎ KHÓA AUDIO: Cho phép thanh Audio sáng lên và hoạt động bình thường
+                    if (audioEl) {
+                        audioEl.style.pointerEvents = 'auto';
+                        audioEl.style.opacity = '1';
+                    }
+
                     // Ép trình duyệt đọc lại thẻ <source> trước khi play để tránh lỗi DOM chưa load xong
                     audioEl.load();
 
@@ -633,6 +639,12 @@
                         clearInterval(swTimerInterval);
                         currentPhase = "reading"; // Chế độ đọc đề
                         timeLeft = 45;
+
+                        // KHÓA THANH AUDIO TRONG 45S ĐỌC ĐỀ CHỐNG BẤM NHẦM
+                        if (audioEl) {
+                            audioEl.style.pointerEvents = 'none';
+                            audioEl.style.opacity = '0.5';
+                        }
 
                         document.getElementById('timer-box').className = "timer-box prep-time";
                         document.getElementById('timer-box').innerText = "Reading Time: 00:45";
