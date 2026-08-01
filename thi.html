@@ -2387,11 +2387,10 @@
             }
         };
 
-        // --- TÍNH NĂNG TRA IPA (FREE DICTIONARY + GROQ AI) ---
+        // --- TÍNH NĂNG TRA IPA (FREE DICTIONARY API) ---
         document.getElementById('tb-ipa').onclick = async () => {
             if(!currentSelectionRange) return;
             let lockedRange = currentSelectionRange;
-            // Ép thành chữ thường để tra từ điển chuẩn xác hơn
             let text = lockedRange.toString().trim().toLowerCase();
             if(!text) return;
 
@@ -2401,98 +2400,78 @@
 
             let ipaText = "";
 
-            // 1. Hàm chuẩn hóa IPA sang chuẩn Oxford
             const formatIPA = (str) => {
-                return str.replace(/[\/\[\]]/g, '') // Xóa dấu / và []
-                          .replace(/ɹ/g, 'r')      // Đổi ɹ thành r
-                          .replace(/ɛ/g, 'e');     // Đổi ɛ thành e
+                return str.replace(/[\/\[\]]/g, '').replace(/ɹ/g, 'r').replace(/ɛ/g, 'e');
             };
 
-            // 2. Hàm gọi Free Dictionary
             const fetchFreeDict = async (word) => {
-                let res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`);
-                if(!res.ok) return null;
-                let data = await res.json();
-                let phonetics = data[0]?.phonetics || [];
-                let txt = data[0]?.phonetic;
-                let ukItem = phonetics.find(p => p.text && p.audio && p.audio.includes('-uk'));
-                if (ukItem) txt = ukItem.text;
-                else {
-                    let textItem = phonetics.find(p => p.text);
-                    if (textItem) txt = textItem.text;
+                try {
+                    let res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`);
+                    if(!res.ok) return null;
+                    let data = await res.json();
+                    
+                    // Logic cũ: Bóc tách cấu trúc JSON chuẩn
+                    let txt = data[0]?.phonetic;
+                    let phonetics = data[0]?.phonetics || [];
+                    let ukItem = phonetics.find(p => p.text && p.audio && p.audio.includes('-uk'));
+                    if (ukItem) {
+                        txt = ukItem.text;
+                    } else {
+                        let textItem = phonetics.find(p => p.text);
+                        if (textItem) txt = textItem.text;
+                    }
+                    
+                    // Logic Regex: Nếu logic cũ không tìm thấy, quét văn bản JSON lấy cụm /.../ đầu tiên
+                    if (!txt) {
+                        let jsonString = JSON.stringify(data);
+                        let match = jsonString.match(/\/[^\/]+\//);
+                        if (match) txt = match[0];
+                    }
+                    
+                    return txt ? formatIPA(txt) : null;
+                } catch (e) {
+                    return null;
                 }
-                return txt ? formatIPA(txt) : null;
             };
 
             try {
-                // TẠO DANH SÁCH TỪ KHÓA ĐỂ THỬ (Ưu tiên từ gốc trước, sau đó mới thử các biến thể cắt đuôi)
+                // Khởi tạo danh sách các biến thể từ vựng (Fallback array)
                 let candidates = [text];
                 if (text.endsWith('ies')) candidates.push(text.slice(0, -3) + 'y');
                 if (text.endsWith('es')) candidates.push(text.slice(0, -2)); 
-                if (text.endsWith('s') && !text.endsWith('ss')) candidates.push(text.slice(0, -1)); // Bọc lót cho từ như vegetables -> vegetable
+                if (text.endsWith('s') && !text.endsWith('ss')) candidates.push(text.slice(0, -1)); 
                 if (text.endsWith('ing')) {
-                    candidates.push(text.slice(0, -3)); // VD: playing -> play
-                    candidates.push(text.slice(0, -3) + 'e'); // VD: making -> make
+                    candidates.push(text.slice(0, -3)); 
+                    candidates.push(text.slice(0, -3) + 'e'); 
                 }
                 if (text.endsWith('ed')) {
-                    candidates.push(text.slice(0, -2)); // VD: played -> play
-                    candidates.push(text.slice(0, -1)); // VD: baked -> bake
+                    candidates.push(text.slice(0, -2)); 
+                    candidates.push(text.slice(0, -1)); 
                 }
 
-                // Chạy vòng lặp thử từng từ (Lấy luôn cái đầu tiên có kết quả)
+                // Chạy vòng lặp kiểm tra từng biến thể, thoát ngay khi gọi API thành công
                 for (let word of candidates) {
                     ipaText = await fetchFreeDict(word);
-                    if (ipaText) break; // Tìm thấy IPA là thoát ngay lập tức!
+                    if (ipaText) break;
                 }
 
-                if (!ipaText) throw new Error("Free Dictionary failed");
+                if (!ipaText) ipaText = "Không có IPA";
 
             } catch (err) {
-                // Bước C: NẾU TỪ ĐIỂN VẪN TỊT NGÒI -> GỌI GROQ AI BÙ VÀO 
-                try {
-                    let _k1 = "Z3NrX3NjbHNqUGpqWnhzbWZt";
-                    let _k2 = "Z2s2Q3RwV0dkeWIzRlk5Wk1F";
-                    let _k3 = "VHU4SThhWVVsdkxWVFFuVHVBVTY=";
-                    
-                    let groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-                        method: 'POST',
-                        headers: {
-                            'Authorization': `Bearer ${atob(_k1 + _k2 + _k3)}`,
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            model: "llama3-8b-8192",
-                            messages: [{
-                                role: "system",
-                                content: "You are an Oxford English Dictionary. Output ONLY the raw UK IPA for the word. Use standard Oxford symbols (use 'r' not 'ɹ'). No brackets, no slashes, no extra text."
-                            }, {
-                                role: "user",
-                                content: text
-                            }],
-                            temperature: 0.1,
-                            max_tokens: 15
-                        })
-                    });
-                    if(!groqRes.ok) throw new Error("Groq API block");
-                    let groqData = await groqRes.json();
-                    ipaText = formatIPA(groqData.choices[0].message.content.trim()); 
-                } catch (groqErr) {
-                    ipaText = "Không có IPA"; 
-                }
+                ipaText = "Lỗi mạng";
             } finally {
-                // IN KẾT QUẢ RA MÀN HÌNH MƯỢT MÀ
+                // Render kết quả lên giao diện
                 let noteSpan = document.createElement('span');
                 noteSpan.className = 'hl-note-text';
                 noteSpan.style.color = '#8e44ad'; 
                 noteSpan.style.borderColor = '#8e44ad'; 
-                // Thêm hàm unwrap để khi xóa ❌ nó gỡ luôn màu nền tím
                 noteSpan.innerHTML = `[${ipaText}] <span class="del-note" onclick="let p = this.parentElement; let prev = p.previousSibling; if(prev && prev.classList && prev.classList.contains('hl-word-purple')) { while(prev.firstChild) p.parentNode.insertBefore(prev.firstChild, prev); prev.remove(); } p.remove(); saveActionState();">❌</span>`;
                 
                 let range = lockedRange;
                 try {
                     let wrapSpan = document.createElement('span');
                     wrapSpan.className = 'hl-word-purple';
-                    wrapSpan.style.backgroundColor = '#f4ecf7'; // Màu tím nhạt
+                    wrapSpan.style.backgroundColor = '#f4ecf7'; 
                     wrapSpan.style.borderRadius = '2px';
                     range.surroundContents(wrapSpan);
                     wrapSpan.insertAdjacentElement('afterend', noteSpan);
@@ -2503,7 +2482,7 @@
 
                 saveActionState();
                 window.getSelection().removeAllRanges();
-                toolbar.classList.remove('active');
+                if (toolbar) toolbar.classList.remove('active');
                 btnIpa.innerHTML = oldIcon; 
             }
         };
