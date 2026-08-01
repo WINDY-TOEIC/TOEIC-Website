@@ -592,6 +592,9 @@
                     audioEl = document.querySelector('#intro-box audio');
                 }
                 
+                // GIẢM ÂM LƯỢNG MẶC ĐỊNH XUỐNG 60% (~ GIẢM 5dB) CHỐNG GIẬT MÌNH
+                if (audioEl) audioEl.volume = 0.6;
+                
                 let timeConfig = getQuestionTime(currentQIndex);
                 let isSharedRunning = (timeConfig.shared && timeConfig.sharedId === activeSharedTimerId && swTimerInterval);
 
@@ -1220,6 +1223,7 @@ ${suggestionFormat}`;
             }
             
             utterance.rate = 0.9;
+            utterance.volume = 0.6; // GIẢM ÂM LƯỢNG ĐỌC MẪU AI XUỐNG 60% (~ GIẢM 5dB)
             window.speechSynthesis.cancel();
             window.speechSynthesis.speak(utterance);
         }
