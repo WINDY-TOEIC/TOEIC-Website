@@ -425,7 +425,9 @@
                         document.getElementById('setup-screen').classList.add('hidden');
                         
                         // KIỂM TRA: Nếu có thi Speaking thì bung bảng xin quyền Mic chuyên nghiệp trước khi vào thi
-                        if (currentSkill === 'B' || currentSkill === 'S') {
+                        // NẾU ĐÃ CẤP QUYỀN LẦN ĐẦU RỒI THÌ KHÔNG HIỆN BẢNG NỮA
+                        let hasMicPermission = localStorage.getItem('win_mic_granted');
+                        if ((currentSkill === 'B' || currentSkill === 'S') && !hasMicPermission) {
                             showMicPermissionModal();
                         } else {
                             document.getElementById('test-screen').classList.remove('hidden');
@@ -1124,7 +1126,14 @@
                     suggestionFormat = ``; 
                 }
 
-                let extraInstruction = (realS === 'S' && localQ <= 1) ? "\nYêu cầu đề bài là đọc lại y chang thông điệp được viết trên màn hình." : "";
+                // XỬ LÝ LỆNH ĐẶC BIỆT CHO TỪNG DẠNG BÀI ĐỂ AI KHÔNG BỊ "NGÁO"
+                let extraInstruction = "";
+                if (realS === 'S' && localQ <= 1) {
+                    extraInstruction = "\nYêu cầu đề bài là đọc lại y chang thông điệp được viết trên màn hình.";
+                } else if (realS === 'S' && localQ >= 7 && localQ <= 9) {
+                    // Dành riêng cho Q8-10: Cấm AI bắt lỗi thiếu thông tin toàn cảnh
+                    extraInstruction = "\n[CRITICAL RULE]: This is TOEIC Speaking Questions 8-10. The student is ONLY answering a specific short question based on the schedule/agenda image. DO NOT expect or ask them to describe the whole image. Grade them ONLY on whether they correctly answer the specific question asked using the information provided.";
+                }
 
                 let prompt = `Bạn là Giám khảo TOEIC chuyên nghiệp của ETS. Hãy chấm điểm phần thi ${skillType === 'S' ? 'Speaking' : 'Writing'} này.
 Nội dung câu hỏi/yêu cầu: "${qText}"${extraInstruction}
@@ -1281,8 +1290,8 @@ ${suggestionFormat}`;
                 <div style="background: white; width: 550px; max-width: 90%; padding: 30px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center;">
                     <h2 style="color: #003366; margin-top: 0; margin-bottom: 15px; font-size: 24px;">🎙️ CẤP QUYỀN MICROPHONE</h2>
                     <p style="font-size: 16px; color: #333; line-height: 1.6; margin-bottom: 20px;">Để hệ thống có thể thu âm mượt mà mà không làm gián đoạn thời gian làm bài của bạn, vui lòng cấp quyền truy cập Microphone.</p>
-                    <div style="background: #fff3cd; border: 1px solid #ffeeba; padding: 15px; border-radius: 8px; text-align: left; font-size: 15px; color: #856404; margin-bottom: 25px;">
-                        <b> HƯỚNG DẪN:</b><br>
+                    <div style="background: #fff3cd; border: 1px solid #ffeeba; padding: 15px; border-radius: 8px; text-align: left; font-size: 15px; color: #111; margin-bottom: 25px;">
+                        <b>📌 HƯỚNG DẪN DÀNH CHO HỌC VIÊN:</b><br>
                         1. Khi bảng thông báo của trình duyệt hiện ra, hãy chọn <b>"Allow while visiting the site"</b> (Cho phép khi truy cập trang web).<br>
                         2. Tuyệt đối KHÔNG chọn "Stereo Mix" để tránh việc hệ thống không thu được giọng nói.
                     </div>
@@ -1296,6 +1305,9 @@ ${suggestionFormat}`;
             navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
                 // Thu quyền thành công -> Tắt mic ngay để giải phóng phần cứng
                 stream.getTracks().forEach(track => track.stop());
+                
+                // Đánh dấu đã cấp quyền để các lần thi sau không hỏi lại bảng này nữa
+                localStorage.setItem('win_mic_granted', '1');
                 
                 // Đóng Modal và kích hoạt Test
                 document.getElementById('mic-setup-modal').remove();
