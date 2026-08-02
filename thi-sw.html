@@ -323,8 +323,9 @@
         let swData = null;
         let currentQIndex = 0; 
         let totalQuestions = 0; 
+        let swScores = {}; // BỘ NHỚ NGẦM LƯU ĐIỂM S&W
         
-        let swTimerInterval; 
+        let swTimerInterval;
         let currentPhase = "prep"; 
         let timeLeft = 0;
         let currentMode = "practice"; // Khai báo biến an toàn chống lỗi văng nút Bắt đầu
@@ -422,9 +423,14 @@
                         currentQIndex = 0;
                         
                         document.getElementById('setup-screen').classList.add('hidden');
-                        document.getElementById('test-screen').classList.remove('hidden');
                         
-                        renderQuestion();
+                        // KIỂM TRA: Nếu có thi Speaking thì bung bảng xin quyền Mic chuyên nghiệp trước khi vào thi
+                        if (currentSkill === 'B' || currentSkill === 'S') {
+                            showMicPermissionModal();
+                        } else {
+                            document.getElementById('test-screen').classList.remove('hidden');
+                            renderQuestion();
+                        }
                     })
                     .catch(err => alert("Lỗi khi tải đề: " + err.message));
             } catch (error) {
@@ -705,7 +711,20 @@
             }
             
             document.getElementById('btn-prev').disabled = (currentQIndex === 0);
-            document.getElementById('btn-next').disabled = (currentQIndex === totalQuestions - 1);
+            
+            // LOGIC MỚI: Ở câu cuối cùng, biến nút Next thành nút LƯU ĐIỂM
+            let btnNext = document.getElementById('btn-next');
+            if (currentQIndex === totalQuestions - 1) {
+                btnNext.innerHTML = "💾 LƯU BẢNG ĐIỂM & THOÁT";
+                btnNext.disabled = false;
+                btnNext.style.background = "#28a745"; // Đổi màu xanh lá
+                btnNext.onclick = saveSWAndExit;
+            } else {
+                btnNext.innerHTML = "Câu tiếp →";
+                btnNext.disabled = false;
+                btnNext.style.background = "#003366"; // Trả về màu xanh dương cũ
+                btnNext.onclick = function() { changeQuestion(1); };
+            }
             
             if (realSkill === 'W') {
                 let txtArea = document.getElementById('writing-input');
@@ -1175,6 +1194,15 @@ ${suggestionFormat}`;
                 }
                 
                 resBox.innerHTML = feedbackHtml;
+
+                // TỰ ĐỘNG CHỘP ĐIỂM BẰNG REGEX CẤT VÀO MẢNG
+                let scoreMatch = feedbackHtml.match(/ĐIỂM THÔ ƯỚC LƯỢNG:\s*(\d+)\/(\d+)/i);
+                if (scoreMatch) {
+                    swScores[currentQIndex] = {
+                        score: parseInt(scoreMatch[1]),
+                        max: parseInt(scoreMatch[2])
+                    };
+                }
                 
             } catch (err) {
                 resBox.innerHTML = `<b style="color:red;">Lỗi: ${err.message}</b>`;
@@ -1245,6 +1273,79 @@ ${suggestionFormat}`;
                 }
             }
         });
+
+        // --- HÀM 8: HIỂN THỊ GIAO DIỆN XIN QUYỀN MIC CHUYÊN NGHIỆP ---
+        function showMicPermissionModal() {
+            let modalHtml = `
+            <div id="mic-setup-modal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 99999; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px);">
+                <div style="background: white; width: 550px; max-width: 90%; padding: 30px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center;">
+                    <h2 style="color: #003366; margin-top: 0; margin-bottom: 15px; font-size: 24px;">🎙️ CẤP QUYỀN MICROPHONE</h2>
+                    <p style="font-size: 16px; color: #333; line-height: 1.6; margin-bottom: 20px;">Để hệ thống có thể thu âm mượt mà mà không làm gián đoạn thời gian làm bài của bạn, vui lòng cấp quyền truy cập Microphone.</p>
+                    <div style="background: #fff3cd; border: 1px solid #ffeeba; padding: 15px; border-radius: 8px; text-align: left; font-size: 15px; color: #856404; margin-bottom: 25px;">
+                        <b> HƯỚNG DẪN:</b><br>
+                        1. Khi bảng thông báo của trình duyệt hiện ra, hãy chọn <b>"Allow while visiting the site"</b> (Cho phép khi truy cập trang web).<br>
+                        2. Tuyệt đối KHÔNG chọn "Stereo Mix" để tránh việc hệ thống không thu được giọng nói.
+                    </div>
+                    <button onclick="requestMicAndStart()" style="background: #28a745; color: white; border: none; padding: 15px 40px; font-size: 18px; font-weight: bold; border-radius: 6px; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 10px rgba(40,167,69,0.3);">Đã hiểu & Cấp quyền</button>
+                </div>
+            </div>`;
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+        }
+
+        function requestMicAndStart() {
+            navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+                // Thu quyền thành công -> Tắt mic ngay để giải phóng phần cứng
+                stream.getTracks().forEach(track => track.stop());
+                
+                // Đóng Modal và kích hoạt Test
+                document.getElementById('mic-setup-modal').remove();
+                document.getElementById('test-screen').classList.remove('hidden');
+                renderQuestion();
+            }).catch(err => {
+                alert("Bạn chưa cấp quyền Microphone. Không thể vào thi Speaking!");
+            });
+        }
+
+        // --- HÀM 9: LƯU LỊCH SỬ S&W VÀ THOÁT VỀ TRANG CHỦ ---
+        function saveSWAndExit() {
+            if (!confirm("Bạn có chắc chắn muốn Lưu Bảng Điểm và Thoát về trang chủ không?")) return;
+            
+            // Tính tổng điểm
+            let totalS = 0, maxS = 0;
+            for (let i in swScores) {
+                totalS += swScores[i].score;
+                maxS += swScores[i].max;
+            }
+            
+            let finalScoreText = maxS > 0 ? `${totalS}/${maxS}` : "Chưa chấm điểm";
+            let testName = document.getElementById('sw-test-select') ? document.getElementById('sw-test-select').options[document.getElementById('sw-test-select').selectedIndex].text : currentTestName.toUpperCase();
+            
+            // Lưu vào Lịch sử (Đóng gói giống hệt L&R để trang chủ đọc được)
+            let historyData = JSON.parse(localStorage.getItem('win_history') || '[]');
+            let dateStr = new Date().toLocaleString("vi-VN");
+            
+            let detailData = {
+                totalCorrect: totalS, 
+                totalQuestions: maxS,
+                listCorrect: 0, readCorrect: 0,
+                finalL: 0, finalR: 0, 
+                partStats: { "SPEAKING & WRITING": { correct: totalS, total: maxS } },
+                userAnswers: {}, fileName: currentTestName
+            };
+            
+            historyData.unshift({ 
+                test: testName, 
+                score: finalScoreText, 
+                date: dateStr, 
+                details: detailData 
+            }); 
+            
+            if (historyData.length > 100) historyData.pop();
+            localStorage.setItem('win_history', JSON.stringify(historyData));
+            
+            // Thoát về Landing Page
+            window.location.href = "index.html";
+        }
     </script>
 </body>
 </html>
