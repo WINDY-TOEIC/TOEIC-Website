@@ -1320,7 +1320,7 @@ ${suggestionFormat}`;
             let finalScoreText = maxS > 0 ? `${totalS}/${maxS}` : "Chưa chấm điểm";
             let testName = document.getElementById('sw-test-select') ? document.getElementById('sw-test-select').options[document.getElementById('sw-test-select').selectedIndex].text : currentTestName.toUpperCase();
             
-            // Lưu vào Lịch sử (Đóng gói giống hệt L&R để trang chủ đọc được)
+            // Lưu vào Lịch sử (Đóng gói giống L&R để trang chủ đọc được)
             let historyData = JSON.parse(localStorage.getItem('win_history') || '[]');
             let dateStr = new Date().toLocaleString("vi-VN");
             
