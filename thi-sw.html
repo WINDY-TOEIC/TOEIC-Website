@@ -1204,8 +1204,8 @@ ${suggestionFormat}`;
                 
                 resBox.innerHTML = feedbackHtml;
 
-                // TỰ ĐỘNG CHỘP ĐIỂM BẰNG REGEX CẤT VÀO MẢNG
-                let scoreMatch = feedbackHtml.match(/ĐIỂM THÔ ƯỚC LƯỢNG:\s*(\d+)\/(\d+)/i);
+                // TỰ ĐỘNG CHỘP ĐIỂM BẰNG REGEX CẤT VÀO MẢNG (Đã fix lỗi bị dính thẻ HTML)
+                let scoreMatch = feedbackHtml.match(/ĐIỂM THÔ ƯỚC LƯỢNG:(?:[^0-9]*)(\d+)\/(\d+)/i);
                 if (scoreMatch) {
                     swScores[currentQIndex] = {
                         score: parseInt(scoreMatch[1]),
@@ -1320,56 +1320,92 @@ ${suggestionFormat}`;
 
         // --- HÀM 9: HIỂN THỊ BẢNG TỔNG KẾT VÀ LƯU LỊCH SỬ S&W ---
         function showSWSummary() {
-            let totalS = 0, maxS = 0;
-            let listHtml = '';
+            let rawSpeak = 0, rawWrite = 0;
+            let speakHtml = '', writeHtml = '';
             
             for (let i = 0; i < totalQuestions; i++) {
-                let sType = getRealSkill(i) === 'S' ? 'Speaking' : 'Writing';
+                let sType = getRealSkill(i);
                 let qNum = i + 1;
+                
                 if (swScores[i]) {
-                    totalS += swScores[i].score;
-                    maxS += swScores[i].max;
-                    listHtml += `<div style="display:flex; justify-content:space-between; padding: 8px 0; border-bottom: 1px dashed #ccc;"><span>Câu ${qNum} (${sType})</span> <b style="color:#28a745;">${swScores[i].score}/${swScores[i].max}</b></div>`;
+                    if (sType === 'S') rawSpeak += swScores[i].score;
+                    else rawWrite += swScores[i].score;
+                    
+                    let row = `<div style="display:flex; justify-content:space-between; padding: 6px 0; border-bottom: 1px dashed #ccc; font-size:14px;"><span>Câu ${qNum}</span> <b style="color:#28a745;">${swScores[i].score}/${swScores[i].max}</b></div>`;
+                    if (sType === 'S') speakHtml += row; else writeHtml += row;
                 } else {
-                    listHtml += `<div style="display:flex; justify-content:space-between; padding: 8px 0; border-bottom: 1px dashed #ccc; color: #999;"><span>Câu ${qNum} (${sType})</span> <i>Chưa chấm</i></div>`;
+                    let row = `<div style="display:flex; justify-content:space-between; padding: 6px 0; border-bottom: 1px dashed #ccc; color: #999; font-size:14px;"><span>Câu ${qNum}</span> <i>Chưa chấm</i></div>`;
+                    if (sType === 'S') speakHtml += row; else writeHtml += row;
                 }
             }
 
-            // Đổi "Chưa chấm điểm" thành "0/0" để fix lỗi dư chữ "Chưa chấm điểm Điểm" ngoài trang chủ
-            let finalScoreText = maxS > 0 ? `${totalS}/${maxS}` : "0/0";
+            // Tính điểm quy đổi chuẩn ETS
+            let scaledSpeak = Math.round((rawSpeak / 35) * 200) || 0;
+            if (scaledSpeak > 200) scaledSpeak = 200;
+            
+            let scaledWrite = Math.round((rawWrite / 28) * 200) || 0;
+            if (scaledWrite > 200) scaledWrite = 200;
+            
+            let totalScaled = scaledSpeak + scaledWrite;
+            let maxScale = (currentSkill === 'B') ? 400 : 200;
+            let finalScoreText = `${totalScaled}/${maxScale}`;
+
+            // Tạo layout 2 cột linh hoạt
+            let colHtml = `<div style="display: flex; gap: 20px;">`;
+            if (currentSkill === 'S' || currentSkill === 'B') {
+                colHtml += `<div style="flex: 1;">
+                    <h3 style="color:#003366; border-bottom: 2px solid #5ba4e5; padding-bottom:5px; margin-top:0; font-size: 16px; text-align: center;">SPEAKING</h3>
+                    ${speakHtml}
+                    <div style="margin-top: 10px; text-align: center; color:#dc3545; font-weight:bold; font-size: 15px;">Điểm quy đổi: ${scaledSpeak}/200</div>
+                </div>`;
+            }
+            if (currentSkill === 'W' || currentSkill === 'B') {
+                colHtml += `<div style="flex: 1;">
+                    <h3 style="color:#003366; border-bottom: 2px solid #5ba4e5; padding-bottom:5px; margin-top:0; font-size: 16px; text-align: center;">WRITING</h3>
+                    ${writeHtml}
+                    <div style="margin-top: 10px; text-align: center; color:#dc3545; font-weight:bold; font-size: 15px;">Điểm quy đổi: ${scaledWrite}/200</div>
+                </div>`;
+            }
+            colHtml += `</div>`;
 
             let modalHtml = `
             <div id="sw-summary-modal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 99999; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px);">
-                <div style="background: white; width: 500px; max-width: 90%; padding: 30px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: left;">
-                    <h2 style="color: #003366; margin-top: 0; margin-bottom: 15px; font-size: 22px; text-align:center;">📊 TỔNG KẾT BÀI LÀM</h2>
-                    <div style="max-height: 45vh; overflow-y: auto; margin-bottom: 20px; background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #eee;">
-                        ${listHtml}
+                <div style="background: white; width: 650px; max-width: 95%; padding: 25px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: left;">
+                    <h2 style="color: #003366; margin-top: 0; margin-bottom: 15px; font-size: 22px; text-align:center; text-transform: uppercase;">📊 TỔNG KẾT BÀI LÀM S&W</h2>
+                    <div style="max-height: 50vh; overflow-y: auto; margin-bottom: 20px; background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #eee;">
+                        ${colHtml}
                     </div>
-                    <div style="font-size: 18px; font-weight: bold; color: #dc3545; text-align: center; margin-bottom: 25px;">
-                        TỔNG ĐIỂM THÔ: ${finalScoreText}
+                    <div style="font-size: 20px; font-weight: bold; color: #dc3545; text-align: center; margin-bottom: 25px;">
+                        TỔNG ĐIỂM S&W: ${finalScoreText}
                     </div>
                     <div style="display: flex; justify-content: space-between; gap: 15px;">
                         <button onclick="document.getElementById('sw-summary-modal').remove()" style="flex: 1; background: #6c757d; color: white; border: none; padding: 12px; font-size: 16px; font-weight: bold; border-radius: 6px; cursor: pointer;">Đóng lại</button>
-                        <button onclick="saveSWAndExit('${finalScoreText}', ${totalS}, ${maxS})" style="flex: 1; background: #28a745; color: white; border: none; padding: 12px; font-size: 16px; font-weight: bold; border-radius: 6px; cursor: pointer;">Lưu & Thoát</button>
+                        <button onclick="saveSWAndExit('${finalScoreText}', ${scaledSpeak}, ${scaledWrite}, ${rawSpeak}, ${rawWrite})" style="flex: 1; background: #28a745; color: white; border: none; padding: 12px; font-size: 16px; font-weight: bold; border-radius: 6px; cursor: pointer;">Lưu & Thoát</button>
                     </div>
                 </div>
             </div>`;
             document.body.insertAdjacentHTML('beforeend', modalHtml);
         }
 
-        function saveSWAndExit(finalScoreText, totalS, maxS) {
+        function saveSWAndExit(finalScoreText, scaledSpeak, scaledWrite, rawSpeak, rawWrite) {
             let testName = document.getElementById('sw-test-select') ? document.getElementById('sw-test-select').options[document.getElementById('sw-test-select').selectedIndex].text : currentTestName.toUpperCase();
             
-            // Lưu vào Lịch sử (Đóng gói giống hệt L&R để trang chủ đọc được)
+            // Lưu vào Lịch sử (Đóng gói tương thích với trang chủ index.html)
             let historyData = JSON.parse(localStorage.getItem('win_history') || '[]');
             let dateStr = new Date().toLocaleString("vi-VN");
             
+            let partStatsObj = {};
+            if (currentSkill === 'S' || currentSkill === 'B') partStatsObj["SPEAKING (Điểm thô)"] = { correct: rawSpeak, total: 35 };
+            if (currentSkill === 'W' || currentSkill === 'B') partStatsObj["WRITING (Điểm thô)"] = { correct: rawWrite, total: 28 };
+
             let detailData = {
-                totalCorrect: totalS, 
-                totalQuestions: maxS,
-                listCorrect: 0, readCorrect: 0,
-                finalL: 0, finalR: 0, 
-                partStats: { "SPEAKING & WRITING": { correct: totalS, total: maxS } },
+                totalCorrect: (rawSpeak + rawWrite), // Tạm dùng để tương thích giao diện cũ
+                totalQuestions: (currentSkill === 'B') ? 63 : (currentSkill === 'S' ? 35 : 28), // 35+28=63 điểm thô tối đa
+                listCorrect: rawSpeak, // Tương thích hiển thị ra index.html
+                readCorrect: rawWrite, 
+                finalL: scaledSpeak, // Hiển thị điểm quy đổi
+                finalR: scaledWrite, 
+                partStats: partStatsObj,
                 userAnswers: {}, fileName: currentTestName
             };
             
