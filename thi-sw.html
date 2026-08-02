@@ -714,13 +714,13 @@
             
             document.getElementById('btn-prev').disabled = (currentQIndex === 0);
             
-            // LOGIC MỚI: Ở câu cuối cùng, biến nút Next thành nút LƯU ĐIỂM
+            // LOGIC MỚI: Ở câu cuối cùng, biến nút Next thành nút TỔNG KẾT
             let btnNext = document.getElementById('btn-next');
             if (currentQIndex === totalQuestions - 1) {
-                btnNext.innerHTML = "💾 LƯU BẢNG ĐIỂM & THOÁT";
+                btnNext.innerHTML = "📊 TỔNG KẾT";
                 btnNext.disabled = false;
                 btnNext.style.background = "#28a745"; // Đổi màu xanh lá
-                btnNext.onclick = saveSWAndExit;
+                btnNext.onclick = showSWSummary;
             } else {
                 btnNext.innerHTML = "Câu tiếp →";
                 btnNext.disabled = false;
@@ -1318,21 +1318,49 @@ ${suggestionFormat}`;
             });
         }
 
-        // --- HÀM 9: LƯU LỊCH SỬ S&W VÀ THOÁT VỀ TRANG CHỦ ---
-        function saveSWAndExit() {
-            if (!confirm("Bạn có chắc chắn muốn Lưu Bảng Điểm và Thoát về trang chủ không?")) return;
-            
-            // Tính tổng điểm
+        // --- HÀM 9: HIỂN THỊ BẢNG TỔNG KẾT VÀ LƯU LỊCH SỬ S&W ---
+        function showSWSummary() {
             let totalS = 0, maxS = 0;
-            for (let i in swScores) {
-                totalS += swScores[i].score;
-                maxS += swScores[i].max;
-            }
+            let listHtml = '';
             
-            let finalScoreText = maxS > 0 ? `${totalS}/${maxS}` : "Chưa chấm điểm";
+            for (let i = 0; i < totalQuestions; i++) {
+                let sType = getRealSkill(i) === 'S' ? 'Speaking' : 'Writing';
+                let qNum = i + 1;
+                if (swScores[i]) {
+                    totalS += swScores[i].score;
+                    maxS += swScores[i].max;
+                    listHtml += `<div style="display:flex; justify-content:space-between; padding: 8px 0; border-bottom: 1px dashed #ccc;"><span>Câu ${qNum} (${sType})</span> <b style="color:#28a745;">${swScores[i].score}/${swScores[i].max}</b></div>`;
+                } else {
+                    listHtml += `<div style="display:flex; justify-content:space-between; padding: 8px 0; border-bottom: 1px dashed #ccc; color: #999;"><span>Câu ${qNum} (${sType})</span> <i>Chưa chấm</i></div>`;
+                }
+            }
+
+            // Đổi "Chưa chấm điểm" thành "0/0" để fix lỗi dư chữ "Chưa chấm điểm Điểm" ngoài trang chủ
+            let finalScoreText = maxS > 0 ? `${totalS}/${maxS}` : "0/0";
+
+            let modalHtml = `
+            <div id="sw-summary-modal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 99999; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px);">
+                <div style="background: white; width: 500px; max-width: 90%; padding: 30px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: left;">
+                    <h2 style="color: #003366; margin-top: 0; margin-bottom: 15px; font-size: 22px; text-align:center;">📊 TỔNG KẾT BÀI LÀM</h2>
+                    <div style="max-height: 45vh; overflow-y: auto; margin-bottom: 20px; background: #f8f9fa; padding: 15px; border-radius: 8px; border: 1px solid #eee;">
+                        ${listHtml}
+                    </div>
+                    <div style="font-size: 18px; font-weight: bold; color: #dc3545; text-align: center; margin-bottom: 25px;">
+                        TỔNG ĐIỂM THÔ: ${finalScoreText}
+                    </div>
+                    <div style="display: flex; justify-content: space-between; gap: 15px;">
+                        <button onclick="document.getElementById('sw-summary-modal').remove()" style="flex: 1; background: #6c757d; color: white; border: none; padding: 12px; font-size: 16px; font-weight: bold; border-radius: 6px; cursor: pointer;">Đóng lại</button>
+                        <button onclick="saveSWAndExit('${finalScoreText}', ${totalS}, ${maxS})" style="flex: 1; background: #28a745; color: white; border: none; padding: 12px; font-size: 16px; font-weight: bold; border-radius: 6px; cursor: pointer;">Lưu & Thoát</button>
+                    </div>
+                </div>
+            </div>`;
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+        }
+
+        function saveSWAndExit(finalScoreText, totalS, maxS) {
             let testName = document.getElementById('sw-test-select') ? document.getElementById('sw-test-select').options[document.getElementById('sw-test-select').selectedIndex].text : currentTestName.toUpperCase();
             
-            // Lưu vào Lịch sử (Đóng gói giống L&R để trang chủ đọc được)
+            // Lưu vào Lịch sử (Đóng gói giống hệt L&R để trang chủ đọc được)
             let historyData = JSON.parse(localStorage.getItem('win_history') || '[]');
             let dateStr = new Date().toLocaleString("vi-VN");
             
