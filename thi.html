@@ -285,11 +285,12 @@
         .floating-focus-btn .tooltip { position: absolute; right: 60px; background: #333; color: #fff; padding: 6px 12px; border-radius: 4px; font-size: 13px; white-space: nowrap; opacity: 0; visibility: hidden; transition: 0.2s; pointer-events: none;}
         .floating-focus-btn:hover .tooltip { opacity: 1; visibility: visible; }
         
-        .focus-hint { position: fixed; bottom: 80px; right: 25px; background: #f1c40f; color: #333; border-radius: 50%; width: 40px; height: 40px; display: none; align-items: center; justify-content: center; font-size: 20px; font-weight: bold; cursor: help; box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 10000; }
+        .focus-hint { position: fixed; bottom: 80px; right: 25px; background: #fff; color: #333; border-radius: 50%; width: 40px; height: 40px; display: none; align-items: center; justify-content: center; font-size: 20px; font-weight: bold; cursor: help; border: 1px solid #ccc; z-index: 10000; }
         .focus-hint .tooltip { position: absolute; right: 50px; background: #333; color: #fff; padding: 6px 12px; border-radius: 4px; font-size: 13px; white-space: nowrap; opacity: 0; visibility: hidden; transition: 0.2s; pointer-events: none;}
         .focus-hint:hover .tooltip { opacity: 1; visibility: visible; }
         body.focus-active .focus-hint { display: flex; }
         body.dark-mode .floating-focus-btn { background: #5ba4e5; color: #111; }
+        body.dark-mode .focus-hint { background: #1e1e1e; color: #555; border-color: #333; }
     </style>
 </head>
 <body>
