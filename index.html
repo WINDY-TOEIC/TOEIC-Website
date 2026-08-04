@@ -1846,7 +1846,11 @@ function toggleThemePanel() {
                 if (event.key === 'Escape') {
                     closeChallenge();
                 } else if (event.code === 'ArrowRight' || event.keyCode === 39) {
-                    if (document.getElementById('c-review-area').style.display === 'flex') changeReviewQuestion(1);
+                    if (document.getElementById('c-review-area').style.display === 'flex') {
+                        changeReviewQuestion(1);
+                    } else if (cMode === 'unlimited' && document.getElementById('c-unlimited-actions').style.display === 'block') {
+                        loadNextCQuestion();
+                    }
                 } else if (event.code === 'ArrowLeft' || event.keyCode === 37) {
                     if (document.getElementById('c-review-area').style.display === 'flex') changeReviewQuestion(-1);
                 }

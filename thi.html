@@ -271,6 +271,25 @@
             .q-block { break-inside: avoid; }
             .explanation { break-inside: avoid; }
         }
+
+        /* Focus Mode Styles */
+        body.focus-active .test-header { display: none !important; }
+        body.focus-active .sub-header { display: none !important; }
+        body.focus-active .test-body { padding-top: 15px !important; max-height: 100vh !important; }
+        body.focus-active .left-panel, body.focus-active .right-panel { max-height: calc(100vh - 30px) !important; }
+        body.focus-active #drawing-canvas { top: 0 !important; height: 100% !important; }
+        body.focus-active #nav-modal { top: 0 !important; height: 100vh !important; }
+        
+        .floating-focus-btn { position: fixed; bottom: 20px; right: 20px; background: #043b5c; color: white; border: none; border-radius: 50%; width: 50px; height: 50px; font-size: 20px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 10000; display: flex; align-items: center; justify-content: center; transition: 0.3s; }
+        .floating-focus-btn:hover { transform: scale(1.1); }
+        .floating-focus-btn .tooltip { position: absolute; right: 60px; background: #333; color: #fff; padding: 6px 12px; border-radius: 4px; font-size: 13px; white-space: nowrap; opacity: 0; visibility: hidden; transition: 0.2s; pointer-events: none;}
+        .floating-focus-btn:hover .tooltip { opacity: 1; visibility: visible; }
+        
+        .focus-hint { position: fixed; bottom: 80px; right: 25px; background: #f1c40f; color: #333; border-radius: 50%; width: 40px; height: 40px; display: none; align-items: center; justify-content: center; font-size: 20px; font-weight: bold; cursor: help; box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 10000; }
+        .focus-hint .tooltip { position: absolute; right: 50px; background: #333; color: #fff; padding: 6px 12px; border-radius: 4px; font-size: 13px; white-space: nowrap; opacity: 0; visibility: hidden; transition: 0.2s; pointer-events: none;}
+        .focus-hint:hover .tooltip { opacity: 1; visibility: visible; }
+        body.focus-active .focus-hint { display: flex; }
+        body.dark-mode .floating-focus-btn { background: #5ba4e5; color: #111; }
     </style>
 </head>
 <body>
@@ -462,6 +481,10 @@
         <!-- KHUNG ĐỂ VẼ BÚT ĐỎ VÀ NHẬP CHỮ -->
         <canvas id="drawing-canvas"></canvas>
         <input type="text" id="canvas-text-input" placeholder="Gõ chữ rồi ấn Enter..." style="position: fixed; display: none; z-index: 1000; background: rgba(255,255,255,0.9); border: 2px dashed #333; outline: none; font-size: 20px; font-weight: bold; font-family: Arial, sans-serif; padding: 2px 5px; border-radius: 4px;">
+
+        <!-- Nút Focus Mode -->
+        <button class="floating-focus-btn" onclick="toggleFocusMode()">👀<div class="tooltip">Chế độ tập trung</div></button>
+        <div class="focus-hint">?<div class="tooltip">Sử dụng phím &larr; và &rarr; để chuyển câu</div></div>
 
     </div>
 
@@ -1084,10 +1107,13 @@
                     let teacherBtn = (classCode === "1" && studentName.toLowerCase() === "admin" && currentMode === 'practice' && !isSubmitted) 
                         ? `<button class="btn-transcript" style="background:#28a745; color:white; border-color:#218838; font-weight:bold;" onclick="handleTeacherHotkeys('full')">Đáp án</button>` : '';
 
+                    let currentPartName = (gSq.term_name || "").toUpperCase();
+                    let isListeningQ = currentPartName.includes("PART 1") || currentPartName.includes("PART 2") || currentPartName.includes("PART 3") || currentPartName.includes("PART 4");
+                    
                     let isMarked = markedQuestions[qIdx];
                     let markBtnText = isMarked ? "Bỏ Cờ" : "Gắn Cờ";
                     let markBtnBg = isMarked ? "#ffc107" : "#fff3cd";
-                    let markBtnDisplay = isSubmitted ? "display:none;" : "";
+                    let markBtnDisplay = (isSubmitted || (currentMode === 'exam' && isListeningQ)) ? "display:none;" : "";
                     
                     rightHtml += `
                         <div class="q-block" id="q-block-${qIdx}" style="padding-bottom: 6px; margin-bottom: 8px; border-bottom: 1px dashed #ccc;">
@@ -2360,6 +2386,7 @@
                 noteSpan.className = 'hl-note-text';
                 noteSpan.style.color = '#2980b9'; 
                 noteSpan.style.borderColor = '#2980b9'; 
+                noteSpan.style.fontSize = 'inherit'; 
                 // Thêm hàm unwrap để khi xóa ❌ nó gỡ luôn màu nền xanh
                 noteSpan.innerHTML = `(${translatedText}) <span class="del-note" onclick="let p = this.parentElement; let prev = p.previousSibling; if(prev && prev.classList && prev.classList.contains('hl-word-blue')) { while(prev.firstChild) p.parentNode.insertBefore(prev.firstChild, prev); prev.remove(); } p.remove(); saveActionState();">❌</span>`;
                 
@@ -2496,6 +2523,7 @@
                 noteSpan.className = 'hl-note-text';
                 noteSpan.style.color = '#8e44ad'; 
                 noteSpan.style.borderColor = '#8e44ad'; 
+                noteSpan.style.fontSize = 'inherit'; 
                 // Thêm hàm unwrap để khi xóa ❌ nó gỡ luôn màu nền tím
                 noteSpan.innerHTML = `[${ipaText}] <span class="del-note" onclick="let p = this.parentElement; let prev = p.previousSibling; if(prev && prev.classList && prev.classList.contains('hl-word-purple')) { while(prev.firstChild) p.parentNode.insertBefore(prev.firstChild, prev); prev.remove(); } p.remove(); saveActionState();">❌</span>`;
                 
@@ -2822,6 +2850,11 @@
                 }
             }, 1000); 
         });
+
+        // HÀM CHẾ ĐỘ TẬP TRUNG
+        function toggleFocusMode() {
+            document.body.classList.toggle('focus-active');
+        }
     </script>
 </body>
 </html>
