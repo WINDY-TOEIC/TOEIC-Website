@@ -1508,7 +1508,7 @@
             let isListening = partName.includes("PART 1") || partName.includes("PART 2") || partName.includes("PART 3") || partName.includes("PART 4");
             
             if (currentMode === 'exam' && !isSubmitted && isListening) {
-                alert("Listening thi thật không qua lại câu trước được!");
+                alert("Listening thi thật không thể tự chuyển câu!");
                 return; // Chặn đứng, không cho nhảy câu
             }
             showQuestion(index);
