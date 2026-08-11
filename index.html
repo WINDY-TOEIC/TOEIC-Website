@@ -431,13 +431,22 @@
             /* Kính lúp không nền, to hơn, nằm lồi ra bên trái */
             .btn-lookup-corner { position: absolute; left: -40px; top: 50%; transform: translateY(-50%); background: transparent; border: none; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-size: 26px; cursor: pointer; transition: 0.2s; padding: 0; box-shadow: none; color: #333; }
             .btn-lookup-corner:hover { transform: translateY(-50%) scale(1.2); }
+
+            /* NÚT MẸO TOEIC Ở GÓC TRÁI DƯỚI BANNER */
+            .btn-tips-corner { position: absolute; bottom: 15px; left: 40px; background: linear-gradient(45deg, #f39c12, #e67e22); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: bold; font-size: 15px; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.3); text-transform: uppercase; z-index: 100; display: flex; align-items: center; gap: 8px;}
+            .btn-tips-corner:hover { transform: scale(1.05); }
             
             @media (max-width: 768px) { 
                 .right-corner-buttons { bottom: 10px; right: 10px; width: 200px; }
                 .btn-grammar-corner, .btn-chal-corner { font-size: 11px; padding: 8px 0; }
                 .btn-lookup-corner { left: -32px; font-size: 20px; width: 30px; height: 30px; }
+                .btn-tips-corner { bottom: 10px; left: 10px; font-size: 11px; padding: 8px 15px; }
             }
         </style>
+        
+        <!-- Nút Mẹo TOEIC -->
+        <button class="btn-tips-corner" onclick="openTipsModal()">💡 Mẹo TOEIC</button>
+
         <div class="right-corner-buttons">
             <div style="position: relative; width: 100%;">
                 <button class="btn-lookup-corner" onclick="openLookupModal()" title="Tính năng tra cứu ngữ pháp">🔍</button>
@@ -863,7 +872,72 @@ let html = '';
         </div>
     </div>
 
+    <!-- MODAL MẸO TOEIC -->
+    <div id="tips-modal-overlay" class="modal-overlay" onclick="if(event.target === this) closeTipsModal()">
+        <div class="vocab-modal" style="width: 900px; max-width: 95vw; height: 85vh; display: flex; flex-direction: column;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e67e22; padding-bottom: 15px; flex-shrink: 0;">
+                <h2 style="margin: 0; color: #d35400; font-size: 22px;">💡 TỔNG HỢP MẸO & CHIẾN THUẬT TOEIC</h2>
+                <button onclick="closeTipsModal()" style="background: transparent; border: none; font-size: 28px; color: #dc3545; cursor: pointer; font-weight: bold; line-height: 1; transition: 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">×</button>
+            </div>
+            
+            <div style="overflow-y: auto; padding: 15px 5px; flex: 1; font-size: 15px; line-height: 1.6; color: #333;">
+                
+                <h3 style="color: #003366; border-left: 4px solid #0037f4; padding-left: 10px; background: #e3f2fd; padding: 8px 10px;">🎧 PHẦN NGHE (LISTENING)</h3>
+                
+                <h4 style="color: #d35400;">1. Part 1: Mô tả tranh</h4>
+                <ul style="margin-top: 5px;">
+                    <li><b style="color: #dc3545;">QUY TẮC TỬ THẦN:</b> Đáp án nào có vật, chủ thể, hành động <b>không xuất hiện</b> trong tranh ➔ <b>100% SAI</b>.</li>
+                    <li><b>Tranh chỉ người:</b> Cấu trúc chung là S + V + O. Động từ và Tân ngữ là 2 thành phần quan trọng nhất (VD: A woman is <i>looking</i> at a <i>computer</i>).</li>
+                    <li><b>Tranh chỉ vật:</b> 
+                        <br>- Xuất hiện <b>"being"</b> ➔ <b>100% SAI</b> (Vì being nghĩa là đang có người tác động vào vật).
+                        <br>- Xuất hiện từ chỉ người (person, man, people...) ➔ <b>100% SAI</b>.
+                    </li>
+                </ul>
+
+                <h4 style="color: #d35400;">2. Part 2: Hỏi - Đáp</h4>
+                <ul style="margin-top: 5px;">
+                    <li><b>Quan trọng nhất:</b> Phải nghe được CHỮ ĐẦU TIÊN (Wh-question hay Yes/No).</li>
+                    <li><b style="color: #dc3545;">Mẹo 1:</b> Xuất hiện <b>CỤM DANH TỪ</b> (The/a/an/my/their/much/several + N) ➔ <b>95% SAI</b> (Ngoại trừ câu hỏi Who/Which).</li>
+                    <li><b style="color: #dc3545;">Mẹo 2:</b> Câu hỏi Wh-question mà trả lời "Yes/No" ➔ <b>SAI</b>.</li>
+                    <li><b style="color: #dc3545;">Mẹo 3:</b> Trả lời có từ <b>ĐỒNG ÂM</b> với câu hỏi ➔ <b>85% SAI</b> (Bẫy lừa người nghe yếu).</li>
+                    <li><b style="color: #28a745;">Mẹo 4 (Phao cứu sinh):</b> Các đáp án mang ý <b>"Tôi không biết"</b> thường <b>ĐÚNG</b>. <br><i>(VD: Not decided, not announced, I'll look into it, ask Karen, I'll check with..., it depends).</i></li>
+                    <li><b>Câu hỏi lựa chọn (có chữ OR):</b> Phải nghe được thành phần trước và sau chữ OR. Chọn đáp án chứa 1 trong 2 thành phần đó, hoặc các từ: <i>either</i> (cái nào cũng đc), <i>neither</i> (không chọn cái nào), <i>both</i> (cả 2).</li>
+                </ul>
+
+                <h4 style="color: #d35400;">3. Part 3 & 4: Hội thoại & Bài nói ngắn</h4>
+                <ul style="margin-top: 5px;">
+                    <li><b>Chiến thuật cốt lõi:</b> Phải ĐỌC TRƯỚC CÂU HỎI. Luôn bám sát tốc độ người nói, rớt câu nào bỏ qua ngay lập tức.</li>
+                    <li><b>Câu hỏi chi tiết:</b> (Where, who, what, when...). Tập trung nghe từ khóa.</li>
+                    <li><b>Câu hỏi Gợi ý (Recommend/Suggest):</b> Lắng nghe các cụm: <i>I recommend, I suggest, I think we should, Let's, Maybe we can...</i></li>
+                    <li><b>Câu hỏi Dự định (Will do):</b> Lắng nghe các cụm: <i>I need to, I have to, I must, I will, I am going to, let me...</i></li>
+                    <li><b>Câu hỏi Biểu đồ:</b> TÌM THÔNG TIN BÊN CỘT ĐỐI DIỆN. (VD: Đáp án là A, B, C. Hãy nhìn vào cột giá tiền $1, $2, $3 trong biểu đồ và NGHE số tiền, tuyệt đối đừng nghe chữ A, B, C).</li>
+                    <li><b>Bẫy Đồng Nghĩa (Paraphrasing):</b> Đoạn hội thoại nói <i>"monitor, screen, projector"</i> ➔ Đáp án là <b>Equipment / Electronics</b>. Nói <i>"cost, fee, charge"</i> ➔ Đáp án là <b>Price</b>.</li>
+                </ul>
+
+                <h3 style="color: #003366; border-left: 4px solid #0037f4; padding-left: 10px; background: #e3f2fd; padding: 8px 10px; margin-top: 30px;">📖 PHẦN ĐỌC (READING)</h3>
+
+                <h4 style="color: #d35400;">1. Part 5 & 6: Điền từ vào chỗ trống</h4>
+                <ul style="margin-top: 5px;">
+                    <li><b>Thời gian chuẩn:</b> Tối đa <b>30 giây/câu</b>. Đừng ngâm quá lâu sẽ làm hỏng Part 7.</li>
+                    <li><b>Cách làm bài Từ Loại:</b> Đừng dịch cả câu! Hãy nhìn ngay TRƯỚC và SAU ô trống. <i>(Gợi ý: Bấm vào icon Kính lúp 🔍 bên góc phải màn hình để tra cứu cực nhanh công thức).</i></li>
+                    <li><b>Cách làm bài Từ Vựng:</b> Bắt buộc phải dịch ngữ cảnh. Chú ý các từ đi chung với nhau thành cụm (Collocations).</li>
+                </ul>
+
+                <h4 style="color: #d35400;">2. Part 7: Đọc hiểu văn bản (Phần "Nhức đầu" nhất)</h4>
+                <ul style="margin-top: 5px;">
+                    <li><b>Thời gian chuẩn:</b> Câu dễ 1 phút, câu khó 1-2 phút. Dài quá bỏ qua đánh lụi, không để bị kẹt.</li>
+                    <li><b>Bước 1:</b> Không bao giờ đọc liền bài khóa. Phải đọc câu hỏi và khoanh vùng Từ khóa (Tên riêng, ngày tháng, địa điểm...).</li>
+                    <li><b>Bước 2:</b> Dò từ khóa đó vào đoạn văn (Thường câu 1 nằm ở đoạn 1, câu 2 đoạn 2). Tìm từ <b>ĐỒNG NGHĨA</b> <i>(VD: Câu hỏi ghi "problem" -> Trong bài ghi "trouble". Câu hỏi ghi "car" -> Trong bài ghi "sedan").</i></li>
+                    <li><b>Câu hỏi NOT:</b> Loại trừ đáp án. Cái nào có trong bài thì gạch bỏ, cái nào tìm mỏi mắt không thấy thì khoanh.</li>
+                    <li><b>Câu hỏi Đồng nghĩa (Closest in meaning to):</b> Dạng này khó, không được dịch từ đó theo nghĩa gốc, mà phải ốp 4 đáp án vào ngữ cảnh của câu xem từ nào hợp lý nhất.</li>
+                </ul>
+
+            </div>
+        </div>
+    </div>
+
 <!-- MODAL SỔ TAY TỪ VỰNG -->
+
     <style>
         .vocab-modal { background: white; padding: 20px 25px; border-radius: 8px; width: 650px; max-width: 95%; box-shadow: 0 10px 30px rgba(0,0,0,0.3); transform: translateY(-30px); transition: 0.3s; max-height: 70vh; display: flex; flex-direction: column;}
         .modal-overlay.active .vocab-modal { transform: translateY(0); }
@@ -1652,28 +1726,29 @@ let html = '';
             document.getElementById('lookup-modal-overlay').classList.remove('active');
         }
 
+        function openTipsModal() {
+            document.getElementById('tips-modal-overlay').classList.add('active');
+        }
+
+        function closeTipsModal() {
+            document.getElementById('tips-modal-overlay').classList.remove('active');
+        }
+
         function lookupGrammar(type) {
             let val = document.getElementById('lookup-' + type).value;
             let resBox = document.getElementById('res-' + type);
-            
-            // Xóa rỗng ô bên kia nếu học viên chọn ô này (Đảm bảo chỉ tra 1 chiều tại 1 thời điểm)
-            let otherType = type === 'before' ? 'after' : 'before';
-            document.getElementById('lookup-' + otherType).value = "";
-            document.getElementById('res-' + otherType).innerHTML = '';
 
             if(!val) {
                 resBox.innerHTML = '';
                 return;
             }
 
-            let html = '';
             // Định dạng kết quả in ra dạng 2 cột trơn, không khung nền
             const formatRes = (arr) => {
                 let selectEl = document.getElementById('lookup-' + type);
                 let keyword = selectEl.options[selectEl.selectedIndex].text.split(' (')[0].replace(/"/g, '').replace('Động từ To be', 'be').trim();
                 
-                // Lột sạch các thẻ <b> cũ đi để chữ trở về bình thường
-                let itemsHtml = arr.map(item => `<div style="margin-bottom: 6px;">${item.replace(/<\/?b>/g, '')}</div>`).join('');
+                let itemsHtml = arr.map(item => `<div style="margin-bottom: 6px;">${item}</div>`).join('');
 
                 if (type === 'before') {
                     return `
@@ -1698,31 +1773,33 @@ let html = '';
                 }
             };
 
+            let html = '';
+            
             if(type === 'before') {
-                if(val === 'be') html = formatRes(['<b>Tính từ (Adj)</b> (Phổ biến nhất)', '<b>V-ing + Tân ngữ</b> (Thì tiếp diễn, chủ động)', '<b>V3/ed + Giới từ / Thời gian / Dấu chấm</b> (Bị động)', '<b>Danh từ (N)</b> (Chỉ nghề nghiệp, chức danh - Hiếm gặp)']);
-                else if(val === 'linking') html = formatRes(['<b>Tính từ (Adj)</b>']);
-                else if(val === 'article') html = formatRes(['<b>Danh từ (N)</b>', '<b>Tính từ (Adj)</b> (Nếu đằng sau đã có sẵn Danh từ)', '<b>Trạng từ (Adv)</b> (Nếu đằng sau đã có sẵn Cụm Adj + Noun)']);
-                else if(val === 'quantifier') html = formatRes(['<b>Danh từ (N)</b> (Số nhiều hoặc Không đếm được)']);
-                else if(val === 'prep') html = formatRes(['<b>Danh từ / Cụm danh từ / Đại từ</b>', '<b>V-ing + Tân ngữ</b>']);
-                else if(val === 'adj') html = formatRes(['<b>Danh từ (N)</b>', '<b>Liên từ "and"</b> + Tính từ (Adj)']);
-                else if(val === 'adv') html = formatRes(['<b>Tính từ (Adj)</b>', '<b>Động từ (V)</b>', '<b>Trạng từ (Adv)</b> (Bổ nghĩa cho nhau)']);
-                else if(val === 'v_normal') html = formatRes(['<b>Danh từ / Cụm danh từ / Đại từ</b> (Làm Tân ngữ)', '<b>Trạng từ (Adv)</b> (Nếu là Nội động từ, không cần tân ngữ)']);
-                else if(val === 'modal') html = formatRes(['<b>Động từ nguyên mẫu (Vo)</b>', '<b>be + V3/ed</b> (Bị động)']);
-                else if(val === 'to') html = formatRes(['<b>Động từ nguyên mẫu (Vo)</b>', '<b>Danh từ / V-ing</b> (Chỉ áp dụng với một số giới từ "to" đặc biệt như: look forward to, be used to, object to...)']);
-                else if(val === 'v_special') html = formatRes(['<b>V-ing</b>']);
-                else if(val === 'noun') html = formatRes(['<b>Động từ chia thì (V)</b> (Nếu Danh từ đó là Chủ ngữ)', '<b>Đại từ quan hệ</b> (who, which, that, whose)', '<b>Danh từ (N)</b> (Để tạo thành Danh từ ghép)']);
-                else if(val === 'person_n') html = formatRes(['<b>who / that</b> (Nếu sau ô trống là Động từ)', '<b>whom / who / that</b> (Nếu sau ô trống là S + V)', '<b>whose</b> (Nếu sau ô trống là một Danh từ không có a/an/the)']);
-                else if(val === 'thing_n') html = formatRes(['<b>which / that</b> (Đứng làm Chủ ngữ hoặc Tân ngữ)', '<b>whose</b> (Nếu sau ô trống là một Danh từ không có a/an/the)']);
-                else if(val === 'and_or') html = formatRes(['<b>Từ loại Y HỆT từ nằm trước and/or</b> (Ví dụ: Trước là Adj thì điền Adj, trước là V-ing thì điền V-ing)']);
-                else if(val === 'full_clause') html = formatRes(['<b>Trạng từ (Adv)</b>', '<b>Đại từ phản thân</b> (myself, themselves...) để nhấn mạnh chủ thể']);
+                if(val === 'be') html = formatRes(['Tính từ (Adj) (Phổ biến nhất)', 'V-ing + N (Thì tiếp diễn, chủ động)', 'V3/ed + Giới từ / Thời gian / Dấu chấm (Bị động)', 'Danh từ (N) (Chỉ nghề nghiệp, chức danh - Hiếm gặp)']);
+                else if(val === 'linking') html = formatRes(['Tính từ (Adj)']);
+                else if(val === 'article') html = formatRes(['Danh từ / Cụm danh từ (N / Noun Phrase)']);
+                else if(val === 'quantifier') html = formatRes(['Danh từ / Cụm danh từ']);
+                else if(val === 'prep') html = formatRes(['Danh từ / Cụm danh từ / Đại từ', 'V-ing + Tân ngữ']);
+                else if(val === 'adj') html = formatRes(['Danh từ / Cụm danh từ']);
+                else if(val === 'adv') html = formatRes(['Tính từ (Adj)', 'Động từ (V)', 'Trạng từ (Adv) (Bổ nghĩa cho nhau)']);
+                else if(val === 'v_normal') html = formatRes(['Danh từ / Cụm danh từ / Đại từ (Làm Tân ngữ)', 'Trạng từ (Adv) (Nếu là Nội động từ)']);
+                else if(val === 'modal') html = formatRes(['Động từ nguyên mẫu (Vo)', 'be + V3/ed (Bị động)']);
+                else if(val === 'to') html = formatRes(['Động từ nguyên mẫu (Vo)', 'Danh từ / Cụm N / V-ing (Các trường hợp ngoại lệ như: look forward to, be used to...)']);
+                else if(val === 'v_special') html = formatRes(['V-ing']);
+                else if(val === 'noun') html = formatRes(['Động từ chia thì (V) (Nếu Danh từ đó là Chủ ngữ)', 'Đại từ quan hệ (who, which, that, whose)', 'Danh từ (N) (Để tạo thành Danh từ ghép)']);
+                else if(val === 'person_n') html = formatRes(['who / that (Nếu sau ô trống là Động từ)', 'whom / who / that (Nếu sau ô trống là S + V)', 'whose (Nếu sau ô trống là một Danh từ không có a/an/the)']);
+                else if(val === 'thing_n') html = formatRes(['which / that (Đứng làm Chủ ngữ hoặc Tân ngữ)', 'whose (Nếu sau ô trống là một Danh từ không có a/an/the)']);
+                else if(val === 'and_or') html = formatRes(['Từ loại Y HỆT từ nằm trước and/or (Ví dụ: Trước là Adj thì điền Adj, trước là V-ing thì điền V-ing)']);
+                else if(val === 'full_clause') html = formatRes(['Trạng từ (Adv)', 'Đại từ phản thân (myself, themselves...) để nhấn mạnh chủ thể']);
             } 
             else {
-                if(val === 'noun') html = formatRes(['<b>Tính từ (Adj)</b>', '<b>Mạo từ (a, an, the) / Tính từ sở hữu</b>', '<b>Giới từ</b> (in, on, at, about...)', '<b>Ngoại động từ (V)</b> (Nếu N là Tân ngữ)', '<b>Danh từ (N)</b> (Để tạo thành Danh từ ghép)']);
-                else if(val === 'adj') html = formatRes(['<b>Trạng từ (Adv)</b> (Rất phổ biến)', '<b>Động từ "To be"</b> (am, is, are...)', '<b>Linking Verb</b> (smell, look, feel, become...)']);
-                else if(val === 'v_normal') html = formatRes(['<b>Trạng từ (Adv)</b>', '<b>Chủ ngữ</b> (Danh từ / Đại từ Chủ ngữ)', '<b>Đại từ quan hệ</b> (who, which, that)']);
-                else if(val === 'prep') html = formatRes(['<b>V3/ed</b> (Đứng trước giới từ thường là câu Bị động)', '<b>Nội động từ (V)</b> (Động từ không cần tân ngữ)']);
-                else if(val === 'clause') html = formatRes(['<b>Liên từ phụ thuộc</b> (Because, Although, If, When, While, As soon as...)']);
-                else if(val === 'vo') html = formatRes(['<b>Động từ khiếm khuyết</b> (can, will, should, must...)', '<b>Từ "to"</b> (want to, need to, in order to...)', '<b>Let / Make / Help / Have</b>']);
+                if(val === 'noun') html = formatRes(['Tính từ (Adj)', 'Mạo từ / Tính từ sở hữu / Lượng từ', 'Giới từ (in, on, at, about...)', 'Ngoại động từ (V)', 'Danh từ (N) (Tạo danh từ ghép)']);
+                else if(val === 'adj') html = formatRes(['Trạng từ (Adv) (Rất phổ biến)', 'Động từ "To be" (am, is, are...)', 'Linking Verb (smell, look, feel, become...)']);
+                else if(val === 'v_normal') html = formatRes(['Trạng từ (Adv)', 'Chủ ngữ (Danh từ / Đại từ Chủ ngữ)', 'Đại từ quan hệ (who, which, that)']);
+                else if(val === 'prep') html = formatRes(['V3/ed (Câu bị động)', 'Nội động từ (V)']);
+                else if(val === 'clause') html = formatRes(['Liên từ phụ thuộc (Because, Although, If, When, While, As soon as...)']);
+                else if(val === 'vo') html = formatRes(['Động từ khiếm khuyết (can, will, should, must...)', 'Từ "to" (want to, need to, in order to...)', 'Let / Make / Help / Have']);
             }
             resBox.innerHTML = html;
         }
