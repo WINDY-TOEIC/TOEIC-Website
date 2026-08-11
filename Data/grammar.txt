@@ -1,0 +1,504 @@
+=========================================================
+      TỔNG HỢP KIẾN THỨC NGỮ PHÁP TOEIC PART 5 & 6
+=========================================================
+
+UNIT 1: ĐỘNG TỪ (V) CHIA THÌ
+---------------------------------------------------------
+I. CÁC BƯỚC LÀM DẠNG BÀI ĐỘNG TỪ (V) CHIA THÌ
+Bước 1: Nhìn đáp án để xác định dạng bài.
+Bước 2: Xem trong câu đã có V chia thì chưa (Lưu ý: Mỗi mệnh đề chỉ có 1 V chia thì).
+- Nếu chưa có thì phải chia thì.
+- Nếu có rồi thì không chia (áp dụng To-V hoặc V-ing).
+Bước 3: Xác định dấu hiệu thời gian.
+Bước 4: Dịch câu để hiểu ngữ cảnh.
+
+II. CÔNG THỨC VÀ DẤU HIỆU NHẬN BIẾT CÁC THÌ
+1. Nhóm thì ĐƠN
+- Hiện tại đơn:
+  + Công thức: S + am/is/are + O | S + Vo/s/es + O
+  + Dấu hiệu: every (day, week, year...), always, usually, often, sometimes, rarely, occasionally, never.
+- Quá khứ đơn:
+  + Công thức: S + was/were + O | S + V2/ed + O
+  + Dấu hiệu: yesterday, ago, last (week, month...), mốc thời gian trong quá khứ.
+- Tương lai đơn:
+  + Công thức: S + will be + O | S + will + Vo + O
+  + Dấu hiệu: tomorrow, next (week, month...), soon, certainly, definitely, probably. (Lưu ý: Sau các động từ khiếm khuyết can/could/may/might/should... cũng cộng Vo).
+
+2. Nhóm thì TIẾP DIỄN
+- Hiện tại tiếp diễn:
+  + Công thức: S + am/is/are + V-ing
+  + Dấu hiệu: now, at the moment, at present. (Hoặc tomorrow, next week... nếu là 1 dự định gần).
+- Quá khứ tiếp diễn:
+  + Công thức: S + was/were + V-ing
+  + Dấu hiệu: Mốc thời gian cụ thể trong QK (VD: 8 pm last night, at this time yesterday), thường đi với when/while.
+- Tương lai tiếp diễn:
+  + Công thức: S + will be + V-ing
+  + Dấu hiệu: Mốc thời gian cụ thể trong TL (VD: 8 pm tomorrow, at this time tomorrow).
+
+3. Nhóm thì HOÀN THÀNH
+- Hiện tại hoàn thành:
+  + Công thức: S + have/has + V3/ed
+  + Dấu hiệu: for + khoảng TG, since + mốc TG, recently, lately (gần đây), so far, until now (tới nay), just (vừa), already (đã), ever (từng), yet (chưa).
+- Quá khứ hoàn thành:
+  + Công thức: S + had + V3/ed
+  + Dấu hiệu: Before + S + V(qkđ), By the time + S + V(qkđ), After + S + V(qkđ).
+- Tương lai hoàn thành:
+  + Công thức: S + will have + V3/ed
+  + Dấu hiệu: Before / By the time / By + mốc thời gian trong tương lai. (Hành động xảy ra sau sẽ chia ở thì Hiện tại đơn).
+
+4. Nhóm thì HOÀN THÀNH TIẾP DIỄN
+- Hiện tại HTTĐ: S + have/has been + V-ing
+- Quá khứ HTTĐ: S + had been + V-ing
+- Tương lai HTTĐ: S + will have been + V-ing
+
+
+UNIT 2: CÂU BỊ ĐỘNG (PASSIVE VOICE)
+---------------------------------------------------------
+I. CÁC BƯỚC LÀM BÀI ĐỘNG TỪ (Tích hợp Chủ động/Bị động)
+Bước 1: Xác định dạng bài (Nhìn đáp án xem có hỏi về V chia thì không).
+Bước 2: Xem trong câu đã có V chia thì chưa. (Chưa có thì chia thì, có rồi thì dùng dạng To-V/V-ing).
+Bước 3: Xét dấu hiệu thời gian để loại trừ đáp án sai thì.
+Bước 4: Xét chủ động / bị động dựa vào từ nằm ngay sau chỗ trống:
+- Có Danh từ / Cụm danh từ -> Chọn câu Chủ động.
+- Không có Danh từ (chỉ có giới từ, trạng từ, thời gian hoặc dấu chấm câu) -> Chọn câu Bị động.
+
+II. CÔNG THỨC CÂU BỊ ĐỘNG 
+Cấu trúc chung: be + V3/ed (Dịch là: bị, được)
+- Hiện tại đơn: am/is/are + V3/ed
+- Hiện tại tiếp diễn: am/is/are + being + V3/ed
+- Hiện tại hoàn thành: have/has + been + V3/ed
+- Quá khứ đơn: was/were + V3/ed
+- Quá khứ tiếp diễn: was/were + being + V3/ed
+- Quá khứ hoàn thành: had + been + V3/ed
+- Tương lai đơn: will be + V3/ed
+- Tương lai tiếp diễn: (Không có dạng bị động)
+- Tương lai hoàn thành: will have + been + V3/ed
+- Động từ khuyết thiếu: can/could/will/would/must/should/have to + be + V3/ed
+- Câu mệnh lệnh: Let + Object + be + V3/ed
+
+III. MẸO VÀ LƯU Ý QUAN TRỌNG
+1. Dấu hiệu chắc chắn bị động:
+- Trong câu có từ "by" -> 99% là câu bị động.
+- Sau cấu trúc bị động (be + V3/ed) thường đi kèm với: Giới từ (in, on, at, for, to...), Trạng từ (adv), hoặc to + Vo.
+
+2. Các trường hợp NGOẠI LỆ:
+Thông thường bị động sẽ không có Danh từ theo sau, nhưng ngoại trừ 3 động từ đặc biệt dưới đây (dù bị động nhưng vẫn cộng trực tiếp với Danh từ):
+- be given + N/cụm N (được cho là...)
+- be offered + N/cụm N (được cung cấp cái gì...)
+- be considered + N/cụm N (được xem xét là...)
+
+3. Mẹo nhận biết loại từ qua đuôi:
+- Đuôi Động từ: -ate (locate...), -ify (identify...), -ize/-ise (realize...), -en (widen...).
+- Đuôi Danh từ: -sion, -ment, -ness, -ity, -ee, -or, -er. (Dùng để xác định nhanh từ sau chỗ trống có phải là Cụm danh từ hay không).
+
+
+UNIT 3: TỪ LOẠI - DANH TỪ & CỤM DANH TỪ
+---------------------------------------------------------
+I. CÁC BƯỚC LÀM BÀI TẬP TỪ LOẠI (N, ADJ, ADV)
+Bước 1: Nhìn 4 đáp án để xác định đây là dạng bài từ loại. Dựa vào đuôi từ để phân loại đâu là N, V, Adj, Adv.
+Bước 2: Nhìn ngay phía trước và phía sau chỗ trống để xác định từ loại còn thiếu.
+* Mẹo: Nếu ngay phía sau chỗ trống là một giới từ (in, on, at, of...) hoặc liên từ, bạn có thể dừng, không cần đọc tiếp phần sau giới từ đó để xét cấu trúc.
+
+II. VỊ TRÍ CỦA DANH TỪ TRONG CÂU
+- Đứng trước Động từ -> Làm Chủ ngữ (S).
+- Đứng sau Động từ -> Làm Tân ngữ (O).
+- Đứng sau Giới từ (in/on/at/about/from/with/for/to...) -> Làm Tân ngữ của giới từ.
+- Đứng sau Mạo từ (a/an/the).
+- Đứng sau Tính từ sở hữu (my/your/his/her/their/our/its) hoặc Sở hữu cách ('s).
+- Đứng sau Tính từ (Adj).
+- Đứng sau Từ chỉ số lượng (several/many/much/any/all/some...) và Số đếm.
+
+III. DẤU HIỆU NHẬN BIẾT QUA ĐUÔI TỪ
+- Đuôi chỉ người: -er, -or, -ist, -ee, -ant, -yst.
+- Đuôi chỉ vật/sự việc: -tion, -sion, -ment, -ance, -ence, -ity, -is, -ness, -ship.
+- Ngoại lệ (trông giống N nhưng lại là V): Mention (đề cập), Consider (cân nhắc), Deliver (giao hàng).
+- Từ vừa là Danh từ vừa là Động từ: Answer, Benefit, Decline, Decrease, Detail, Design, Help, Increase, Plan, Purchase, Question, Support, Supply, Use.
+
+IV. CẤU TRÚC CỤM DANH TỪ
+Công thức tổng quát: Mạo từ / Tính từ sở hữu / Lượng từ + (Adv) + Adj + N
+- Lưu ý:
++ Trạng từ (Adv) KHÔNG đứng sát ngay trước Danh từ (Ví dụ: A really house -> Sai!).
++ Từ đứng cuối cùng trong cụm luôn là Danh từ gốc (khi dịch phải dịch ngược từ cuối lên).
++ Các Danh từ có thể đứng cạnh nhau bổ nghĩa cho nhau (N + N).
+
+V. PHÂN LOẠI DANH TỪ
+1. Danh từ đếm được (Countable)
+- Số ít: Đi với a/an/the, every, each, either, neither.
+- Số nhiều: Thêm s/es. Thường đi với some, several, any, many, few, all, both, among.
+* Quy tắc thêm s/es:
+  + Tận cùng -s, -sh, -ch, -x, -z -> thêm -es (bus -> buses).
+  + Tận cùng phụ âm + y -> đổi y thành i rồi thêm -es (baby -> babies).
+  + Tận cùng -f, -fe -> đổi thành -ves (leaf -> leaves, knife -> knives).
+  + Bất quy tắc: man -> men, woman -> women, child -> children, person -> people, mouse -> mice, tooth -> teeth, foot -> feet.
+
+2. Danh từ không đếm được (Uncountable)
+- KHÔNG bao giờ đi với a/an và KHÔNG thêm s/es. Thường đi với từ chỉ số lượng Much.
+- Các từ thường gặp: Water, fire, knowledge (kiến thức), information (thông tin), news (tin tức), furniture (nội thất), homework, equipment (thiết bị), security (an ninh).
+- Từ vừa đếm được vừa không đếm được: Time (đếm được = số lần / không đếm được = thời gian), Experience (đếm được = trải nghiệm / không đếm được = kinh nghiệm).
+
+VI. SỞ HỮU CÁCH & "QUY TẮC VÀNG"
+- Cấu trúc Sở hữu cách: Danh từ 's + Danh từ/cụm N. (Dịch từ đuôi lên đầu. VD: Mary's dog = con chó của Mary).
+* QUY TẮC VÀNG CẦN NHỚ:
+- Danh từ đếm được SỐ ÍT: KHÔNG BAO GIỜ được đứng một mình. Phía trước nó bắt buộc phải có mạo từ (a/an/the), tính từ sở hữu hoặc sở hữu cách ('s).
+- Danh từ SỐ NHIỀU & KHÔNG ĐẾM ĐƯỢC: Có thể đứng một mình (có hoặc không có từ hạn định ở trước đều được).
+
+
+UNIT 4: TÍNH TỪ (ADJECTIVE)
+---------------------------------------------------------
+I. VỊ TRÍ CỦA TÍNH TỪ TRONG CÂU
+- Đứng trước Danh từ: (Trạng từ) + Tính từ + Danh từ (Ví dụ: a beautiful girl).
+- Đứng sau "to be": be + Tính từ.
+- Đứng sau Động từ nối (Linking verbs): seem, appear (có vẻ), become (trở nên), feel, find (cảm thấy), look (trông có vẻ), taste, smell, sound, prove (tỏ ra) + Tính từ.
+- Cấu trúc đặc biệt: keep / find / make / paint + Tân ngữ (N) + Tính từ
+  (VD: make me happy, keep the room clean).
+
+II. DẤU HIỆU NHẬN BIẾT & CÁC TRƯỜNG HỢP NGOẠI LỆ
+- Đuôi Tính từ thường gặp: -ful, -ial/-al, -ous, -ive/-tive, -able/-ible, -ic, -less.
+- Mẹo: Trạng từ (Adv) bỏ đuôi "-ly" = Tính từ (Adj).
+* NGOẠI LỆ 1 (Có đuôi -ly nhưng lại là TÍNH TỪ): friendly (thân thiện), costly (đắt đỏ), likely (có khả năng), daily, weekly, monthly, quarterly, yearly. (Riêng "assembly" là Danh từ).
+* NGOẠI LỆ 2 (Có đuôi Tính từ nhưng lại là DANH TỪ):
+  + Đuôi -al: proposal, renewal, approval, arrival, appraisal, disposal, material, referral, rehearsal, individual, professional, official, manual, commercial.
+  + Đuôi -tive/-ic: representative, initiative, executive, alternative, relative, critic.
+
+III. TÍNH TỪ CHỈ ĐỊNH & SỐ LƯỢNG
+- Đi với N số ít: this, that, another, each, every, either, neither.
+- Đi với N số nhiều: these, those, other, both, many, (a) few, several.
+- Đi với N không đếm được: much, (a) little.
+- Đi với N số nhiều HOẶC không đếm được: all, most, some, any, a lot of/lots of.
+(Lưu ý: another, others, the others có thể đứng một mình làm Chủ ngữ/Tân ngữ trong câu).
+
+IV. TÍNH TỪ PHÂN TỪ (V-ing / V-ed)
+Khi đáp án có cả V-ing và V-ed đứng trước Danh từ, hãy xét ý nghĩa:
+- Tính từ V-ing (Chủ động): Dùng để mô tả bản chất, sự vật/sự việc gây ra cảm xúc cho người khác. -> Cách dịch: "mang tính...", "tự mình..." (Thường bổ nghĩa cho VẬT. VD: an interesting book).
+- Tính từ V-ed (Bị động): Dùng để mô tả trạng thái, cảm nhận của người/vật khi bị tác động. -> Cách dịch: "cảm thấy...", "được/bị..." (Thường bổ nghĩa cho NGƯỜI. VD: I am interested in...).
+
+V. CÁC CẤU TRÚC ĐI KÈM TÍNH TỪ THƯỜNG GẶP
+- Cấu trúc "enough" (Đủ...): S + be + adj + enough (for sb) + to Vo. (Lưu ý phân biệt với Danh từ: V + enough + N + to Vo).
+- Cấu trúc "too" (Quá... không thể): S + be + too + adj (for sb) + to Vo.
+- Cấu trúc "so... that" (Quá... đến nỗi mà): S + be + so + adj + that + S + V.
+
+
+UNIT 5: TRẠNG TỪ (ADVERB)
+---------------------------------------------------------
+I. CHỨC NĂNG VÀ VỊ TRÍ TRONG CÂU
+- Chức năng: Chỉ mức độ (rất, quá, cực kỳ, một cách...). Thường đứng trước để bổ nghĩa cho Tính từ (Adj) và Động từ (V).
+- Vị trí: Trạng từ là thành phần phụ, có thể đứng ở bất cứ vị trí nào trong câu NGOẠI TRỪ đứng trực tiếp ngay trước Danh từ (N).
+- Vị trí của Trạng từ với Động từ:
+  + Trong câu chủ động:
+    S + adv + V + O
+    S + V + adv + O
+    S + V + O + adv
+  + Trong câu bị động:
+    S + be + adv + V3/ed
+    S + be + V3/ed + adv
+  + Kẹp giữa động từ ghép:
+    will / can / should... + adv + Vo
+    have / has / had + adv + V3/ed
+
+II. DẤU HIỆU NHẬN BIẾT & NGOẠI LỆ
+Công thức chung: Tính từ (Adj) + ly = Trạng từ (Adv)
+* CÁC NGOẠI LỆ CẦN NHỚ (Có đuôi -ly nhưng KHÔNG phải trạng từ):
+- Là Tính từ: friendly (thân thiện), costly (đắt đỏ), likely (có khả năng), daily, weekly, monthly, quarterly, yearly.
+- Là Danh từ: assembly (sự lắp ráp).
+
+III. MẸO LÀM BÀI TẬP TRẠNG TỪ
+- Mẹo "đầy đủ thành phần": Khi phân tích thấy một câu đã có đầy đủ các thành phần ngữ pháp chính (S - V - O), chỗ trống thừa ra sẽ điền Trạng từ.
+- Mẹo "nhìn phía sau": Nếu ngay phía sau chỗ trống là một Động từ (V) -> 95% chọn Trạng từ.
+- Lưu ý với Nội động từ: Đa số sau Động từ (V) sẽ cần một Danh từ (N) làm Tân ngữ. Tuy nhiên, với một số Nội động từ đặc biệt (không cần Tân ngữ) thì theo sau nó sẽ cộng trực tiếp với Trạng từ.
+  + Các nội động từ thường gặp: work (làm việc), contribute (đóng góp), decline (từ chối), differ (khác), drive (lái xe), rise (tăng), go (đi)...
+- Mẹo dịch nghĩa để chọn nhanh:
+  + V + Adv -> Dịch là làm gì đó "một cách..." (VD: tăng một cách nhanh chóng).
+  + V + Noun -> Dịch là làm một "sự/việc..." (VD: tăng sự sản xuất).
+
+
+UNIT 6: PHIÊN ÂM QUỐC TẾ (IPA) & QUY TẮC PHÁT ÂM
+---------------------------------------------------------
+I. MẠO TỪ A/AN VÀ NGUYÊN ÂM
+- Mẹo "uể oải": Các từ bắt đầu bằng âm u, e, o, a, i thường đi với mạo từ "an".
+- Lưu ý cực kỳ quan trọng: Phải dựa vào phiên âm chứ không chỉ nhìn mặt chữ (Ví dụ: "university" bắt đầu bằng chữ "u" nhưng phiên âm là /j/ - phụ âm -> đi với "a").
+
+II. CÁCH PHÁT ÂM ĐUÔI "-S" VÀ "-ES"
+Có 3 cách phát âm đuôi -s/-es của danh từ số nhiều / động từ:
+- Phát âm là /iz/: Khi từ kết thúc bằng các chữ cái -s, -ss, -ch, -sh, -x, -z, -o, -ge, -ce.
+- Phát âm là /s/: Khi từ kết thúc bằng các chữ cái -p, -k, -t, -f.
+- Phát âm là /z/: Đối với những từ còn lại.
+
+III. CÁCH PHÁT ÂM ĐUÔI "-ED"
+Có 3 cách phát âm đuôi -ed của động từ quá khứ/phân từ:
+- Phát âm là /id/: Khi kết thúc bằng âm /t/ hoặc /d/. (Mẹo dễ nhớ: Tiền đô).
+- Phát âm là /t/: Khi kết thúc bằng các âm /k/, /s/, /ʃ/, /f/, /tʃ/, /θ/, /p/. (Mẹo dễ nhớ: Khi sang sông (ʃ) phải chờ (tʃ) thu (θ) phí).
+- Phát âm là /d/: Đối với những trường hợp còn lại.
+
+IV. QUY TẮC TRỌNG ÂM CƠ BẢN (STRESS)
+Đối với những từ có 2 âm tiết:
+- Danh từ: Trọng âm thường nhấn vào âm tiết 1.
+- Động từ: Trọng âm thường nhấn vào âm tiết 2.
+
+V. QUY TẮC NỐI ÂM
+Công thức: Phụ âm cuối (của từ phía trước) + Nguyên âm đầu (của từ phía sau) -> Đọc nối liền nhau.
+
+
+UNIT 7: ĐẠI TỪ (PRONOUN)
+---------------------------------------------------------
+I. MẸO CHỌN NHANH ĐẠI TỪ THEO VỊ TRÍ
+- Trước Động từ (V) -> Chọn ĐẠI TỪ CHỦ NGỮ (I, You, We, They, He, She, It).
+- Sau Động từ (V) hoặc Giới từ -> Chọn ĐẠI TỪ TÂN NGỮ (me, you, us, them, him, her, it).
+- Trước Danh từ (N) / Cụm N -> 95% chọn TÍNH TỪ SỞ HỮU (my, your, our, their, his, her, its). (Dịch là: của...)
+- Sau giới từ "by" -> Chọn ĐẠI TỪ PHẢN THÂN (by myself, by himself...).
+
+II. CÁC LOẠI ĐẠI TỪ THƯỜNG GẶP KHÁC
+1. Đại từ sở hữu (Mine, Yours, His, Hers, Ours, Theirs)
+- Công thức: Đại từ sở hữu = Tính từ sở hữu + Danh từ
+- Cách dùng: Dùng để thay thế cho Danh từ đã được nhắc tới trước đó để tránh lặp từ. Nó có thể đứng một mình làm Chủ ngữ (S) hoặc Tân ngữ (O).
+(Lưu ý: "Its" không có dạng đại từ sở hữu. Từ "His" vừa là tính từ sở hữu vừa là đại từ sở hữu).
+
+2. Đại từ phản thân (Myself, Yourself, Himself, Herself, Itself, Ourselves, Yourselves, Themselves)
+- Cách dùng: Dùng để nhấn mạnh chính chủ thể thực hiện hành động (Chủ ngữ nào thì dùng đại từ phản thân đó, VD: I -> myself, They -> themselves).
+- Vị trí: Đứng sau "by", hoặc làm Tân ngữ đứng ngay sau Động từ / Giới từ.
+
+3. Đại từ chỉ định (This / That / These / Those)
+- This / That: Cộng với N số ít / N không đếm được. (This: cái này/gần, That: cái kia/xa).
+- These / Those: Cộng với N số nhiều. (These: những cái này, Those: những cái kia).
+- Mẹo thi TOEIC: Those = the people / the things (VD: Those who... = Những người mà...). Có thể đứng làm S hoặc O trong câu.
+
+III. ĐẠI TỪ BẤT ĐỊNH & PHÂN BỔ
+1. Đại từ bất định (Indefinite Pronouns)
+- Gồm: Các từ ghép từ some / any / no / every + body / one / thing (VD: somebody, everyone, nothing...).
+- QUY TẮC VÀNG: Nếu làm Chủ ngữ, Động từ đi theo sau LUÔN CHIA Ở SỐ ÍT (is, was, has, Vs/es).
+- Mẹo:
+  + Các từ có "any" (anyone, anything...) thường dùng trong câu nghi vấn (?), câu phủ định (not), hoặc mệnh đề "If".
+  + Các từ có "no" (nobody, nothing...) mang nghĩa phủ định sẵn (không ai, không có gì).
+
+2. Đại từ phân bổ (Đi kèm giới từ "of")
+- Đi với N / Cụm N số nhiều: All of (tất cả), Most of (hầu hết), Some of / Several of (một vài), Any of (bất kỳ), None of (không ai / không gì), Each of (mỗi cái / mỗi người).
+- Chỉ dùng khi nói về 2 đối tượng:
+  + Either of: 1 trong 2
+  + Neither of: Cả 2 đều không
+
+3. Đại từ hỗ tương (Reciprocal Pronouns)
+- Each other / One another (Dịch là: lẫn nhau).
+- Vị trí: Đứng ngay sau Động từ (V) hoặc Giới từ để làm Tân ngữ. (Không bao giờ đứng làm Chủ ngữ).
+
+
+UNIT 8: LIÊN TỪ (CONJUNCTIONS)
+---------------------------------------------------------
+I. MẸO PHÂN BIỆT CẤU TRÚC (CỰC KỲ QUAN TRỌNG KHI LÀM ĐỀ)
+Trong bài thi TOEIC, khi làm dạng bài liên từ, bạn cần chú ý ngay vào vị trí phía sau chỗ trống:
+- Liên từ phụ thuộc + Mệnh đề (S + V):
+  Cấu trúc: Liên từ + S + V, S + V hoặc S + V + Liên từ + S + V
+- Trạng từ liên kết + Dấu phẩy (, S + V):
+  Cấu trúc: S + V. Trạng từ, S + V hoặc S + V; Trạng từ, S + V
+  (Trạng từ liên kết luôn đứng sau dấu chấm/dấu chấm phẩy và có dấu phẩy đi kèm phía sau).
+- Phân biệt Liên từ và Giới từ:
+  + Liên từ: because / although / in addition + S + V
+  + Giới từ: because of (due to / owing to) / despite (in spite of) / in addition to / beside + N / V-ing
+
+II. TỔNG HỢP CÁC NHÓM LIÊN TỪ THƯỜNG GẶP
+1. Nhóm Nguyên nhân - Kết quả
+- Bởi vì (+ S + V): because, as, since, given that, now that, seeing that.
+- Để mà (+ S + V): so that, in order that.
+- Vì vậy, Do đó (Trạng từ liên kết: + , S + V): therefore, thus, consequently, as a result, hence.
+- Nếu không thì (+ , S + V): otherwise.
+
+2. Nhóm Tương phản
+- Mặc dù (+ S + V): although, even though, though.
+- Trái lại / Trong khi (+ S + V): while, whereas.
+- Tuy nhiên / Trái lại (Trạng từ liên kết: + , S + V): however, nevertheless, nonetheless, on the other hand, in contrast, conversely.
+
+3. Nhóm Điều kiện (+ S + V)
+- Nếu / Trừ khi: if (nếu), unless (trừ khi = if not).
+- Miễn là: as long as, so long as, provided that.
+- Ngay cả khi / Phòng khi: even if (ngay cả khi), in case (phòng khi).
+
+4. Nhóm Thời gian (+ S + V)
+- Khi / Trong khi / Một khi: when, while, once, as.
+  (Mẹo phối thì: Mệnh đề chính chia Tương lai <-> Mệnh đề thời gian chia Hiện tại; Quá khứ <-> Quá khứ).
+- Trước / Sau / Cho tới khi / Kể từ khi: before, after, until / till, since. (Các từ này vừa làm Liên từ + S + V, vừa làm Giới từ + N/V-ing).
+- Bất cứ khi nào / Ngay khi / Trước khi: whenever (bất cứ khi nào), as soon as (ngay khi), by the time (trước khi).
+
+5. Nhóm Bổ sung thông tin (Trạng từ liên kết: + , S + V)
+- Ngoại ra / Hơn thế nữa: besides, moreover, furthermore, in addition, additionally.
+- Phân biệt đặc biệt:
+  + Besides / In addition, S + V (Ngoại ra, ...)
+  + Beside / In addition to + N / V-ing (Bên cạnh cái gì, ...)
+
+6. Cặp liên từ sóng đôi (Correlative Conjunctions)
+- both A and B (cả A và B)
+- not only A but (also) B (không chỉ A mà còn B)
+- either A or B (hoặc A hoặc B)
+- neither A nor B (cả A và B đều không)
+- whether A or B (liệu A hay B)
+
+7. Nhóm Trình tự - Giải thích - Kết luận (Trạng từ liên kết: + , S + V)
+- Cuối cùng: finally, ultimately, eventually.
+- Trong lúc đó: meanwhile, in the meantime.
+- Ví dụ / Nói cách khác: for example, for instance (ví dụ là), in other words (nói cách khác).
+- Tóm lại / Thực tế là: in fact, actually (thực tế là), in general (nhìn chung), in summary, in conclusion (tóm lại/kết luận).
+
+
+UNIT 10: GIỚI TỪ (PREPOSITIONS)
+---------------------------------------------------------
+I. CÔNG THỨC CƠ BẢN CỦA GIỚI TỪ
+- Giới từ + N / Cụm N / Đại từ
+- Giới từ + V-ing + N / Cụm N
+* QUY TẮC VÀNG: Giới từ KHÔNG BAO GIỜ cộng trực tiếp với Mệnh đề (S + V).
+
+II. GIỚI TỪ CHỈ THỜI GIAN (TIME)
+1. at (vào lúc):
+- at + mốc thời gian cụ thể (at 6 p.m.).
+- at + các dịp lễ không có chữ "day" (at Christmas, at Tet).
+- at the moment / at present (ngay lúc này).
+
+2. on (vào):
+- on + thứ / ngày (on Tuesday, on 25th August).
+- on + các ngày lễ có chữ "day" (on Christmas Day).
+
+3. in (vào / trong):
+- in + khoảng thời gian từ tuần trở lên: tháng, năm, mùa, thế kỷ (in spring, in 2026).
+- in the + các buổi trong ngày (in the morning/afternoon/evening).
+- in + khoảng thời gian (in two weeks: trong 2 tuần nữa - thì Tương lai).
+
+4. Các giới từ thời gian khác:
+- in time: Vừa kịp lúc.
+- on time: Đúng giờ.
+- during + N / sự kiện: Trong suốt (during the meeting, during the week).
+- for + khoảng thời gian: Trong khoảng (thì Hiện tại hoàn thành).
+- within + khoảng thời gian / khoảng cách: Trong vòng (within 2 days, within 5 km).
+- over + khoảng thời gian: Trong suốt (over the past 5 years, over the next few months).
+- by + mốc thời gian: Trước, chậm nhất là vào lúc.
+- since + mốc thời gian: Kể từ khi (dùng trong thì Hiện tại hoàn thành).
+- until / till: Cho tới khi. (not ... until: mãi cho tới khi).
+- upon + N/V-ing: Ngay khi (upon arrival, upon completion).
+- following + N: Sau (= after).
+- before / prior to + N/mốc TG: Trước khi.
+
+III. GIỚI TỪ CHỈ NƠI CHỐN & CHUYỂN ĐỘNG
+- at: Tại 1 địa điểm cụ thể (at the airport, at 123 Main Street), 1 sự kiện (at the concert, at the meeting).
+- in: Trong không gian 3 chiều (in the room, in the car), khu vực rộng lớn (in Hanoi, in Vietnam), phương hướng (in the south).
+- on: Trên mặt phẳng (on the table, on the floor), trên phương tiện đi lại được (on the bus, on the train), tên đường/tầng (on Main Street, on the 5th floor).
+- Vị trí tương đối:
+  + above / below: Phía trên / phía dưới (có khoảng cách).
+  + over / under: Phía trên (bao phủ) / phía dưới (bị bao phủ).
+  + near: Gần.
+  + by / beside / next to / adjacent to: Kế bên, bên cạnh.
+  + inside / outside: Bên trong / bên ngoài.
+  + between A and B: Giữa A và B.
+  + among + N số nhiều: Nằm trong số (3 đối tượng trở lên).
+  + in front of / behind: Phía trước / phía sau.
+  + opposite / across from: Đối diện với.
+  + across: Ở bên kia, băng qua.
+  + throughout + khu vực/vùng: Khắp (throughout the country).
+  + against: Dựa vào, tựa vào, chống lại (against the wall).
+  + beyond: Vượt quá (beyond expectations, beyond budget).
+- Chuyển động:
+  + to (đến, tới) | from (từ) | along + đường (dọc theo).
+  + into (vào trong) | out of (ra khỏi / hết).
+  + through (băng qua, xuyên qua) | toward (về hướng).
+
+IV. GIỚI TỪ CHỈ NGUYÊN NHÂN, MỤC ĐÍCH & TƯƠNG PHẢN
+- Mục đích: for + N (cho, dành cho). | to / in order to / so as to + Vo (để...).
+- Nguyên nhân (Bởi vì + N / V-ing): because of, owing to, due to, thanks to, given, in light of, on account of + N / V-ing.
+- Sự tương phản (Mặc dù / Bất kể + N / V-ing): despite, in spite of, notwithstanding, regardless of + N / V-ing.
+- Cách thức / Phương tiện: by + phương tiện (bằng) | by + người (bởi) | by + tỉ lệ | by + V-ing (bằng cách).
+- Về chủ đề gì: about, concerning, regarding, on + N.
+
+V. CÁC CỤM GIỚI TỪ CỐ ĐỊNH CỰC KỲ HAY GẶP
+- except (for) / apart from / aside from + N: Ngoại trừ.
+- in addition to + N / V-ing: Ngoài ra, thêm vào đó (Phân biệt: in addition, + S + V).
+- in charge of = be responsible for: Phụ trách, chịu trách nhiệm về.
+- such as: Như là, ví dụ là (liệt kê).
+- according to: Theo như.
+- on behalf of: Thay mặt cho.
+- with (với) <-> without (mà không có).
+- as + N: Với vai trò là, như là (Phân biệt khi làm Liên từ: as + S + V = bởi vì / trong khi).
+- over budget (quá ngân sách) <-> within budget (trong ngân sách).
+
+
+UNIT 11: MỆNH ĐỀ QUAN HỆ & RÚT GỌN (RELATIVE CLAUSES)
+---------------------------------------------------------
+I. PHÂN LOẠI MỆNH ĐỀ QUAN HỆ
+- Mệnh đề quan hệ xác định: Không có dấu phẩy (,), chứa thông tin bắt buộc.
+- Mệnh đề quan hệ không xác định: Có dấu phẩy (,), chứa thông tin bổ sung thêm.
+* QUY TẮC VÀNG: KHÔNG được dùng THAT sau Dấu phẩy (,) hoặc Giới từ.
+
+II. CÔNG THỨC CÁC ĐẠI TỪ QUAN HỆ (RELATIVE PRONOUNS)
+- WHO (người mà): Thay thế cho danh từ chỉ NGƯỜI.
+  + Cấu trúc 1: N (người) + WHO + V (Làm Chủ ngữ)
+  + Cấu trúc 2: N (người) + WHO + S + V (Làm Tân ngữ)
+- WHOM (người mà): Thay thế cho danh từ chỉ NGƯỜI (chỉ làm Tân ngữ).
+  + Cấu trúc: N (người) + WHOM + S + V
+- WHICH (cái mà): Thay thế cho danh từ chỉ VẬT.
+  + Cấu trúc: N (vật) + WHICH + V hoặc N (vật) + WHICH + S + V
+- THAT (người mà / cái mà): Thay thế được cho cả Who, Whom, Which.
+  + Cấu trúc: N (người/vật) + THAT + V / S + V
+- WHOSE (mà... của người đó / của nó): Thay thế cho Tính từ sở hữu.
+  + Cấu trúc: N (người/vật) + WHOSE + N + V
+  (Lưu ý: Ngay phía sau WHOSE bắt buộc phải là một Danh từ trần, không có a/an/the).
+
+III. CÔNG THỨC CÁC TRẠNG TỪ QUAN HỆ (RELATIVE ADVERBS)
+- WHERE (nơi mà): Thay thế cho từ chỉ nơi chốn.
+  + Cấu trúc: N (nơi chốn) + WHERE + S + V (= in / at / on which)
+- WHEN (khi mà): Thay thế cho từ chỉ thời gian.
+  + Cấu trúc: N (thời gian) + WHEN + S + V (= in / at / on which)
+- WHY (lý do tại sao): Thay thế cho từ chỉ lý do.
+  + Cấu trúc: the reason + WHY + S + V (= for which)
+
+IV. MẸO CHỌN NHANH ĐÁP ÁN TRONG BÀI THI TOEIC
+Để chọn nhanh đáp án, hãy nhìn vào từ đứng NGAY TRƯỚC và NGAY SAU chỗ trống:
+- Trước chỉ NGƯỜI + Sau là ĐỘNG TỪ (V) -> Chọn WHO.
+- Trước chỉ NGƯỜI + Sau là S + V -> Chọn WHOM (hoặc WHO).
+- Trước chỉ VẬT + Sau là V hoặc S + V -> Chọn WHICH.
+- Trước bất kỳ + Sau là DANH TỪ (N) -> Chọn WHOSE (Dịch: N1 mà N2 của nó/họ...).
+Các cụm từ cố định hay gặp:
+- those + WHO + V (những người mà... - với those = people).
+- anyone / everyone + WHO + V (bất kỳ ai / mọi người mà...).
+
+V. RÚT GỌN MỆNH ĐỀ QUAN HỆ (REDUCED RELATIVE CLAUSE)
+1. Rút gọn dạng Chủ động (Active):
+- Điều kiện: Danh từ đứng trước là đối tượng thực hiện hành động.
+- Công thức: N + who / which / that + V -> N + V-ing
+2. Rút gọn dạng Bị động (Passive):
+- Điều kiện: Danh từ đứng trước là đối tượng chịu tác động (bị/được).
+- Công thức: N + who / which / that + be + V3/ed -> N + V3/ed
+3. Mẹo giải đề TOEIC cực nhanh:
+Dấu hiệu nhận biết: Trong câu đã có động từ chia thì chính rồi, vị trí chỗ trống đứng ngay sau một Danh từ / Cụm danh từ.
+- Phía sau chỗ trống CÓ Tân ngữ (Danh từ / Cụm N) -> Chọn V-ing (Chủ động).
+- Phía sau chỗ trống KHÔNG CÓ Tân ngữ (thường đi với giới từ, trạng từ, "by" hoặc dấu phẩy) -> Chọn V3/ed (Bị động).
+
+VI. RÚT GỌN CHỦ NGỮ CỦA HAI MỆNH ĐỀ (REDUCED SUBJECT)
+1. Điều kiện bắt buộc: Hai mệnh đề trong câu phải CÙNG CHỦ NGỮ.
+2. Công thức Rút gọn:
+- Chủ động: After/Before/When/While/Once + S + V, S + V -> Liên từ + V-ing, S + V
+- Bị động: After/Before/When/While/Once + S + be + V3/ed, S + V -> Liên từ + V3/ed, S + V
+3. Mẹo giải đề TOEIC cực nhanh:
+- Cách 1 (Dựa vào Tân ngữ): Phía sau chỗ trống có Danh từ/Cụm N -> Chọn V-ing; Không có Danh từ -> Chọn V3/ed.
+- Cách 2 (Dựa vào Chủ ngữ S sau dấu phẩy):
+  + S sau dấu phẩy là chỉ Người (thường tự thực hiện hành động) -> Chọn V-ing.
+  + S sau dấu phẩy là chỉ Vật (thường bị/được tác động) -> Chọn V3/ed.
+
+
+UNIT 12: CÂU SO SÁNH (COMPARATIVES)
+---------------------------------------------------------
+I. CÂU SO SÁNH BẰNG
+Công thức tổng quát: as + Adj / Adv + as (Dịch: bằng, như)
+- Cách chọn Adj hay Adv:
+  + To be / Linking verb + as + ADJ + as
+  + Động từ thường (V) + as + ADV + as
+
+II. CÂU SO SÁNH HƠN (Dùng so sánh 2 đối tượng)
+- Tính từ ngắn (1-2 âm tiết): Adj-er + (than) (VD: faster, larger)
+- Tính từ / Trạng từ dài (3+ âm tiết): more + Adj / Adv + (than) (VD: more convenient, more efficiently)
+* Cụm từ nhấn mạnh so sánh hơn: Dùng much / far / even đứng ngay trước dạng so sánh hơn (Dịch: hơn nhiều, hơn hẳn, thậm chí còn hơn).
+* ❌ Lỗi cần tránh: KHÔNG dùng đồng thời cả more và đuôi -er (VD: more cheaper là SAI).
+
+III. CÂU SO SÁNH NHẤT (Dùng so sánh từ 3 đối tượng trở lên)
+- Tính từ ngắn: the + Adj-est (VD: the tallest, the highest)
+- Tính từ / Trạng từ dài: the most + Adj / Adv (VD: the most important, the most expensive)
+
+IV. MẸO CHỌN NHANH ĐÁP ÁN TRONG BÀI THI TOEIC
+- Thấy từ THAN phía sau -> Chọn đáp án So sánh hơn (tìm đuôi -er hoặc more).
+- Thấy mạo từ THE ngay trước chỗ trống -> Chọn đáp án So sánh nhất (tìm đuôi -est hoặc most).
+- Thấy MUCH / FAR / EVEN ngay trước chỗ trống -> Chọn đáp án So sánh hơn.
+- Mẹo chọn Tính từ (Adj) hay Trạng từ (Adv):
+  + Nếu đứng trước là To be / Linking verb -> Chọn Tính từ (Adj) (VD: be + more + Adj).
+  + Nếu đứng trước là Động từ thường (V) -> Chọn Trạng từ (Adv) (VD: V + more + Adv).
