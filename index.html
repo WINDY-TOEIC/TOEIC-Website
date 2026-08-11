@@ -1667,23 +1667,35 @@ let html = '';
             }
 
             let html = '';
-            // Định dạng kết quả in ra cực kỳ rõ ràng theo công thức: DẤU HIỆU + [ĐÁP ÁN] hoặc [ĐÁP ÁN] + DẤU HIỆU
+            // Định dạng kết quả in ra dạng 2 cột trơn, không khung nền
             const formatRes = (arr) => {
                 let selectEl = document.getElementById('lookup-' + type);
-                // Lấy tên của mục đang chọn, gọt bớt ngoặc đơn và ngoặc kép cho chữ nó ngắn gọn lại
-                let keyword = selectEl.options[selectEl.selectedIndex].text.split(' (')[0].replace(/"/g, '').replace('Động từ To be', 'To be').trim();
+                let keyword = selectEl.options[selectEl.selectedIndex].text.split(' (')[0].replace(/"/g, '').replace('Động từ To be', 'be').trim();
                 
-                return arr.map(item => {
-                    let formula = '';
-                    if (type === 'before') {
-                        // Logic: TRƯỚC + [ ĐIỀN VÀO ]
-                        formula = `<span style="color:#555; font-weight:600;">${keyword}</span> <strong style="color:#dc3545; margin:0 8px; font-size:18px;">+</strong> <span style="background:#e3f2fd; color:#043b5c; padding:4px 10px; border-radius:4px; border:1px solid #5ba4e5; display:inline-block;">[ ${item} ]</span>`;
-                    } else {
-                        // Logic: [ ĐIỀN VÀO ] + SAU
-                        formula = `<span style="background:#e3f2fd; color:#043b5c; padding:4px 10px; border-radius:4px; border:1px solid #5ba4e5; display:inline-block;">[ ${item} ]</span> <strong style="color:#dc3545; margin:0 8px; font-size:18px;">+</strong> <span style="color:#555; font-weight:600;">${keyword}</span>`;
-                    }
-                    return `<div style="margin-bottom: 12px; border-bottom: 1px dashed #ccc; padding-bottom: 8px; line-height: 1.8;">${formula}</div>`;
-                }).join('');
+                // Lột sạch các thẻ <b> cũ đi để chữ trở về bình thường
+                let itemsHtml = arr.map(item => `<div style="margin-bottom: 6px;">${item.replace(/<\/?b>/g, '')}</div>`).join('');
+
+                if (type === 'before') {
+                    return `
+                    <div style="display: flex; align-items: flex-start; margin-top: 10px; font-size: 15px; color: #111;">
+                        <div style="font-weight: bold; color: #003366; padding-right: 15px; text-align: right; min-width: 80px;">
+                            ${keyword} <span style="color: #dc3545; font-size: 18px; margin-left: 5px;">+</span>
+                        </div>
+                        <div style="flex: 1;">
+                            ${itemsHtml}
+                        </div>
+                    </div>`;
+                } else {
+                    return `
+                    <div style="display: flex; align-items: flex-start; margin-top: 10px; font-size: 15px; color: #111;">
+                        <div style="padding-right: 15px; flex: 1; text-align: right;">
+                            ${itemsHtml}
+                        </div>
+                        <div style="font-weight: bold; color: #003366; padding-left: 0; text-align: left; min-width: 80px;">
+                            <span style="color: #dc3545; font-size: 18px; margin-right: 5px;">+</span> ${keyword}
+                        </div>
+                    </div>`;
+                }
             };
 
             if(type === 'before') {
