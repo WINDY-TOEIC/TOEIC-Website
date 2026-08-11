@@ -325,21 +325,23 @@
         @media (max-width: 768px) {
             body { zoom: 1 !important; transform: none !important; overflow-x: hidden; }
             
-            /* Cấp thêm không gian phía trên Banner cho các nút */
-            header { padding: 50px 10px 20px 10px !important; display: flex; flex-direction: column; align-items: center; position: relative; }
+            /* Tăng độ cao Banner (padding trên/dưới) để các nút không bao giờ đè lên Logo và Text */
+            header { padding: 80px 10px 90px 10px !important; display: flex; flex-direction: column; align-items: center; position: relative; }
             
             /* ÉP BUỘC CHIA DỌC 100% */
             .container { display: block !important; padding: 0 10px; margin: 10px auto; }
             .left-col, .right-col { width: 100% !important; max-width: 100%; display: block !important; position: static !important; margin-top: 15px; margin-left: 0; }
 
-            /* Tinh chỉnh nhỏ lại các nút trên cùng để không đè nhau */
+            /* Tinh chỉnh hàng nút số 1 trên cùng */
             .theme-btn { top: 10px; left: 5px; padding: 6px 8px; font-size: 13px; }
             .dark-mode-btn { top: 10px; left: 45px; padding: 6px 8px; font-size: 13px; }
             .voice-btn { top: 10px !important; left: 85px !important; padding: 6px 8px !important; font-size: 13px !important; }
-            .history-wrapper { top: 10px; left: 125px; }
-            .voice-panel { left: 5px; width: 95vw; }
-            .btn-history-toggle { font-size: 11px; padding: 6px 8px; }
             .resume-floating-btn { top: 10px; left: auto; right: 5px; font-size: 11px; padding: 6px 8px; }
+            
+            /* Dời cụm Lịch Sử xuống hàng số 2 để vĩnh viễn không đè nút Làm Tiếp */
+            .history-wrapper { top: 45px; left: 5px; }
+            .voice-panel { top: 45px; left: 5px; width: 95vw; }
+            .btn-history-toggle { font-size: 11px; padding: 6px 8px; }
 
             /* ĐƯA FORM ĐĂNG NHẬP VỀ LUỒNG TĨNH, NẰM NGAY DƯỚI BANNER XANH */
             .login-wrapper { position: static !important; transform: none !important; width: 100%; display: flex; justify-content: center; margin: 15px 0 0 0; padding: 0 10px; }
@@ -437,10 +439,10 @@
             .btn-tips-corner:hover { transform: scale(1.05); }
             
             @media (max-width: 768px) { 
-                .right-corner-buttons { bottom: 10px; right: 10px; width: 200px; }
+                .right-corner-buttons { bottom: 10px; right: 10px; width: 170px; gap: 8px; }
                 .btn-grammar-corner, .btn-chal-corner { font-size: 11px; padding: 8px 0; }
-                .btn-lookup-corner { left: -32px; font-size: 20px; width: 30px; height: 30px; }
-                .btn-tips-corner { bottom: 10px; left: 10px; font-size: 11px; padding: 8px 15px; }
+                .btn-lookup-corner { left: -26px; font-size: 18px; width: 26px; height: 26px; }
+                .btn-tips-corner { bottom: 10px; left: 10px; width: 125px; font-size: 11px; padding: 8px 0; justify-content: center; }
             }
         </style>
         
