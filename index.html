@@ -712,8 +712,57 @@
     <div id="grammar-modal-overlay" class="modal-overlay" onclick="if(event.target === this) closeGrammarModal()">
         <div class="vocab-modal" style="width: 1000px; max-width: 95vw; height: 85vh; display: flex; flex-direction: column;">
             <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #5ba4e5; padding-bottom: 15px; flex-shrink: 0;">
-                <h2 style="margin: 0; color: #003366; font-size: 22px;">📚 ÔN TẬP NGỮ PHÁP TOEIC</h2>
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <h2 style="margin: 0; color: #003366; font-size: 22px;">📚 ÔN TẬP NGỮ PHÁP</h2>
+                    <button onclick="toggleGrammarLookup()" title="Tính năng tra cứu ngữ pháp" style="background: #e3f2fd; border: 1px solid #5ba4e5; border-radius: 50%; width: 35px; height: 35px; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.1);" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">🔍</button>
+                </div>
                 <button onclick="closeGrammarModal()" style="background: transparent; border: none; font-size: 28px; color: #dc3545; cursor: pointer; font-weight: bold; line-height: 1; transition: 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">×</button>
+            </div>
+
+            <!-- TOOL TRA CỨU NGỮ PHÁP -->
+            <div id="grammar-lookup-tool" style="display: none; background: #fdf2e9; border: 2px solid #e67e22; border-radius: 8px; padding: 20px; margin-top: 15px; flex-shrink: 0; box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);">
+                <h3 style="margin: 0 0 15px 0; color: #d35400; font-size: 18px;">🔍 Tra Cứu Nhanh Part 5 & 6</h3>
+                <div style="display: flex; gap: 20px; align-items: flex-start;">
+                    <!-- Cột 1 -->
+                    <div style="flex: 1; background: white; padding: 15px; border-radius: 6px; border: 1px solid #ccc; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                        <label style="font-weight: bold; color: #003366; display: block; margin-bottom: 8px;">1. Nếu TRƯỚC ô trống [ ... ] có:</label>
+                        <select id="lookup-before" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #aaa; font-size: 15px; outline: none; cursor: pointer;" onchange="lookupGrammar('before')">
+                            <option value="">-- Chọn từ loại / dấu hiệu --</option>
+                            <option value="be">Động từ "To be" (am, is, are, was, were, be, been)</option>
+                            <option value="linking">Linking Verb (smell, look, taste, feel, become, seem...)</option>
+                            <option value="article">Mạo từ (a, an, the) hoặc Tính từ sở hữu (my, his...)</option>
+                            <option value="quantifier">Từ chỉ số lượng (many, much, some, several, all...)</option>
+                            <option value="prep">Giới từ (in, on, at, about, for, with...)</option>
+                            <option value="adj">Tính từ (Adjective)</option>
+                            <option value="adv">Trạng từ (Adverb)</option>
+                            <option value="v_normal">Động từ thường (Ngoại động từ)</option>
+                            <option value="modal">Động từ khiếm khuyết (can, could, will, must...)</option>
+                            <option value="to">Từ "to" (want to, need to, in order to...)</option>
+                            <option value="v_special">Động từ đặc biệt (enjoy, keep, consider, suggest...)</option>
+                            <option value="noun">Danh từ / Cụm danh từ</option>
+                            <option value="person_n">Danh từ chỉ NGƯỜI</option>
+                            <option value="thing_n">Danh từ chỉ VẬT</option>
+                            <option value="and_or">Liên từ "and" hoặc "or"</option>
+                            <option value="full_clause">Câu đã ĐẦY ĐỦ thành phần (S + V + O)</option>
+                        </select>
+                        <div id="res-before" style="margin-top: 15px; font-size: 15px; color: #111; line-height: 1.6; min-height: 30px;"><i>Kết quả sẽ hiển thị ở đây...</i></div>
+                    </div>
+
+                    <!-- Cột 2 -->
+                    <div style="flex: 1; background: white; padding: 15px; border-radius: 6px; border: 1px solid #ccc; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                        <label style="font-weight: bold; color: #003366; display: block; margin-bottom: 8px;">2. Nếu SAU ô trống [ ... ] có:</label>
+                        <select id="lookup-after" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #aaa; font-size: 15px; outline: none; cursor: pointer;" onchange="lookupGrammar('after')">
+                            <option value="">-- Chọn từ loại / dấu hiệu --</option>
+                            <option value="noun">Danh từ / Cụm danh từ (Noun)</option>
+                            <option value="adj">Tính từ (Adjective)</option>
+                            <option value="v_normal">Động từ thường (Verb)</option>
+                            <option value="prep">Giới từ (in, on, at, by, for...)</option>
+                            <option value="clause">Một mệnh đề (S + V + O)</option>
+                            <option value="vo">Động từ nguyên mẫu (Vo)</option>
+                        </select>
+                        <div id="res-after" style="margin-top: 15px; font-size: 15px; color: #111; line-height: 1.6; min-height: 30px;"><i>Kết quả sẽ hiển thị ở đây...</i></div>
+                    </div>
+                </div>
             </div>
             
             <div style="display: flex; gap: 25px; margin-top: 15px; flex: 1; overflow: hidden;">
@@ -1511,6 +1560,62 @@
 
         function closeGrammarModal() {
             document.getElementById('grammar-modal-overlay').classList.remove('active');
+        }
+
+        function toggleGrammarLookup() {
+            let tool = document.getElementById('grammar-lookup-tool');
+            if(tool.style.display === 'none') {
+                tool.style.display = 'block';
+            } else {
+                tool.style.display = 'none';
+            }
+        }
+
+        function lookupGrammar(type) {
+            let val = document.getElementById('lookup-' + type).value;
+            let resBox = document.getElementById('res-' + type);
+            
+            // Xóa rỗng ô bên kia nếu học viên chọn ô này (Đảm bảo chỉ tra 1 chiều tại 1 thời điểm)
+            let otherType = type === 'before' ? 'after' : 'before';
+            document.getElementById('lookup-' + otherType).value = "";
+            document.getElementById('res-' + otherType).innerHTML = '<i>Kết quả sẽ hiển thị ở đây...</i>';
+
+            if(!val) {
+                resBox.innerHTML = '<i>Kết quả sẽ hiển thị ở đây...</i>';
+                return;
+            }
+
+            let html = '';
+            // Định dạng kết quả in ra: Dấu + màu xanh lá mạ và in đậm từ khóa
+            const formatRes = (arr) => arr.map(item => `<div style="margin-bottom: 8px; border-bottom: 1px dashed #eee; padding-bottom: 4px;"><span style="color:#28a745; font-weight:bold;">+</span> ${item}</div>`).join('');
+
+            if(type === 'before') {
+                if(val === 'be') html = formatRes(['<b>Tính từ (Adj)</b> (Phổ biến nhất)', '<b>V-ing + Tân ngữ</b> (Thì tiếp diễn, chủ động)', '<b>V3/ed + Giới từ / Thời gian / Dấu chấm</b> (Bị động)', '<b>Danh từ (N)</b> (Chỉ nghề nghiệp, chức danh - Hiếm gặp)']);
+                else if(val === 'linking') html = formatRes(['<b>Tính từ (Adj)</b>']);
+                else if(val === 'article') html = formatRes(['<b>Danh từ (N)</b>', '<b>Tính từ (Adj)</b> (Nếu đằng sau đã có sẵn Danh từ)', '<b>Trạng từ (Adv)</b> (Nếu đằng sau đã có sẵn Cụm Adj + Noun)']);
+                else if(val === 'quantifier') html = formatRes(['<b>Danh từ (N)</b> (Số nhiều hoặc Không đếm được)']);
+                else if(val === 'prep') html = formatRes(['<b>Danh từ / Cụm danh từ / Đại từ</b>', '<b>V-ing + Tân ngữ</b>']);
+                else if(val === 'adj') html = formatRes(['<b>Danh từ (N)</b>', '<b>Liên từ "and"</b> + Tính từ (Adj)']);
+                else if(val === 'adv') html = formatRes(['<b>Tính từ (Adj)</b>', '<b>Động từ (V)</b>', '<b>Trạng từ (Adv)</b> (Bổ nghĩa cho nhau)']);
+                else if(val === 'v_normal') html = formatRes(['<b>Danh từ / Cụm danh từ / Đại từ</b> (Làm Tân ngữ)', '<b>Trạng từ (Adv)</b> (Nếu là Nội động từ, không cần tân ngữ)']);
+                else if(val === 'modal') html = formatRes(['<b>Động từ nguyên mẫu (Vo)</b>', '<b>be + V3/ed</b> (Bị động)']);
+                else if(val === 'to') html = formatRes(['<b>Động từ nguyên mẫu (Vo)</b>', '<b>Danh từ / V-ing</b> (Chỉ áp dụng với một số giới từ "to" đặc biệt như: look forward to, be used to, object to...)']);
+                else if(val === 'v_special') html = formatRes(['<b>V-ing</b>']);
+                else if(val === 'noun') html = formatRes(['<b>Động từ chia thì (V)</b> (Nếu Danh từ đó là Chủ ngữ)', '<b>Đại từ quan hệ</b> (who, which, that, whose)', '<b>Danh từ (N)</b> (Để tạo thành Danh từ ghép)']);
+                else if(val === 'person_n') html = formatRes(['<b>who / that</b> (Nếu sau ô trống là Động từ)', '<b>whom / who / that</b> (Nếu sau ô trống là S + V)', '<b>whose</b> (Nếu sau ô trống là một Danh từ không có a/an/the)']);
+                else if(val === 'thing_n') html = formatRes(['<b>which / that</b> (Đứng làm Chủ ngữ hoặc Tân ngữ)', '<b>whose</b> (Nếu sau ô trống là một Danh từ không có a/an/the)']);
+                else if(val === 'and_or') html = formatRes(['<b>Từ loại Y HỆT từ nằm trước and/or</b> (Ví dụ: Trước là Adj thì điền Adj, trước là V-ing thì điền V-ing)']);
+                else if(val === 'full_clause') html = formatRes(['<b>Trạng từ (Adv)</b>', '<b>Đại từ phản thân</b> (myself, themselves...) để nhấn mạnh chủ thể']);
+            } 
+            else {
+                if(val === 'noun') html = formatRes(['<b>Tính từ (Adj)</b>', '<b>Mạo từ (a, an, the) / Tính từ sở hữu</b>', '<b>Giới từ</b> (in, on, at, about...)', '<b>Ngoại động từ (V)</b> (Nếu N là Tân ngữ)', '<b>Danh từ (N)</b> (Để tạo thành Danh từ ghép)']);
+                else if(val === 'adj') html = formatRes(['<b>Trạng từ (Adv)</b> (Rất phổ biến)', '<b>Động từ "To be"</b> (am, is, are...)', '<b>Linking Verb</b> (smell, look, feel, become...)']);
+                else if(val === 'v_normal') html = formatRes(['<b>Trạng từ (Adv)</b>', '<b>Chủ ngữ</b> (Danh từ / Đại từ Chủ ngữ)', '<b>Đại từ quan hệ</b> (who, which, that)']);
+                else if(val === 'prep') html = formatRes(['<b>V3/ed</b> (Đứng trước giới từ thường là câu Bị động)', '<b>Nội động từ (V)</b> (Động từ không cần tân ngữ)']);
+                else if(val === 'clause') html = formatRes(['<b>Liên từ phụ thuộc</b> (Because, Although, If, When, While, As soon as...)']);
+                else if(val === 'vo') html = formatRes(['<b>Động từ khiếm khuyết</b> (can, will, should, must...)', '<b>Từ "to"</b> (want to, need to, in order to...)', '<b>Let / Make / Help / Have</b>']);
+            }
+            resBox.innerHTML = html;
         }
 
         window.grammarUnits = [];
