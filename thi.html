@@ -180,7 +180,7 @@
         .hl-yellow { background-color: #fceea7; cursor: pointer; border-radius: 2px;}
         .hl-strike { text-decoration: line-through; cursor: pointer; }
         .hl-underline { border-bottom: 2px solid #e74c3c; cursor: pointer; }
-        .hl-note-text { color: #e74c3c; font-size: 14px; margin-left: 5px; font-style: italic; border: 1px dashed #e74c3c; padding: 2px 4px; border-radius: 4px; cursor: pointer;}
+        .hl-note-text { color: #e74c3c; font-size: 1em; margin-left: 5px; font-style: italic; border: 1px dashed #e74c3c; padding: 2px 4px; border-radius: 4px; cursor: pointer;}
         .hl-note-text .del-note { color: #999; margin-left: 5px; cursor: pointer; font-weight: normal; }
         .hl-note-text .del-note:hover { color: red; }
 
@@ -2387,7 +2387,7 @@
                 noteSpan.className = 'hl-note-text';
                 noteSpan.style.color = '#2980b9'; 
                 noteSpan.style.borderColor = '#2980b9'; 
-                noteSpan.style.fontSize = 'inherit'; 
+                noteSpan.style.fontSize = '1em';
                 // Thêm hàm unwrap để khi xóa ❌ nó gỡ luôn màu nền xanh
                 noteSpan.innerHTML = `(${translatedText}) <span class="del-note" onclick="let p = this.parentElement; let prev = p.previousSibling; if(prev && prev.classList && prev.classList.contains('hl-word-blue')) { while(prev.firstChild) p.parentNode.insertBefore(prev.firstChild, prev); prev.remove(); } p.remove(); saveActionState();">❌</span>`;
                 
@@ -2446,9 +2446,9 @@
                           .replace(/ɛ/g, 'e');     // Đổi ɛ thành e
             };
 
-            // 2. Hàm gọi Free Dictionary (Tự động Retry 3 lần nếu mạng lỗi/server quá tải)
+            // 2. Hàm gọi Free Dictionary (Tự động Retry 20 lần nếu mạng lỗi/server quá tải)
             const fetchFreeDict = async (word) => {
-                let retries = 3;
+                let retries = 20;
                 for (let i = 0; i < retries; i++) {
                     try {
                         let res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`);
@@ -2477,10 +2477,17 @@
                             if (textItem) txt = textItem.text;
                         }
                         
-                        // Fallback: Quét toàn bộ JSON tìm đoạn kẹp giữa 2 dấu / /
+                        // Fallback: Quét toàn bộ JSON tìm đoạn kẹp giữa 2 dấu / / (Bỏ qua link bản quyền)
                         if (!txt) {
-                            let match = textData.match(/\/[^\/]+\//);
-                            if (match) txt = match[0];
+                            let matches = textData.match(/\/[^\/]+\//g);
+                            if (matches) {
+                                for (let m of matches) {
+                                    if (!m.includes("creativecommons")) {
+                                        txt = m;
+                                        break;
+                                    }
+                                }
+                            }
                         }
                         
                         return txt ? formatIPA(txt) : null;
@@ -2524,7 +2531,7 @@
                 noteSpan.className = 'hl-note-text';
                 noteSpan.style.color = '#8e44ad'; 
                 noteSpan.style.borderColor = '#8e44ad'; 
-                noteSpan.style.fontSize = 'inherit'; 
+                noteSpan.style.fontSize = '1em';
                 // Thêm hàm unwrap để khi xóa ❌ nó gỡ luôn màu nền tím
                 noteSpan.innerHTML = `[${ipaText}] <span class="del-note" onclick="let p = this.parentElement; let prev = p.previousSibling; if(prev && prev.classList && prev.classList.contains('hl-word-purple')) { while(prev.firstChild) p.parentNode.insertBefore(prev.firstChild, prev); prev.remove(); } p.remove(); saveActionState();">❌</span>`;
                 
@@ -2673,6 +2680,7 @@
             if (note) {
                 let noteSpan = document.createElement('span');
                 noteSpan.className = 'hl-note-text';
+                noteSpan.style.fontSize = '1em';
                 noteSpan.innerHTML = `${note} <span class="del-note" onclick="this.parentElement.remove(); saveActionState();">❌</span>`;
                 
                 // KHÔNG BÔI VÀNG - CHỈ CHÈN VÀO ĐẰNG SAU TỪ ĐÓ
