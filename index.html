@@ -420,18 +420,27 @@
         
         <!-- Khu vực nút Ôn Ngữ Pháp và Thử Thách ở góc phải bên dưới Banner -->
         <style>
-            .btn-grammar-corner { position: absolute; bottom: 65px; right: 40px; background: linear-gradient(45deg, #28a745, #2ecc71); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.3); text-transform: uppercase; z-index: 100; }
+            .right-corner-buttons { position: absolute; bottom: 15px; right: 40px; display: flex; flex-direction: column; gap: 10px; z-index: 100; width: 250px; }
+            .btn-grammar-wrap { display: flex; gap: 8px; width: 100%; }
+            .btn-lookup-corner { background: #e3f2fd; border: 2px solid #5ba4e5; color: #003366; border-radius: 8px; width: 45px; display: flex; align-items: center; justify-content: center; font-size: 18px; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.3); flex-shrink: 0; }
+            .btn-lookup-corner:hover { transform: scale(1.05); background: #cce5ff; }
+            .btn-grammar-corner { background: linear-gradient(45deg, #28a745, #2ecc71); color: white; border: none; padding: 12px 0; border-radius: 8px; font-weight: bold; font-size: 15px; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.3); text-transform: uppercase; flex: 1; text-align: center; }
             .btn-grammar-corner:hover { transform: scale(1.05); }
-            .btn-chal-corner { position: absolute; bottom: 15px; right: 40px; background: linear-gradient(45deg, #00ced1, #0037f4); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.3); text-transform: uppercase; z-index: 100; }
+            .btn-chal-corner { background: linear-gradient(45deg, #00ced1, #0037f4); color: white; border: none; padding: 12px 0; border-radius: 8px; font-weight: bold; font-size: 15px; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.3); text-transform: uppercase; width: 100%; text-align: center; }
             .btn-chal-corner:hover { transform: scale(1.05); }
             @media (max-width: 768px) { 
-                .btn-grammar-corner { bottom: 45px; right: 10px; font-size: 11px; padding: 6px 10px; }
-                .btn-chal-corner { bottom: 10px; right: 10px; font-size: 11px; padding: 6px 10px; } 
+                .right-corner-buttons { bottom: 10px; right: 10px; width: 200px; }
+                .btn-grammar-corner, .btn-chal-corner { font-size: 11px; padding: 8px 0; }
+                .btn-lookup-corner { width: 35px; font-size: 14px; }
             }
         </style>
-        <button class="btn-grammar-corner" onclick="openGrammarModal()" title="Ôn tập Ngữ Pháp">📚 Ôn Ngữ Pháp</button>
-        <button class="btn-chal-corner" onclick="startChallenge()" title="Luyện tập Part 5">⚡ Thử Thách Part 5</button>
-
+        <div class="right-corner-buttons">
+            <div class="btn-grammar-wrap">
+                <button class="btn-lookup-corner" onclick="openLookupModal()" title="Tính năng tra cứu ngữ pháp">🔍</button>
+                <button class="btn-grammar-corner" onclick="openGrammarModal()">📚 ÔN TẬP NGỮ PHÁP</button>
+            </div>
+            <button class="btn-chal-corner" onclick="startChallenge()">⚡ Thử Thách Part 5</button>
+        </div>
     </header>
 
     <!-- Khu vực Đăng Nhập -->
@@ -708,20 +717,14 @@
     
     
 
-<!-- MODAL ÔN NGỮ PHÁP -->
-    <div id="grammar-modal-overlay" class="modal-overlay" onclick="if(event.target === this) closeGrammarModal()">
-        <div class="vocab-modal" style="width: 1000px; max-width: 95vw; height: 85vh; display: flex; flex-direction: column;">
-            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #5ba4e5; padding-bottom: 15px; flex-shrink: 0;">
-                <div style="display: flex; align-items: center; gap: 15px;">
-                    <h2 style="margin: 0; color: #003366; font-size: 22px;">📚 ÔN TẬP NGỮ PHÁP</h2>
-                    <button onclick="toggleGrammarLookup()" title="Tính năng tra cứu ngữ pháp" style="background: #e3f2fd; border: 1px solid #5ba4e5; border-radius: 50%; width: 35px; height: 35px; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.1);" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">🔍</button>
-                </div>
-                <button onclick="closeGrammarModal()" style="background: transparent; border: none; font-size: 28px; color: #dc3545; cursor: pointer; font-weight: bold; line-height: 1; transition: 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">×</button>
+<!-- MODAL TRA CỨU NGỮ PHÁP BẰNG KÍNH LÚP -->
+    <div id="lookup-modal-overlay" class="modal-overlay" onclick="if(event.target === this) closeLookupModal()">
+        <div class="vocab-modal" style="width: 800px; max-width: 95vw;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e67e22; padding-bottom: 15px;">
+                <h2 style="margin: 0; color: #d35400; font-size: 22px;">🔍 TRA CỨU NHANH PART 5 & 6</h2>
+                <button onclick="closeLookupModal()" style="background: transparent; border: none; font-size: 28px; color: #dc3545; cursor: pointer; font-weight: bold; line-height: 1; transition: 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">×</button>
             </div>
-
-            <!-- TOOL TRA CỨU NGỮ PHÁP -->
-            <div id="grammar-lookup-tool" style="display: none; background: #fdf2e9; border: 2px solid #e67e22; border-radius: 8px; padding: 20px; margin-top: 15px; flex-shrink: 0; box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);">
-                <h3 style="margin: 0 0 15px 0; color: #d35400; font-size: 18px;">🔍 Tra Cứu Nhanh Part 5 & 6</h3>
+            <div style="background: #fdf2e9; border-radius: 8px; padding: 20px; margin-top: 15px;">
                 <div style="display: flex; gap: 20px; align-items: flex-start;">
                     <!-- Cột 1 -->
                     <div style="flex: 1; background: white; padding: 15px; border-radius: 6px; border: 1px solid #ccc; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
@@ -763,6 +766,16 @@
                         <div id="res-after" style="margin-top: 15px; font-size: 15px; color: #111; line-height: 1.6; min-height: 30px;"><i>Kết quả sẽ hiển thị ở đây...</i></div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL ÔN NGỮ PHÁP (TÁCH BIỆT) -->
+    <div id="grammar-modal-overlay" class="modal-overlay" onclick="if(event.target === this) closeGrammarModal()">
+        <div class="vocab-modal" style="width: 1000px; max-width: 95vw; height: 85vh; display: flex; flex-direction: column;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #5ba4e5; padding-bottom: 15px; flex-shrink: 0;">
+                <h2 style="margin: 0; color: #003366; font-size: 22px;">📚 ÔN TẬP NGỮ PHÁP</h2>
+                <button onclick="closeGrammarModal()" style="background: transparent; border: none; font-size: 28px; color: #dc3545; cursor: pointer; font-weight: bold; line-height: 1; transition: 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">×</button>
             </div>
             
             <div style="display: flex; gap: 25px; margin-top: 15px; flex: 1; overflow: hidden;">
@@ -1562,13 +1575,12 @@
             document.getElementById('grammar-modal-overlay').classList.remove('active');
         }
 
-        function toggleGrammarLookup() {
-            let tool = document.getElementById('grammar-lookup-tool');
-            if(tool.style.display === 'none') {
-                tool.style.display = 'block';
-            } else {
-                tool.style.display = 'none';
-            }
+        function openLookupModal() {
+            document.getElementById('lookup-modal-overlay').classList.add('active');
+        }
+
+        function closeLookupModal() {
+            document.getElementById('lookup-modal-overlay').classList.remove('active');
         }
 
         function lookupGrammar(type) {
@@ -1586,8 +1598,24 @@
             }
 
             let html = '';
-            // Định dạng kết quả in ra: Dấu + màu xanh lá mạ và in đậm từ khóa
-            const formatRes = (arr) => arr.map(item => `<div style="margin-bottom: 8px; border-bottom: 1px dashed #eee; padding-bottom: 4px;"><span style="color:#28a745; font-weight:bold;">+</span> ${item}</div>`).join('');
+            // Định dạng kết quả in ra cực kỳ rõ ràng theo công thức: DẤU HIỆU + [ĐÁP ÁN] hoặc [ĐÁP ÁN] + DẤU HIỆU
+            const formatRes = (arr) => {
+                let selectEl = document.getElementById('lookup-' + type);
+                // Lấy tên của mục đang chọn, gọt bớt ngoặc đơn và ngoặc kép cho chữ nó ngắn gọn lại
+                let keyword = selectEl.options[selectEl.selectedIndex].text.split(' (')[0].replace(/"/g, '').replace('Động từ To be', 'To be').trim();
+                
+                return arr.map(item => {
+                    let formula = '';
+                    if (type === 'before') {
+                        // Logic: TRƯỚC + [ ĐIỀN VÀO ]
+                        formula = `<span style="color:#555; font-weight:600;">${keyword}</span> <strong style="color:#dc3545; margin:0 8px; font-size:18px;">+</strong> <span style="background:#e3f2fd; color:#043b5c; padding:4px 10px; border-radius:4px; border:1px solid #5ba4e5; display:inline-block;">[ ${item} ]</span>`;
+                    } else {
+                        // Logic: [ ĐIỀN VÀO ] + SAU
+                        formula = `<span style="background:#e3f2fd; color:#043b5c; padding:4px 10px; border-radius:4px; border:1px solid #5ba4e5; display:inline-block;">[ ${item} ]</span> <strong style="color:#dc3545; margin:0 8px; font-size:18px;">+</strong> <span style="color:#555; font-weight:600;">${keyword}</span>`;
+                    }
+                    return `<div style="margin-bottom: 12px; border-bottom: 1px dashed #ccc; padding-bottom: 8px; line-height: 1.8;">${formula}</div>`;
+                }).join('');
+            };
 
             if(type === 'before') {
                 if(val === 'be') html = formatRes(['<b>Tính từ (Adj)</b> (Phổ biến nhất)', '<b>V-ing + Tân ngữ</b> (Thì tiếp diễn, chủ động)', '<b>V3/ed + Giới từ / Thời gian / Dấu chấm</b> (Bị động)', '<b>Danh từ (N)</b> (Chỉ nghề nghiệp, chức danh - Hiếm gặp)']);
