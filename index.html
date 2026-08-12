@@ -1149,7 +1149,7 @@
         <div class="chat-widget">
         <style>
             .api-tooltip-chat { background: #003366; color: white; border-radius: 50%; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; cursor: pointer; position: relative; margin-left: 5px; vertical-align: middle;}
-            .api-tooltip-box-chat { position: absolute; top: 25px; right: 0; background: #333; color: #fff; padding: 12px 15px; border-radius: 6px; font-size: 13px; opacity: 0; visibility: hidden; transition: 0.2s; z-index: 100; box-shadow: 0 4px 10px rgba(0,0,0,0.3); font-weight: normal; line-height: 1.6; width: 280px; text-align: left; pointer-events: none;}
+            .api-tooltip-box-chat { position: absolute; top: 25px; left: 0; background: #333; color: #fff; padding: 10px 12px; border-radius: 6px; font-size: 13px; opacity: 0; visibility: hidden; transition: 0.2s; z-index: 100; box-shadow: 0 4px 10px rgba(0,0,0,0.3); font-weight: normal; line-height: 1.5; width: 260px; text-align: left; pointer-events: none;}
             .api-tooltip-box-chat.active { opacity: 1; visibility: visible; pointer-events: auto; }
             .api-tooltip-box-chat a { color: #5ba4e5; text-decoration: none; font-weight: bold; }
             .api-tooltip-box-chat a:hover { text-decoration: underline; color: #90caf9; }
@@ -2613,24 +2613,16 @@ function toggleThemePanel() {
             msg.style.opacity = 1;
             setTimeout(() => { msg.style.opacity = 0; }, 1500);
             
+            // LUÔN MỞ KHÓA CHAT DÙ NHẬP BẤT KỲ CÁI GÌ
             let inputField = document.getElementById('chat-input');
             let sendBtn = document.querySelector('.btn-send-msg');
-
-            // Mở khóa ngay lập tức nếu nhập đúng chuẩn API của Groq
-            if (key.startsWith('gsk_')) {
-                inputField.disabled = false;
-                sendBtn.disabled = false;
-                inputField.placeholder = "Nhập câu hỏi của bạn...";
-                
-                // Tự động thu gọn bảng sau 1 giây
-                setTimeout(() => {
-                    document.getElementById('ai-api-setup').style.display = 'none';
-                }, 1000);
-            } else {
-                // Khóa lại nếu nhập sai hoặc thiếu chữ gsk_
-                inputField.disabled = true;
-                sendBtn.disabled = true;
-                inputField.placeholder = "Vui lòng nhập API Key hợp lệ ở trên...";
+            inputField.disabled = false;
+            sendBtn.disabled = false;
+            inputField.placeholder = "Nhập câu hỏi của bạn...";
+            
+            // Thu gọn bảng sau 1 giây nếu có nhập chữ (bất kể chữ gì)
+            if (key !== '') {
+                setTimeout(() => { document.getElementById('ai-api-setup').style.display = 'none'; }, 1000);
             }
         }
 
@@ -2644,27 +2636,25 @@ function toggleThemePanel() {
             
             document.getElementById('chat-api-key').value = apiKey;
 
-            if (!apiKey.startsWith('gsk_')) {
+            // TUYỆT ĐỐI KHÔNG BAO GIỜ KHÓA - LUÔN MỞ
+            inputField.disabled = false;
+            sendBtn.disabled = false;
+            inputField.placeholder = "Nhập câu hỏi của bạn...";
+
+            // Tự mở bảng API nếu chưa có key
+            if (!apiKey) {
                 document.getElementById('ai-api-setup').style.display = 'block';
-                inputField.disabled = true;
-                sendBtn.disabled = true;
-                inputField.placeholder = "Vui lòng nhập API Key ở trên...";
             } else {
                 document.getElementById('ai-api-setup').style.display = 'none';
-                inputField.disabled = false;
-                sendBtn.disabled = false;
-                inputField.placeholder = "Nhập câu hỏi của bạn...";
             }
 
             if(panel.classList.contains('active')) {
                 let chatBody = document.getElementById('chat-body');
                 if (chatBody.innerHTML.trim() === "") {
-                    chatBody.innerHTML = '<div style="text-align:center; font-size:13px; color:#666; margin-top:15px; background: #eee; padding: 8px; border-radius: 4px;">Xin chào! Tôi là AI Hỗ trợ TOEIC. Bạn cần hỏi gì?</div>';
+                    chatBody.innerHTML = '<div style="text-align:center; font-size:13px; color:#666; margin-top:15px; background: #eee; padding: 8px; border-radius: 4px;">Xin chào! Tôi là AI Hỗ trợ học TOEIC. Bạn cần hỏi gì?</div>';
                 }
                 
-                if (!inputField.disabled) {
-                    inputField.focus();
-                }
+                inputField.focus();
                 setTimeout(() => { chatBody.scrollTop = chatBody.scrollHeight; }, 100);
             }
         }
