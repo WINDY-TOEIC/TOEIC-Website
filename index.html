@@ -775,6 +775,7 @@
                             <option value="thing_n">Danh từ chỉ VẬT</option>
                             <option value="and_or">Liên từ "and" hoặc "or"</option>
                             <option value="full_clause">Câu đã ĐẦY ĐỦ thành phần (S + V + O)</option>
+                            <option value="conj_adv">Trạng từ liên kết (however, therefore...)</option>
                         </select>
                         <div id="res-before" style="margin-top: 15px; font-size: 15px; color: #111; line-height: 1.6;"></div>
                     </div>
@@ -790,6 +791,7 @@
                             <option value="prep">Giới từ (in, on, at, by, for...)</option>
                             <option value="clause">Một mệnh đề (S + V + O)</option>
                             <option value="vo">Động từ nguyên mẫu (Vo)</option>
+                            <option value="conj_adv">Trạng từ liên kết (however, therefore...)</option>
                         </select>
                         <div id="res-after" style="margin-top: 15px; font-size: 15px; color: #111; line-height: 1.6;"></div>
                     </div>
@@ -1974,6 +1976,7 @@
                 else if(val === 'thing_n') html = formatRes(['which / that (Đứng làm Chủ ngữ hoặc Tân ngữ)', 'whose (Nếu sau ô trống là một Danh từ không có a/an/the)']);
                 else if(val === 'and_or') html = formatRes(['Từ loại Y HỆT từ nằm trước and/or (Ví dụ: Trước là Adj thì điền Adj, trước là V-ing thì điền V-ing)']);
                 else if(val === 'full_clause') html = formatRes(['Trạng từ (Adv)', 'Đại từ phản thân (myself, themselves...) để nhấn mạnh chủ thể']);
+                else if(val === 'conj_adv') html = formatRes([', S + V']);
             } 
             else {
                 if(val === 'noun') html = formatRes(['Tính từ (Adj)', 'Mạo từ / Tính từ sở hữu / Lượng từ', 'Giới từ (in, on, at, about...)', 'Động từ (V)', 'Danh từ (N) (Tạo danh từ ghép)']);
@@ -1982,6 +1985,7 @@
                 else if(val === 'prep') html = formatRes(['V3/ed (Câu bị động)', 'Động từ (V)']);
                 else if(val === 'clause') html = formatRes(['Liên từ phụ thuộc (Because, Although, If, When, While, As soon as...)']);
                 else if(val === 'vo') html = formatRes(['Động từ khiếm khuyết (can, will, should, must...)', 'Từ "to" (want to, need to, in order to...)', 'Let / Make / Help / Have']);
+                else if(val === 'conj_adv') html = formatRes(['Dấu chấm phẩy (;) hoặc Dấu chấm (.)']);
             }
             resBox.innerHTML = html;
         }
@@ -2035,11 +2039,13 @@
                 let displayPOS = "";
 
                 // BỘ LỌC THÔNG MINH CHO CÁC TỪ TOEIC ĐẶC BIỆT
-                let specialVing = ["enjoy", "keep", "consider", "suggest", "avoid", "mind", "finish", "postpone", "recommend", "practice", "quit", "deny", "delay", "miss", "risk"];
-                let linkingVerbs = ["become", "remain", "stay", "seem", "appear", "look", "sound", "smell", "taste", "feel"];
+                let specialVing = ["enjoy", "keep", "consider", "suggest", "avoid", "mind", "finish", "postpone", "recommend", "practice", "quit", "deny", "delay", "miss", "risk", "admit", "anticipate", "appreciate", "complete", "defend", "discuss", "dislike", "escape", "excuse", "fancy", "forgive", "imagine", "involve", "mention", "permit", "recall", "recollect", "report", "resent", "resist", "resume", "tolerate", "understand", "give up", "put off", "look forward to", "object to", "confess to", "be used to", "get used to", "can't help", "can't stand", "feel like"];
+                let linkingVerbs = ["become", "remain", "stay", "seem", "appear", "look", "sound", "smell", "taste", "feel", "prove", "turn", "grow", "go", "run"];
+                let conjAdvs = ["therefore", "thus", "consequently", "as a result", "hence", "otherwise", "however", "nevertheless", "nonetheless", "on the other hand", "in contrast", "conversely", "on the contrary", "unfortunately", "besides", "moreover", "furthermore", "in addition", "additionally", "in other words", "for example", "as an example", "for instance", "similarly", "likewise", "finally", "ultimately", "eventually", "meanwhile", "in the meantime", "in fact", "actually", "as you can imagine", "as you know", "in general", "in summary", "in conclusion", "instead", "subsequently", "afterward", "afterwards", "next", "firstly", "secondly", "specifically", "namely", "indeed", "as a matter of fact", "of course", "to sum up", "in short", "all in all", "accordingly", "anyway", "anyhow", "certainly", "elsewhere", "equally", "further", "henceforth", "identically", "incidentally", "nowadays", "predictably", "simultaneously", "still", "thereafter", "undoubtedly", "unquestionably", "yet", "by the way", "to illustrate", "to conclude", "to begin with", "on the whole", "for one thing", "in particular", "as a consequence", "at the same time", "in comparison", "by comparison", "in the same way", "to clarify", "to put it another way"];
                 
                 if (specialVing.includes(word)) { selectVal = "v_special"; displayPOS = "Động từ đặc biệt (V_ing)"; }
                 else if (linkingVerbs.includes(word)) { selectVal = "linking"; displayPOS = "Linking Verb"; }
+                else if (conjAdvs.includes(word)) { selectVal = "conj_adv"; displayPOS = "Trạng từ liên kết"; }
                 else if (["be", "am", "is", "are", "was", "were", "been", "being"].includes(word)) { selectVal = "be"; displayPOS = "Động từ To be"; }
                 else {
                     // Dò tìm từ loại từ kết quả của Google
@@ -2594,7 +2600,7 @@ function toggleThemePanel() {
 
         // --- HỆ THỐNG KHUNG CHAT VỚI AI (GROQ API) ---
         let aiChatHistory = [
-            { role: "system", content: "Bạn là một giáo viên TOEIC nhiệt tình, chuyên nghiệp. Hãy giải thích mọi thứ bằng tiếng Việt thật ngắn gọn, dễ hiểu và súc tích." }
+            { role: "system", content: "Bạn am hiểu TOEIC, nhiệt tình, chuyên nghiệp. Hãy giải thích mọi thứ bằng tiếng Việt thật ngắn gọn, dễ hiểu và súc tích và xưng hô phù hợp cách user xưng hô." }
         ];
 
         function toggleApiSetup() {
