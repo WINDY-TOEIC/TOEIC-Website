@@ -1164,21 +1164,21 @@
                 </div>
             </div>
 
-            <!-- HƯỚNG DẪN LẤY KEY Y CHANG S&W -->
+            <!-- HƯỚNG DẪN LẤY KEY GEMINI -->
             <div id="ai-api-setup" style="padding: 15px; background: #e3f2fd; border-bottom: 1px solid #b6d4fe; display: none;">
                 <label style="display: flex; align-items: center; font-weight: bold; color: #003366; margin-bottom: 8px; font-size: 14px;">
-                    Groq API KEY <span style="color: #dc3545; font-size: 12px; font-weight: bold; margin-left: 8px;">* Bắt buộc</span>
+                    Gemini API KEY <span style="color: #dc3545; font-size: 12px; font-weight: bold; margin-left: 8px;">* Bắt buộc</span>
                     <div class="api-tooltip-chat" onclick="document.getElementById('ai-api-tooltip-box').classList.toggle('active')">?
                         <div class="api-tooltip-box-chat" id="ai-api-tooltip-box" onclick="event.stopPropagation()">
                             <div style="font-weight: bold; color: #ff6b6b; margin-bottom: 5px;">HƯỚNG DẪN LẤY API KEY (MIỄN PHÍ)</div>
-                            1. Đăng ký: <a href="https://console.groq.com/login" target="_blank">console.groq.com/login</a><br>
-                            2. Vào trang: <a href="https://console.groq.com/keys" target="_blank">console.groq.com/keys</a><br>
-                            3. Bấm Create API key, nhập tên, Submit.<br>
-                            4. Copy dãy mã bắt đầu bằng gsk_ dán vào ô bên dưới.
+                            1. Truy cập: <a href="https://aistudio.google.com/app/apikey" target="_blank">aistudio.google.com/app/apikey</a><br>
+                            2. Đăng nhập bằng tài khoản Google.<br>
+                            3. Bấm "Create API key", chọn dự án, tạo key.<br>
+                            4. Copy dãy mã dán vào ô bên dưới.
                         </div>
                     </div>
                 </label>
-                <input type="text" autocomplete="off" spellcheck="false" id="chat-api-key" placeholder="Nhập API Key bắt đầu bằng gsk_..." style="width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #ccc; font-size: 14px; outline: none; -webkit-text-security: disc; box-sizing: border-box;" oninput="saveChatAPI()">
+                <input type="text" autocomplete="off" spellcheck="false" id="chat-api-key" placeholder="Nhập API Key của Gemini..." style="width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #ccc; font-size: 14px; outline: none; -webkit-text-security: disc; box-sizing: border-box;" oninput="saveChatAPI()">
                 <div style="text-align: right; margin-top: 5px; height: 15px;">
                     <span id="chat-api-msg" style="color: #28a745; font-size: 13px; font-weight: bold; opacity: 0; transition: 0.3s;">Đã lưu ✔</span>
                 </div>
@@ -2608,7 +2608,7 @@ function toggleThemePanel() {
 
         function saveChatAPI() {
             let key = document.getElementById('chat-api-key').value.trim();
-            localStorage.setItem('win_groq_api_key', key);
+            localStorage.setItem('win_gemini_api_key', key);
             let msg = document.getElementById('chat-api-msg');
             msg.style.opacity = 1;
             setTimeout(() => { msg.style.opacity = 0; }, 1500);
@@ -2632,7 +2632,7 @@ function toggleThemePanel() {
             
             let inputField = document.getElementById('chat-input');
             let sendBtn = document.querySelector('.btn-send-msg');
-            let apiKey = localStorage.getItem('win_groq_api_key') || "";
+            let apiKey = localStorage.getItem('win_gemini_api_key') || "";
             
             document.getElementById('chat-api-key').value = apiKey;
 
@@ -2662,7 +2662,7 @@ function toggleThemePanel() {
         async function sendChatMessage() {
             let input = document.getElementById('chat-input');
             let msg = input.value.trim();
-            let apiKey = localStorage.getItem('win_groq_api_key');
+            let apiKey = localStorage.getItem('win_gemini_api_key');
             
             if(!msg || !apiKey) return;
 
@@ -2691,50 +2691,77 @@ function toggleThemePanel() {
             aiChatHistory.push({ role: "user", content: msg });
 
             try {
-                // Tự động tìm model đang sống y hệt S&W
-                let modelsRes = await fetch("https://api.groq.com/openai/v1/models", {
-                    method: "GET",
-                    headers: { "Authorization": `Bearer ${apiKey}` }
-                });
+                // Lấy danh sách các model từ Google Gemini API
+                let modelsRes = await fetch("https://generativelanguage.googleapis.com/v1beta/models?key=" + apiKey);
                 if (!modelsRes.ok) throw new Error("Lỗi API Key");
                 
                 let modelsData = await modelsRes.json();
-                let availableModels = modelsData.data.map(m => m.id);
-                let textModels = availableModels.filter(m => !m.includes('whisper'));
-                let selectedModel = textModels.find(m => m.includes('llama-3.3-70b'))
-                                 || textModels.find(m => m.includes('llama-3.1-70b'))
-                                 || textModels.find(m => m.includes('llama3-70b'))
-                                 || textModels.find(m => m.includes('llama3-8b'))
-                                 || textModels[0];
-
-                let res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                    method: "POST",
-                    headers: {
-                        "Authorization": `Bearer ${apiKey}`,
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        model: selectedModel, 
-                        messages: aiChatHistory,
-                        temperature: 0.3
-                    })
-                });
-
-                if (!res.ok) throw new Error("Lỗi kết nối AI");
                 
-                let data = await res.json();
-                let reply = data.choices[0].message.content;
+                // Lọc lấy các model chứa chữ "flash", không dùng vision hay nhúng
+                let flashModels = modelsData.models
+                    .map(m => m.name.replace('models/', ''))
+                    .filter(m => m.includes('flash') && !m.includes('vision') && !m.includes('embedding'));
                 
+                // Sắp xếp tên giảm dần để model phiên bản mới nhất tự động lên đầu tiên
+                flashModels.sort((a, b) => b.localeCompare(a));
+                
+                // Mặc định luôn gắn "gemini-3.0-flash" làm model dự bị lót đáy theo yêu cầu
+                if (!flashModels.includes('gemini-3.0-flash')) {
+                    flashModels.push('gemini-3.0-flash'); 
+                }
+
+                let reply = "";
+                let success = false;
+                let lastError = null;
+
+                // Vòng lặp thử từng model, nếu quá tải thì Regress về cái trước đó 1 bậc
+                for (let i = 0; i < flashModels.length; i++) {
+                    let selectedModel = flashModels[i];
+                    try {
+                        let res = await fetch("https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", {
+                            method: "POST",
+                            headers: {
+                                "Authorization": `Bearer ${apiKey}`,
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify({
+                                model: selectedModel, 
+                                messages: aiChatHistory,
+                                temperature: 0.3
+                            })
+                        });
+
+                        if (!res.ok) {
+                            if (res.status === 429 || res.status >= 500 || res.status === 404) {
+                                throw new Error(`Quá tải/Lỗi model ${selectedModel}`);
+                            } else {
+                                throw new Error("Lỗi API Key không hợp lệ.");
+                            }
+                        }
+                        
+                        let data = await res.json();
+                        reply = data.choices[0].message.content;
+                        success = true;
+                        break; 
+                    } catch (e) {
+                        lastError = e;
+                        if (e.message.includes("không hợp lệ")) {
+                            break; 
+                        }
+                    }
+                }
+
+                if (!success) throw lastError;
+
                 aiChatHistory.push({ role: "assistant", content: reply });
                 
-                // Format bôi đậm và xuống dòng cho đẹp
                 let formattedReply = reply.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\*(.*?)\*/g, '<i>$1</i>').replace(/\n/g, '<br>');
                 
                 document.getElementById(typingId).innerHTML = `<div class="msg-sender">Trợ lý AI</div>${formattedReply}`;
                 
             } catch (err) {
-                document.getElementById(typingId).innerHTML = `<div class="msg-sender">Trợ lý AI</div><b style="color:red;">❌ Lỗi: Vui lòng kiểm tra lại API Key hoặc mạng.</b>`;
-                aiChatHistory.pop(); // Xóa tin nhắn lỗi ra khỏi lịch sử
+                document.getElementById(typingId).innerHTML = `<div class="msg-sender">Trợ lý AI</div><b style="color:red;">❌ Lỗi: Vui lòng kiểm tra lại API Key hoặc mạng. Trợ lý đang bận.</b>`;
+                aiChatHistory.pop();
             }
             chatBody.scrollTop = chatBody.scrollHeight;
         }
