@@ -115,7 +115,7 @@
         .no-history { text-align: center; color: #777; font-style: italic; padding: 20px; }
         
         /* Dropdown Lịch sử trên Banner */
-        .history-wrapper { position: absolute; top: 15px; left: 165px; z-index: 100; }
+        .history-wrapper { position: absolute; top: 15px; left: 165px; z-index: 110; }
         .dark-mode-btn { position: absolute; top: 15px; left: 65px; background: rgba(255,255,255,0.2); border: none; border-radius: 4px; padding: 8px 12px; cursor: pointer; color: white; font-size: 16px; z-index: 100; transition: 0.2s;}
         .dark-mode-btn:hover { background: rgba(255,255,255,0.4); }
         
@@ -1029,52 +1029,50 @@
             
             <div style="overflow-y: auto; padding: 15px 5px; flex: 1; font-size: 15px; line-height: 1.6; color: #333;">
                 
-                <h3 style="color: #003366; border-left: 4px solid #f39c12; padding-left: 10px; background: #fdf2e9; padding: 8px 10px;">1. ⏳ LƯU BÀI DỞ & XEM LẠI KẾT QUẢ CŨ</h3>
+                <h3 style="color: #003366; border-left: 4px solid #f39c12; padding-left: 10px; background: #fdf2e9; padding: 8px 10px;">1. ⏳ LƯU TRỮ VÀ XEM LẠI BÀI LÀM</h3>
                 <ul style="margin-top: 5px;">
-                    <li><b>Đang làm dở bài thì lưu ở đâu?</b><br>Hệ thống có tính năng <b>Auto-save (Lưu tự động mỗi giây)</b>. Dù bạn có lỡ tắt tab, rớt mạng hay cúp điện, bài làm vẫn được giữ nguyên. Để làm tiếp, bạn ra màn hình chính, nhìn lên thanh Menu trên cùng sẽ thấy nút <b><span style="color:#dc3545; font-weight:bold;">⏳ LÀM TIẾP</span></b>. Rê chuột vào sẽ hiện ra danh sách các bài đang làm dở (đang dừng ở câu mấy).</li>
-                    <li><b>Kết quả thi xong lưu ở đâu?</b><br>Sau khi bạn nộp bài, điểm số sẽ được lưu vào máy. Bấm vào nút <b>"Xem Lịch Sử"</b> ở góc trên bên trái màn hình. Bấm <i>"Xem lại bài làm chi tiết"</i> để hệ thống mở lại bài làm của bạn kèm đáp án đúng/sai và thống kê từng Part.</li>
+                    <li><b>Lưu trạng thái làm bài:</b> Hệ thống tự động lưu bài làm theo thời gian thực. Nếu trình duyệt bị đóng hoặc mất kết nối, bài làm vẫn được giữ nguyên. Để tiếp tục, nhấp vào nút <b><span style="color:#dc3545; font-weight:bold;">⏳ LÀM TIẾP</span></b> trên thanh công cụ tại trang chủ.</li>
+                    <li><b>Xem lại kết quả:</b> Sau khi nộp bài, kết quả sẽ được lưu cục bộ trên thiết bị. Nhấp vào <b>"Xem Lịch Sử"</b>, sau đó chọn <i>"Xem lại bài làm chi tiết"</i> để kiểm tra đáp án và thống kê số câu đúng/sai theo từng phần.</li>
                 </ul>
 
-                <h3 style="color: #003366; border-left: 4px solid #f39c12; padding-left: 10px; background: #fdf2e9; padding: 8px 10px; margin-top: 25px;">2. 🛠️ CÔNG CỤ ĐỈNH CAO TRONG PHÒNG THI</h3>
+                <h3 style="color: #003366; border-left: 4px solid #f39c12; padding-left: 10px; background: #fdf2e9; padding: 8px 10px; margin-top: 25px;">2. 🛠️ CÁC CÔNG CỤ HỖ TRỢ TRONG PHÒNG THI</h3>
                 <ul style="margin-top: 5px;">
-                    <li><b>Thanh Công Cụ Nổi (Khi bôi đen chữ):</b> Khi bạn bôi đen bất kỳ cụm từ nào trong đề thi, một thanh công cụ sẽ hiện ra gồm:
-                        <br>&nbsp;&nbsp;+ <b>Bôi màu & Gạch bỏ:</b> 🟨 Bôi vàng, <span style="text-decoration:line-through;">abc</span> Gạch ngang loại trừ, <span style="text-decoration:underline; color:red;">__</span> Gạch dưới.
-                        <br>&nbsp;&nbsp;+ <b>Dịch & Phát âm:</b> 🔍 Dịch từ vựng (Google Translate), <b>IPA</b> Tra phiên âm chuẩn, 🔊 Phát âm từ đó.
-                        <br>&nbsp;&nbsp;+ <b>Thêm ghi chú:</b> 📝 Cho phép gõ ghi chú văn bản ngay cạnh từ vựng.
-                        <br>&nbsp;&nbsp;+ <b>Lưu Sổ Tay:</b> ⭐ Lưu nhanh từ vựng + nghĩa + IPA vào Sổ tay để học lại sau.
+                    <li><b>Thanh công cụ văn bản:</b> Bôi đen một cụm từ bất kỳ trong đề thi để hiển thị các tùy chọn:
+                        <br>&nbsp;&nbsp;+ <b>Đánh dấu:</b> 🟨 Tô sáng (Highlight), <span style="text-decoration:line-through;">abc</span> Gạch ngang (Loại trừ), <span style="text-decoration:underline; color:red;">__</span> Gạch chân.
+                        <br>&nbsp;&nbsp;+ <b>Tra cứu:</b> 🔍 Dịch nghĩa văn bản, <b>IPA</b> Xem phiên âm chuẩn, 🔊 Nghe phát âm.
+                        <br>&nbsp;&nbsp;+ <b>Ghi chú & Lưu trữ:</b> 📝 Thêm ghi chú trực tiếp vào văn bản, ⭐ Lưu từ vựng vào Sổ tay.
                     </li>
-                    <li><b>Vẽ & Viết trực tiếp lên đề:</b> Góc phải trên cùng có biểu tượng 🖍️ (Vẽ tự do) và <b>A</b> (Gõ chữ lên màn hình). Bạn có thể nháp thẳng lên đề như thi giấy.</li>
-                    <li><b>Zoom ảnh:</b> Các ảnh trong đề thi (Ví dụ Part 1) đều có thể <b>Click chuột vào để phóng to</b> sắc nét.</li>
-                    <li><b>Phím tắt:</b> Bấm phím <code>Cách (Space)</code> để nghe lại Audio. Bấm phím mũi tên <code>←</code> <code>→</code> để chuyển câu. Bấm phím <code>1</code> để bôi gạch chân đỏ nhanh.</li>
+                    <li><b>Công cụ vẽ và viết:</b> Sử dụng biểu tượng 🖍️ để vẽ tự do hoặc <b>A</b> để chèn văn bản trực tiếp lên màn hình bài thi.</li>
+                    <li><b>Phóng to hình ảnh:</b> Nhấp chuột trái vào các hình ảnh trong đề thi (ví dụ Part 1) để phóng to/thu nhỏ.</li>
+                    <li><b>Phím tắt thao tác:</b> Phím <code>Space (Cách)</code>: Phát/Tạm dừng Audio. Phím mũi tên <code>←</code> <code>→</code>: Chuyển câu hỏi. Phím <code>1</code>: Gạch chân nhanh văn bản đang chọn.</li>
                 </ul>
 
-                <h3 style="color: #003366; border-left: 4px solid #f39c12; padding-left: 10px; background: #fdf2e9; padding: 8px 10px; margin-top: 25px;">3. 📚 CÔNG CỤ HỌC TẬP NGOÀI MÀN HÌNH CHÍNH</h3>
+                <h3 style="color: #003366; border-left: 4px solid #f39c12; padding-left: 10px; background: #fdf2e9; padding: 8px 10px; margin-top: 25px;">3. 📚 TÍNH NĂNG TRA CỨU VÀ ÔN TẬP</h3>
                 <ul style="margin-top: 5px;">
-                    <li><b>🔍 Kính lúp Tra Cứu (Part 5&6):</b> Nằm ngay trên nút Ôn Ngữ pháp. Nhập từ bất kỳ vào (VD: <i>friendly</i>), AI sẽ tự nhận diện từ loại và bung ra cách làm bài liên quan đến từ đó. Có thể chọn thủ công <i>"Trước... có", "Sau... có"</i> để xem mẹo điền từ.</li>
-                    <li><b>📚 Ôn Tập Ngữ Pháp:</b> Chứa lý thuyết trọng tâm TOEIC. Đặc biệt có khung <b>Cẩm nang tra cứu nhanh</b> xổ xuống chứa 10 chuyên đề cốt lõi nhất.</li>
-                    <li><b>📖 Sổ Tay Từ Vựng:</b> Nằm trên thanh Menu. Mở ra để ôn lại những từ bạn đã bấm ⭐ trong lúc giải đề. Có nút cái loa để nghe lại phát âm.</li>
-                    <li><b>💬 Chat với AI:</b> Góc phải dưới cùng. Nhập API Groq (miễn phí) để trò chuyện, hỏi đáp kiến thức TOEIC với AI thông minh như ChatGPT.</li>
+                    <li><b>🔍 Tra cứu nhanh (Part 5&6):</b> Nhập từ vựng để hệ thống tự động phân tích từ loại, hoặc chọn thủ công dấu hiệu nhận biết ở mục <i>"Trước... có" / "Sau... có"</i> để xem quy tắc ngữ pháp tương ứng.</li>
+                    <li><b>📚 Ôn tập Ngữ pháp:</b> Tổng hợp các chủ điểm ngữ pháp TOEIC quan trọng. Cung cấp menu tra cứu nhanh các quy tắc cốt lõi.</li>
+                    <li><b>📖 Sổ tay Từ vựng:</b> Lưu trữ các từ vựng đã đánh dấu (⭐) trong quá trình làm bài, hỗ trợ xem lại nghĩa, phiên âm và phát âm.</li>
+                    <li><b>💬 Trợ lý AI (Chat):</b> Hỗ trợ giải đáp các thắc mắc chuyên môn TOEIC. Tính năng này yêu cầu người dùng thiết lập API Key của Groq.</li>
                 </ul>
 
-                <h3 style="color: #003366; border-left: 4px solid #f39c12; padding-left: 10px; background: #fdf2e9; padding: 8px 10px; margin-top: 25px;">4. 🏆 TÍNH NĂNG ĐUA TOP & BẢNG VÀNG</h3>
+                <h3 style="color: #003366; border-left: 4px solid #f39c12; padding-left: 10px; background: #fdf2e9; padding: 8px 10px; margin-top: 25px;">4. 🏆 BẢNG XẾP HẠNG VÀ THỬ THÁCH</h3>
                 <ul style="margin-top: 5px;">
-                    <li><b>⚡ Thử Thách Part 5:</b> Hệ thống trộn ngẫu nhiên tất cả các câu Part 5 của mọi đề thi. Có chế độ thi Đua Top 1 phút (Tính điểm lên Bảng Xếp Hạng) và chế độ Không giới hạn (Làm từ từ, có giải thích đáp án).</li>
-                    <li><b>🏆 Luật lên Bảng Vàng (Leaderboard):</b>
-                        <br>1. Phải đăng nhập Tên & Mã Lớp ở góc phải trên cùng.
-                        <br>2. Chọn chế độ <b>Giao diện Thi Thật</b>.
-                        <br>3. Thi <b>toàn bộ 7 Part</b>.
-                        <br>4. Thời gian set đúng <b>120 phút</b>.
-                        <br>5. <b>Cảnh báo:</b> TUYỆT ĐỐI KHÔNG CHUYỂN TAB hay mở app khác khi thi. Nếu hệ thống phát hiện bạn rời khỏi trang thi, kết quả sẽ bị hủy không đưa lên bảng xếp hạng!
+                    <li><b>⚡ Thử thách Part 5:</b> Hệ thống cung cấp hai chế độ: Làm bài tính giờ (Ghi nhận điểm lên Bảng xếp hạng) và Làm bài không giới hạn thời gian (Hỗ trợ giải thích đáp án).</li>
+                    <li><b>🏆 Điều kiện lưu tên Bảng Vàng (Leaderboard):</b>
+                        <br>1. Điền đầy đủ Mã lớp và Họ tên tại trang chủ.
+                        <br>2. Chọn chế độ <b>"Giao diện Thi Thật"</b>.
+                        <br>3. Chọn thi toàn bộ 7 Parts.
+                        <br>4. Đặt thời gian làm bài đúng 120 phút.
+                        <br>5. <b>Lưu ý:</b> Không chuyển tab hoặc mở ứng dụng khác trong suốt quá trình làm bài. Hệ thống sẽ tự động hủy kết quả nếu phát hiện vi phạm.
                     </li>
                 </ul>
 
-                <h3 style="color: #003366; border-left: 4px solid #f39c12; padding-left: 10px; background: #fdf2e9; padding: 8px 10px; margin-top: 25px;">5. 🎙️ SPEAKING & WRITING (CÓ AI CHẤM ĐIỂM)</h3>
+                <h3 style="color: #003366; border-left: 4px solid #f39c12; padding-left: 10px; background: #fdf2e9; padding: 8px 10px; margin-top: 25px;">5. 🎙️ PHẦN THI SPEAKING & WRITING</h3>
                 <ul style="margin-top: 5px;">
-                    <li>Vào mục <i>"Luyện thi TOEIC Speaking & Writing"</i> ở cột trái.</li>
-                    <li>Web sẽ mô phỏng giao diện thi thật 100%. Có thanh đếm ngược thời gian chuẩn bị và thời gian làm bài.</li>
-                    <li><b>Speaking:</b> Ghi âm trực tiếp qua Micro. Có nút <i>"✨ Chấm Điểm"</i>: AI sẽ tự động nghe, bóc băng thành chữ (Transcript) và chấm điểm thô, phân tích lỗi sai ngữ pháp, đồng thời đưa ra <b>Câu trả lời mẫu (Suggested Answer)</b> cực chuẩn (Có kèm nút phát âm câu trả lời mẫu).</li>
-                    <li><b>Writing:</b> Gõ trực tiếp lên web. AI cũng sẽ chấm điểm và phân tích lập luận của bạn.</li>
-                    <li>(Yêu cầu nhập API Key của Groq - Miễn phí hoàn toàn - Có hướng dẫn chi tiết ngay khi mở bài thi).</li>
+                    <li>Truy cập mục <i>"Luyện thi TOEIC Speaking & Writing"</i> tại giao diện chính. Hệ thống mô phỏng cấu trúc thi thực tế, bao gồm thời gian chuẩn bị và thời gian làm bài.</li>
+                    <li><b>Speaking:</b> Hỗ trợ thu âm trực tiếp qua Micro. Tính năng chấm điểm sử dụng AI để bóc băng (Transcript), đánh giá lỗi sai và cung cấp câu trả lời mẫu (kèm phát âm mẫu).</li>
+                    <li><b>Writing:</b> Trả lời trực tiếp trên giao diện văn bản. AI hỗ trợ chấm điểm và nhận xét tính logic, ngữ pháp.</li>
+                    <li>(Tính năng chấm điểm AI yêu cầu cung cấp Groq API Key. Miễn phí và có hướng dẫn tích hợp tại màn hình chọn đề thi).</li>
                 </ul>
 
             </div>
