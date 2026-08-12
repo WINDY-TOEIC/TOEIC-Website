@@ -451,7 +451,7 @@
 
         <div class="right-corner-buttons">
             <div style="position: relative; width: 100%;">
-                <button class="btn-lookup-corner" onclick="openLookupModal()" title="Tính năng tra cứu ngữ pháp">🔍</button>
+                <button class="btn-lookup-corner" onclick="openLookupModal()" title="Tra cứu ngữ pháp">🔍</button>
                 <button class="btn-grammar-corner" onclick="openGrammarModal()">📚 ÔN TẬP NGỮ PHÁP</button>
             </div>
             <button class="btn-chal-corner" onclick="startChallenge()">⚡ Thử Thách Part 5</button>
@@ -760,7 +760,7 @@
                             <option value="prep">Giới từ (in, on, at, about, for, with...)</option>
                             <option value="adj">Tính từ (Adjective)</option>
                             <option value="adv">Trạng từ (Adverb)</option>
-                            <option value="v_normal">Động từ thường (Ngoại động từ)</option>
+                            <option value="v_normal">Động từ (V)</option>
                             <option value="modal">Động từ khiếm khuyết (can, could, will, must...)</option>
                             <option value="to">Từ "to" (want to, need to, in order to...)</option>
                             <option value="v_special">Động từ đặc biệt (enjoy, keep, consider, suggest...)</option>
@@ -796,7 +796,23 @@
     <div id="grammar-modal-overlay" class="modal-overlay" onclick="if(event.target === this) closeGrammarModal()">
         <div class="vocab-modal" style="width: 1000px; max-width: 95vw; height: 85vh; display: flex; flex-direction: column;">
             <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #5ba4e5; padding-bottom: 15px; flex-shrink: 0;">
-                <h2 style="margin: 0; color: #003366; font-size: 22px;">📚 ÔN TẬP NGỮ PHÁP</h2>
+                <h2 style="margin: 0; color: #003366; font-size: 22px; display: flex; align-items: center; gap: 20px;">
+                    📚 ÔN TẬP NGỮ PHÁP
+                    <select id="quick-grammar-lookup" onchange="showGrammarQuickReference(this.value)" style="font-size: 15px; padding: 6px 15px; border-radius: 6px; border: 2px solid #5ba4e5; outline: none; cursor: pointer; background: #e3f2fd; color: #003366; font-weight: 700; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                        <option value="">-- Cẩm nang tra cứu nhanh --</option>
+                        <option value="tenses">1. Tóm tắt Các Thì (Tenses)</option>
+                        <option value="passive">2. Chủ động & Bị động (Voices)</option>
+                        <option value="sv_agreement">3. Hòa hợp Chủ - Vị (S-V Agreement)</option>
+                        <option disabled>───────────────</option>
+                        <option value="noun">4. Danh từ (Noun)</option>
+                        <option value="verb">5. Động từ (Verb)</option>
+                        <option value="adj">6. Tính từ (Adjective)</option>
+                        <option value="adv">7. Trạng từ (Adverb)</option>
+                        <option value="prep">8. Giới từ (Preposition)</option>
+                        <option value="conj">9. Liên từ (Conjunction)</option>
+                        <option value="pronoun">10. Đại từ (Pronoun)</option>
+                    </select>
+                </h2>
                 <button onclick="closeGrammarModal()" style="background: transparent; border: none; font-size: 28px; color: #dc3545; cursor: pointer; font-weight: bold; line-height: 1; transition: 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">×</button>
             </div>
             
@@ -1036,12 +1052,40 @@
 
         <!-- WIDGET KHUNG CHAT -->
         <div class="chat-widget">
-        <button class="chat-btn-toggle" onclick="toggleChat()" title="Chat với học viên khác">💬</button>
+        <style>
+            .api-tooltip-chat { background: #003366; color: white; border-radius: 50%; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; cursor: pointer; position: relative; margin-left: 5px; vertical-align: middle;}
+            .api-tooltip-box-chat { position: absolute; top: 25px; right: 0; background: #333; color: #fff; padding: 12px 15px; border-radius: 6px; font-size: 13px; opacity: 0; visibility: hidden; transition: 0.2s; z-index: 100; box-shadow: 0 4px 10px rgba(0,0,0,0.3); font-weight: normal; line-height: 1.6; width: 280px; text-align: left; pointer-events: none;}
+            .api-tooltip-box-chat.active { opacity: 1; visibility: visible; pointer-events: auto; }
+            .api-tooltip-box-chat a { color: #5ba4e5; text-decoration: none; font-weight: bold; }
+            .api-tooltip-box-chat a:hover { text-decoration: underline; color: #90caf9; }
+        </style>
+        <button class="chat-btn-toggle" onclick="toggleChat()" title="Chat với AI">💬</button>
         <div class="chat-panel" id="chat-panel">
             <div class="chat-header">
-                <span>Trò chuyện chung</span>
+                <span>Chat với AI</span>
                 <button class="btn-close-chat" onclick="toggleChat()">×</button>
             </div>
+
+            <!-- HƯỚNG DẪN LẤY KEY Y CHANG S&W -->
+            <div id="ai-api-setup" style="padding: 15px; background: #e3f2fd; border-bottom: 1px solid #b6d4fe; display: none;">
+                <label style="display: flex; align-items: center; font-weight: bold; color: #003366; margin-bottom: 8px; font-size: 14px;">
+                    Groq API KEY <span style="color: #dc3545; font-size: 12px; font-weight: bold; margin-left: 8px;">* Bắt buộc</span>
+                    <div class="api-tooltip-chat" onclick="document.getElementById('ai-api-tooltip-box').classList.toggle('active')">?
+                        <div class="api-tooltip-box-chat" id="ai-api-tooltip-box" onclick="event.stopPropagation()">
+                            <div style="font-weight: bold; color: #ff6b6b; margin-bottom: 5px;">HƯỚNG DẪN LẤY API KEY (MIỄN PHÍ)</div>
+                            1. Đăng ký: <a href="https://console.groq.com/login" target="_blank">console.groq.com/login</a><br>
+                            2. Vào trang: <a href="https://console.groq.com/keys" target="_blank">console.groq.com/keys</a><br>
+                            3. Bấm Create API key, nhập tên, Submit.<br>
+                            4. Copy dãy mã bắt đầu bằng gsk_ dán vào ô bên dưới.
+                        </div>
+                    </div>
+                </label>
+                <input type="text" autocomplete="off" spellcheck="false" id="chat-api-key" placeholder="Nhập API Key bắt đầu bằng gsk_..." style="width: 100%; padding: 10px; border-radius: 4px; border: 1px solid #ccc; font-size: 14px; outline: none; -webkit-text-security: disc; box-sizing: border-box;" oninput="saveChatAPI()">
+                <div style="text-align: right; margin-top: 5px; height: 15px;">
+                    <span id="chat-api-msg" style="color: #28a745; font-size: 13px; font-weight: bold; opacity: 0; transition: 0.3s;">Đã lưu ✔</span>
+                </div>
+            </div>
+
             <div class="chat-body" id="chat-body">
                 <!-- Tin nhắn sẽ tự động render vào đây -->
             </div>
@@ -1815,7 +1859,7 @@
                 else if(val === 'prep') html = formatRes(['Danh từ / Cụm danh từ / Đại từ', 'V-ing + Tân ngữ']);
                 else if(val === 'adj') html = formatRes(['Danh từ / Cụm danh từ']);
                 else if(val === 'adv') html = formatRes(['Tính từ (Adj)', 'Động từ (V)', 'Trạng từ (Adv) (Bổ nghĩa cho nhau)']);
-                else if(val === 'v_normal') html = formatRes(['Danh từ / Cụm danh từ / Đại từ (Làm Tân ngữ)', 'Trạng từ (Adv) (Nếu là Nội động từ)']);
+                else if(val === 'v_normal') html = formatRes(['Danh từ / Cụm danh từ / Đại từ (Làm Tân ngữ)', 'Trạng từ (Adv)']);
                 else if(val === 'modal') html = formatRes(['Động từ nguyên mẫu (Vo)', 'be + V3/ed (Bị động)']);
                 else if(val === 'to') html = formatRes(['Động từ nguyên mẫu (Vo)', 'Danh từ / Cụm N / V-ing (Các trường hợp ngoại lệ như: look forward to, be used to...)']);
                 else if(val === 'v_special') html = formatRes(['V-ing']);
@@ -1826,10 +1870,10 @@
                 else if(val === 'full_clause') html = formatRes(['Trạng từ (Adv)', 'Đại từ phản thân (myself, themselves...) để nhấn mạnh chủ thể']);
             } 
             else {
-                if(val === 'noun') html = formatRes(['Tính từ (Adj)', 'Mạo từ / Tính từ sở hữu / Lượng từ', 'Giới từ (in, on, at, about...)', 'Ngoại động từ (V)', 'Danh từ (N) (Tạo danh từ ghép)']);
+                if(val === 'noun') html = formatRes(['Tính từ (Adj)', 'Mạo từ / Tính từ sở hữu / Lượng từ', 'Giới từ (in, on, at, about...)', 'Động từ (V)', 'Danh từ (N) (Tạo danh từ ghép)']);
                 else if(val === 'adj') html = formatRes(['Trạng từ (Adv) (Rất phổ biến)', 'Động từ "To be" (am, is, are...)', 'Linking Verb (smell, look, feel, become...)']);
                 else if(val === 'v_normal') html = formatRes(['Trạng từ (Adv)', 'Chủ ngữ (Danh từ / Đại từ Chủ ngữ)', 'Đại từ quan hệ (who, which, that)']);
-                else if(val === 'prep') html = formatRes(['V3/ed (Câu bị động)', 'Nội động từ (V)']);
+                else if(val === 'prep') html = formatRes(['V3/ed (Câu bị động)', 'Động từ (V)']);
                 else if(val === 'clause') html = formatRes(['Liên từ phụ thuộc (Because, Although, If, When, While, As soon as...)']);
                 else if(val === 'vo') html = formatRes(['Động từ khiếm khuyết (can, will, should, must...)', 'Từ "to" (want to, need to, in order to...)', 'Let / Make / Help / Have']);
             }
@@ -1948,6 +1992,10 @@
         window.grammarUnits = [];
 
         function renderGrammarUnit(index) {
+            // Tự động reset Ô tra cứu nhanh nếu học viên bấm vào cột trái
+            let quickLookup = document.getElementById('quick-grammar-lookup');
+            if (quickLookup) quickLookup.value = "";
+
             let u = window.grammarUnits[index];
             
             // Tô màu xanh cho menu đang chọn
@@ -2438,126 +2486,267 @@ function toggleThemePanel() {
             }
         });
 
-        // --- HỆ THỐNG KHUNG CHAT (FIREBASE ONLINE) ---
-        const firebaseConfig = {
-          apiKey: "AIzaSyC0A2YeZ_cUFNVFqYaRnodIonluS7nSNyw",
-          authDomain: "toeic-4c5d2.firebaseapp.com",
-          databaseURL: "https://toeic-4c5d2-default-rtdb.firebaseio.com",
-          projectId: "toeic-4c5d2",
-          storageBucket: "toeic-4c5d2.firebasestorage.app",
-          messagingSenderId: "695040447657",
-          appId: "1:695040447657:web:a7675aa45b7bab751a45b8"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const chatRef = firebase.database().ref('chat_messages');
+        // --- HỆ THỐNG KHUNG CHAT VỚI AI (GROQ API) ---
+        let aiChatHistory = [
+            { role: "system", content: "Bạn là một giáo viên TOEIC nhiệt tình, chuyên nghiệp. Hãy giải thích mọi thứ bằng tiếng Việt thật ngắn gọn, dễ hiểu và súc tích." }
+        ];
 
-        let lastChatTime = 0;
+        function saveChatAPI() {
+            let key = document.getElementById('chat-api-key').value.trim();
+            localStorage.setItem('win_groq_api_key', key);
+            let msg = document.getElementById('chat-api-msg');
+            msg.style.opacity = 1;
+            setTimeout(() => { msg.style.opacity = 0; }, 1500);
+            
+            if (key.startsWith('gsk_')) {
+                setTimeout(() => {
+                    document.getElementById('ai-api-setup').style.display = 'none';
+                    document.getElementById('chat-input').disabled = false;
+                    document.querySelector('.btn-send-msg').disabled = false;
+                    document.getElementById('chat-input').placeholder = "Nhập câu hỏi của bạn...";
+                }, 1000);
+            }
+        }
 
         function toggleChat() {
             let panel = document.getElementById('chat-panel');
             panel.classList.toggle('active');
             
-            let myName = localStorage.getItem('win_studentName');
-            let classCode = localStorage.getItem('win_classCode');
             let inputField = document.getElementById('chat-input');
             let sendBtn = document.querySelector('.btn-send-msg');
+            let apiKey = localStorage.getItem('win_groq_api_key') || "";
             
-            if (!myName || !classCode) {
+            document.getElementById('chat-api-key').value = apiKey;
+
+            // Kiểm tra API Key giống hệt phần thi S&W
+            if (!apiKey.startsWith('gsk_')) {
+                document.getElementById('ai-api-setup').style.display = 'block';
                 inputField.disabled = true;
                 sendBtn.disabled = true;
-                inputField.placeholder = "Vui lòng đăng nhập phía trên để chat...";
+                inputField.placeholder = "Vui lòng nhập API Key ở trên...";
             } else {
+                document.getElementById('ai-api-setup').style.display = 'none';
                 inputField.disabled = false;
                 sendBtn.disabled = false;
-                inputField.placeholder = "Nhập tin nhắn...";
+                inputField.placeholder = "Nhập câu hỏi của bạn...";
             }
 
-            if(panel.classList.contains('active') && !inputField.disabled) {
-                inputField.focus();
-                setTimeout(() => {
-                    let body = document.getElementById('chat-body');
-                    body.scrollTop = body.scrollHeight;
-                }, 100);
-            }
-        }
-
-        function sendChatMessage() {
-            let input = document.getElementById('chat-input');
-            let msg = input.value.trim();
-            if(!msg) return;
-
-            let now = Date.now();
-            if (now - lastChatTime < 3000) {
-                alert("Vui lòng nhắn tin chậm lại (cách nhau 3 giây)!");
-                return;
-            }
-
-            let myName = localStorage.getItem('win_studentName');
-            let classCode = localStorage.getItem('win_classCode');
-            if(!myName || !classCode) return;
-
-            const badWords = ["đụ", "địt", "đĩ", "lồn", "cặc", "chó", "ngu", "cứt", "cac", "lon", "dit", "loz", "cc"];
-            let regex = new RegExp(badWords.join("|"), "gi");
-            msg = msg.replace(regex, "***");
-
-            lastChatTime = Date.now();
-            
-            let isTeacherAcc = (classCode === "1" && myName.toLowerCase() === "admin");
-            let displayName = isTeacherAcc ? "ADMIN" : `WIN ${classCode} - ${myName}`;
-            let timeStr = new Date().toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'});
-            
-            chatRef.push({
-                sender: displayName,
-                text: msg,
-                time: timeStr,
-                timestamp: firebase.database.ServerValue.TIMESTAMP
-            });
-
-            input.value = '';
-        }
-
-        chatRef.limitToLast(50).on('value', (snapshot) => {
-            let myName = localStorage.getItem('win_studentName');
-            let classCode = localStorage.getItem('win_classCode');
-            let isTeacherAcc = (classCode === "1" && (myName || "").toLowerCase() === "admin");
-            let myDisplayName = isTeacherAcc ? "ADMIN" : (myName ? `WIN ${classCode} - ${myName}` : "Unknown");
-            
-            let chatBody = document.getElementById('chat-body');
-            let html = '<div style="text-align:center; font-size:12px; color:#999; margin-bottom:10px; background: #eee; padding: 5px; border-radius: 4px;">Đã kết nối máy chủ Chat Online!</div>';
-            
-            const escapeHtml = (str) => {
-                return (str || '').replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
-            };
-
-            snapshot.forEach((childSnapshot) => {
-                let c = childSnapshot.val();
-                let safeText = escapeHtml(c.text);
-                let safeSender = escapeHtml(c.sender);
-                
-                let isMe = (c.sender === myDisplayName);
-                let isAdmin = (c.sender === "ADMIN");
-                
-                let msgClass = isMe ? 'chat-msg mine' : (isAdmin ? 'chat-msg admin' : 'chat-msg other');
-                
-                let senderHtml = '';
-                if (!isMe) {
-                    if (isAdmin) senderHtml = `<div class="msg-sender admin-name">${safeSender}</div>`;
-                    else senderHtml = `<div class="msg-sender">${safeSender}</div>`;
+            if(panel.classList.contains('active')) {
+                let chatBody = document.getElementById('chat-body');
+                // Nếu bảng Chat đang trống, in câu chào của AI ra màn hình
+                if (chatBody.innerHTML.trim() === "") {
+                    chatBody.innerHTML = '<div style="text-align:center; font-size:13px; color:#666; margin-top:15px; background: #eee; padding: 8px; border-radius: 4px;">Xin chào! Tôi là AI Hỗ trợ TOEIC. Bạn cần hỏi gì?</div>';
                 }
                 
-                html += `
-                <div class="${msgClass}">
-                    ${senderHtml}
-                    ${safeText}
-                    <div style="font-size:10px; text-align:${isMe ? 'right' : 'left'}; margin-top:5px; opacity:${isAdmin ? '0.9' : '0.6'};">${c.time}</div>
-                </div>`;
-            });
-            chatBody.innerHTML = html;
+                if (!inputField.disabled) {
+                    inputField.focus();
+                }
+                setTimeout(() => { chatBody.scrollTop = chatBody.scrollHeight; }, 100);
+            }
+        }
+
+        async function sendChatMessage() {
+            let input = document.getElementById('chat-input');
+            let msg = input.value.trim();
+            let apiKey = localStorage.getItem('win_groq_api_key');
             
-            if(document.getElementById('chat-panel').classList.contains('active')) {
-                setTimeout(() => { chatBody.scrollTop = chatBody.scrollHeight; }, 50);
+            if(!msg || !apiKey) return;
+
+            let chatBody = document.getElementById('chat-body');
+            
+            // In câu hỏi của người dùng
+            let userHtml = `
+                <div class="chat-msg mine">
+                    ${msg.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")}
+                </div>`;
+            chatBody.insertAdjacentHTML('beforeend', userHtml);
+            
+            input.value = '';
+            chatBody.scrollTop = chatBody.scrollHeight;
+
+            // In dòng AI đang gõ
+            let typingId = "typing-" + Date.now();
+            let aiHtml = `
+                <div class="chat-msg other" id="${typingId}">
+                    <div class="msg-sender">Trợ lý AI</div>
+                    <i>⏳ Đang suy nghĩ...</i>
+                </div>`;
+            chatBody.insertAdjacentHTML('beforeend', aiHtml);
+            chatBody.scrollTop = chatBody.scrollHeight;
+
+            aiChatHistory.push({ role: "user", content: msg });
+
+            try {
+                // Tự động tìm model đang sống y hệt S&W
+                let modelsRes = await fetch("https://api.groq.com/openai/v1/models", {
+                    method: "GET",
+                    headers: { "Authorization": `Bearer ${apiKey}` }
+                });
+                if (!modelsRes.ok) throw new Error("Lỗi API Key");
+                
+                let modelsData = await modelsRes.json();
+                let availableModels = modelsData.data.map(m => m.id);
+                let textModels = availableModels.filter(m => !m.includes('whisper'));
+                let selectedModel = textModels.find(m => m.includes('llama-3.3-70b'))
+                                 || textModels.find(m => m.includes('llama-3.1-70b'))
+                                 || textModels.find(m => m.includes('llama3-70b'))
+                                 || textModels.find(m => m.includes('llama3-8b'))
+                                 || textModels[0];
+
+                let res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${apiKey}`,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        model: selectedModel, 
+                        messages: aiChatHistory,
+                        temperature: 0.3
+                    })
+                });
+
+                if (!res.ok) throw new Error("Lỗi kết nối AI");
+                
+                let data = await res.json();
+                let reply = data.choices[0].message.content;
+                
+                aiChatHistory.push({ role: "assistant", content: reply });
+                
+                // Format bôi đậm và xuống dòng cho đẹp
+                let formattedReply = reply.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\*(.*?)\*/g, '<i>$1</i>').replace(/\n/g, '<br>');
+                
+                document.getElementById(typingId).innerHTML = `<div class="msg-sender">Trợ lý AI</div>${formattedReply}`;
+                
+            } catch (err) {
+                document.getElementById(typingId).innerHTML = `<div class="msg-sender">Trợ lý AI</div><b style="color:red;">❌ Lỗi: Vui lòng kiểm tra lại API Key hoặc mạng.</b>`;
+                aiChatHistory.pop(); // Xóa tin nhắn lỗi ra khỏi lịch sử
+            }
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
+        // Đóng tooltip khi click ra ngoài
+        document.addEventListener('click', function(event) {
+            let box = document.getElementById('ai-api-tooltip-box');
+            let btn = document.querySelector('.api-tooltip-chat');
+            if (box && box.classList.contains('active') && !box.contains(event.target) && (!btn || !btn.contains(event.target))) {
+                box.classList.remove('active');
             }
         });
+
+        // ==========================================
+        // CẨM NANG TRA CỨU NHANH TỪ LOẠI VÀ NGỮ PHÁP
+        // ==========================================
+        function showGrammarQuickReference(topic) {
+            if (!topic) return;
+            
+            // Xóa highlight ở menu cột trái
+            document.querySelectorAll('.grammar-li').forEach(li => {
+                li.style.background = '#f8f9fa'; li.style.color = '#333'; li.style.borderColor = '#ddd';
+            });
+
+            let title = "";
+            let content = "";
+            
+            const renderBox = (term, meaning, rule, vocab, ex) => `
+                <div style="background: #fff; border: 1px solid #ccc; border-left: 5px solid #0037f4; border-radius: 6px; padding: 15px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+                    <h3 style="margin-top: 0; color: #d35400; font-size: 18px;">📌 ${term} <span style="color: #666; font-size: 15px; font-weight: normal;">- ${meaning}</span></h3>
+                    <div style="margin-bottom: 10px;"><b>📚 Quy tắc:</b> ${rule}</div>
+                    <div style="margin-bottom: 10px; color: #043b5c;"><b>📖 Từ vựng thường gặp:</b> <i>${vocab}</i></div>
+                    <div style="background: #fdf2e9; padding: 10px; border-radius: 4px; border-left: 3px solid #e67e22;">
+                        <b>📝 Ví dụ:</b> ${ex}
+                    </div>
+                </div>
+            `;
+
+            if (topic === "tenses") {
+                title = "TÓM TẮT CÁC THÌ QUAN TRỌNG (TENSES)";
+                content = `
+                    <p style="font-size: 16px; margin-bottom: 20px;">Trong TOEIC, bạn không cần học hết 12 thì. Chỉ cần nắm vững 5 thì cốt lõi dưới đây là đủ để giải quyết 95% câu hỏi.</p>
+                    ${renderBox("Hiện tại đơn (Simple Present)", "Diễn tả thói quen, sự thật hiển nhiên, lịch trình.", "S + V(s/es)", "usually, often, always, every day, currently", "The train <b>leaves</b> at 6:00 PM every day. <br><i>(Chuyến tàu rời đi lúc 6 giờ tối mỗi ngày - Lịch trình cố định)</i>")}
+                    ${renderBox("Hiện tại tiếp diễn (Present Continuous)", "Diễn tả hành động đang xảy ra lúc nói, hoặc một dự định chắc chắn trong tương lai gần.", "S + is/am/are + V-ing", "now, right now, at the moment, currently", "The manager <b>is reviewing</b> the sales report right now. <br><i>(Quản lý đang xem xét báo cáo doanh thu ngay lúc này)</i>")}
+                    ${renderBox("Hiện tại hoàn thành (Present Perfect)", "Diễn tả hành động đã bắt đầu trong quá khứ, kéo dài đến hiện tại và có thể tiếp tục.", "S + have/has + V3/ed", "since, for, recently, lately, over the past/last...", "Our company <b>has operated</b> in Asia <u>for</u> 10 years. <br><i>(Công ty chúng tôi đã hoạt động ở Châu Á được 10 năm)</i>")}
+                    ${renderBox("Quá khứ đơn (Simple Past)", "Diễn tả hành động đã xảy ra và chấm dứt hoàn toàn trong quá khứ.", "S + V2/ed", "yesterday, last year, in 2020, ago", "Mr. John <b>submitted</b> the proposal <u>yesterday</u>. <br><i>(Ông John đã nộp bản đề xuất vào hôm qua)</i>")}
+                    ${renderBox("Tương lai đơn (Simple Future)", "Diễn tả quyết định, dự đoán hoặc sự việc sẽ xảy ra trong tương lai.", "S + will + Vo", "tomorrow, next week, soon, shortly", "The new software <b>will be</b> launched <u>next month</u>. <br><i>(Phần mềm mới sẽ được ra mắt vào tháng tới)</i>")}
+                `;
+            } else if (topic === "passive") {
+                title = "CHỦ ĐỘNG & BỊ ĐỘNG (ACTIVE & PASSIVE VOICE)";
+                content = `
+                    <div style="background: #e3f2fd; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
+                        <b>💡 Mẹo giải nhanh Part 5:</b> Hãy nhìn ngay SAU khoảng trống:<br>
+                        - Nếu <b>CÓ</b> Danh từ / Cụm danh từ (Tân ngữ) ➔ Chọn <b>CHỦ ĐỘNG</b>.<br>
+                        - Nếu <b>KHÔNG CÓ</b> Danh từ (Chỉ có Giới từ, Trạng từ, Dấu chấm) ➔ Chọn <b>BỊ ĐỘNG</b>.
+                    </div>
+                    ${renderBox("Câu Chủ Động (Active Voice)", "Chủ ngữ là người/vật TỰ THỰC HIỆN hành động.", "S + V + O", "produce, hire, approve, organize", "The committee <b>approved</b> <u>the budget</u>.<br><i>(Ủy ban đã phê duyệt ngân sách ➔ Sau động từ có Danh từ 'the budget')</i>")}
+                    ${renderBox("Câu Bị Động (Passive Voice)", "Chủ ngữ là người/vật BỊ/ĐƯỢC TÁC ĐỘNG. Luôn phải có TO BE + V3/ed.", "S + BE + V3/ed + (by O)", "be approved, be delayed, be held", "<u>The budget</u> <b>was approved</b> by the committee.<br><i>(Ngân sách đã được phê duyệt bởi ủy ban ➔ Sau động từ là giới từ 'by', không có Danh từ trực tiếp)</i>")}
+                `;
+            } else if (topic === "sv_agreement") {
+                title = "HÒA HỢP CHỦ NGỮ VÀ ĐỘNG TỪ (S-V AGREEMENT)";
+                content = `
+                    <p style="font-size: 16px;">Nguyên tắc bất di bất dịch: Chủ ngữ số Ít ➔ Động từ thêm s/es. Chủ ngữ số Nhiều ➔ Động từ giữ nguyên (Vo).</p>
+                    ${renderBox("Chủ ngữ số ít (Singular Subject)", "Bao gồm He, She, It, Danh từ đếm được số ít, Danh từ không đếm được.", "S (ít) + V(s/es) / is / was / has", "equipment, information, the manager, water", "<u>The equipment</u> <b>needs</b> to be repaired.<br><i>(Thiết bị cần được sửa chữa ➔ equipment không đếm được nên chia số ít)</i>")}
+                    ${renderBox("Chủ ngữ số nhiều (Plural Subject)", "Bao gồm They, We, You, Danh từ số nhiều (có s/es).", "S (nhiều) + Vo / are / were / have", "employees, documents, computers", "<u>The employees</u> <b>are</b> attending a workshop.<br><i>(Các nhân viên đang tham gia hội thảo)</i>")}
+                    ${renderBox("Các Đại từ Bất định (Luôn chia SỐ ÍT)", "Các từ tận cùng bằng -body, -one, -thing luôn đi với động từ số ít.", "Everyone, someone, anything, nothing + V(s/es)", "everyone, nobody, everything", "<u>Everyone</u> <b>is</b> required to wear a badge.<br><i>(Mọi người đều được yêu cầu đeo thẻ)</i>")}
+                `;
+            } else if (topic === "noun") {
+                title = "DANH TỪ (NOUN)";
+                content = `
+                    ${renderBox("Vị trí của Danh từ", "Thường làm Chủ ngữ (đầu câu) hoặc Tân ngữ (sau Động từ / Giới từ).", "Sau Mạo từ (a/an/the), Tính từ (Adj), Tính từ sở hữu (my/his/their) hoặc Giới từ.", "development, success, employee", "<u>The new employee</u> showed great <u>dedication</u> to the project.<br><i>(Nhân viên mới đã cho thấy sự cống hiến to lớn cho dự án)</i>")}
+                    ${renderBox("Dấu hiệu nhận biết (Đuôi Noun)", "Các hậu tố thường gặp nhất trong TOEIC.", "Vật: -tion, -ment, -ness, -ity, -ance, -ence. <br>Người: -er, -or, -ist, -ant, -ee.", "information, payment, ability, applicant, employee", "We need an experienced <b>accountant</b> for this <b>position</b>.<br><i>(Chúng tôi cần một kế toán viên kinh nghiệm cho vị trí này)</i>")}
+                `;
+            } else if (topic === "verb") {
+                title = "ĐỘNG TỪ (VERB)";
+                content = `
+                    ${renderBox("Ngoại động từ (Transitive Verb)", "Động từ bắt buộc phải có Danh từ (Tân ngữ) đi kèm ngay phía sau.", "V + Noun", "discuss, provide, buy, need", "We will <b>discuss</b> <u>the issue</u> tomorrow.<br><i>(Sai nếu viết: We will discuss tomorrow ➔ Thiếu tân ngữ)</i>")}
+                    ${renderBox("Nội động từ (Intransitive Verb)", "Động từ có thể đứng một mình hoặc đi với Trạng từ / Giới từ (KHÔNG có Noun trực tiếp sau nó).", "V + Adv / Prep", "arrive, happen, wait, rise", "The train <b>arrived</b> <u>late</u>.<br><i>(Chuyến tàu đã đến muộn)</i>")}
+                    ${renderBox("Động từ nối (Linking Verb)", "Không chỉ hành động mà chỉ trạng thái. Theo sau BẮT BUỘC là Tính từ (Adj).", "Linking Verb + Adj", "be, become, remain, look, seem, feel", "The new policy <b>remains</b> <u>effective</u>.<br><i>(Chính sách mới vẫn duy trì sự hiệu quả)</i>")}
+                `;
+            } else if (topic === "adj") {
+                title = "TÍNH TỪ (ADJECTIVE)";
+                content = `
+                    ${renderBox("Vị trí của Tính từ", "Dùng để bổ nghĩa, miêu tả cho Danh từ.", "1. Đứng TRƯỚC Danh từ: Adj + Noun<br>2. Đứng SAU Tobe / Linking Verb: Tobe + Adj", "successful, competitive, informative", "We offer a <b>competitive</b> <u>salary</u>.<br><i>(Chúng tôi đưa ra một mức lương cạnh tranh)</i>")}
+                    ${renderBox("Dấu hiệu nhận biết (Đuôi Adj)", "Các hậu tố giúp nhận diện Tính từ nhanh chóng.", "-ful, -less, -ive, -ous, -al, -ic, -able, -ible", "beautiful, expensive, dangerous, affordable", "This software is highly <b>reliable</b>.<br><i>(Phần mềm này rất đáng tin cậy)</i>")}
+                `;
+            } else if (topic === "adv") {
+                title = "TRẠNG TỪ (ADVERB)";
+                content = `
+                    ${renderBox("Chức năng của Trạng từ", "Trạng từ có thể bổ nghĩa cho mọi thứ TRỪ Danh từ.", "Bổ nghĩa cho: Động từ, Tính từ, Trạng từ khác, hoặc Cả câu.", "quickly, highly, carefully, recently", "The sales increased <b>significantly</b>.<br><i>(Doanh thu đã tăng một cách đáng kể ➔ Bổ nghĩa cho động từ 'increased')</i>")}
+                    ${renderBox("Vị trí 'Vạn năng'", "Trong TOEIC Part 5, nếu một câu ĐÃ ĐỦ THÀNH PHẦN (S + V + O), chỗ trống thừa ra 99% điền Trạng từ.", "S + Adv + V + O <br> S + V + O + Adv", "currently, completely, successfully", "The team <b>successfully</b> completed the project.<br><i>(Câu đã có đủ Chủ-Động-Tân, 'successfully' được chèn vào để bổ nghĩa)</i>")}
+                `;
+            } else if (topic === "prep") {
+                title = "GIỚI TỪ (PREPOSITION)";
+                content = `
+                    <div style="background: #e3f2fd; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
+                        <b>💡 Khác biệt giữa Giới từ và Liên từ:</b><br>
+                        - Giới từ + <b>Danh từ / V-ing</b>.<br>
+                        - Liên từ + <b>Mệnh đề (S + V)</b>.
+                    </div>
+                    ${renderBox("Giới từ chỉ Thời gian & Nơi chốn", "Chỉ thời điểm hoặc địa điểm diễn ra sự việc.", "in (tháng, năm, không gian lớn), on (ngày, bề mặt), at (giờ, địa điểm cụ thể)", "in 2023, on Monday, at 5 PM", "The meeting starts <b>at</b> 9:00 AM <b>on</b> Friday.<br><i>(Cuộc họp bắt đầu lúc 9h sáng thứ Sáu)</i>")}
+                    ${renderBox("Các cụm Giới từ hay thi", "Theo sau bắt buộc phải là Danh từ hoặc V-ing.", "Because of, Due to (bởi vì), Despite, In spite of (mặc dù), Prior to (trước khi)", "due to the bad weather", "The flight was delayed <b>due to</b> <u>heavy rain</u>.<br><i>(Chuyến bay bị hoãn do mưa lớn)</i>")}
+                `;
+            } else if (topic === "conj") {
+                title = "LIÊN TỪ (CONJUNCTION)";
+                content = `
+                    ${renderBox("Liên từ Đẳng lập (FANBOYS)", "Nối 2 từ cùng loại, hoặc 2 mệnh đề tương đương nhau.", "For, And, Nor, But, Or, Yet, So", "and, but, or, so", "You can pay by cash <b>or</b> credit card.<br><i>(Bạn có thể trả bằng tiền mặt hoặc thẻ tín dụng)</i>")}
+                    ${renderBox("Liên từ Phụ thuộc", "Đứng đầu một mệnh đề (S+V) để tạo thành câu phức.", "Because, Since, As (Bởi vì) <br> Although, Even though (Mặc dù) <br> If, Unless (Nếu / Trừ khi) <br> While, When (Trong khi / Khi)", "because, although, if, when", "<b>Although</b> <u>it rained heavily</u>, we still went to work.<br><i>(Mặc dù trời mưa to, chúng tôi vẫn đi làm ➔ Sau although là 1 mệnh đề S+V)</i>")}
+                `;
+            } else if (topic === "pronoun") {
+                title = "ĐẠI TỪ (PRONOUN)";
+                content = `
+                    ${renderBox("Đại từ Nhân xưng & Tân ngữ", "Làm Chủ ngữ (đầu câu) hoặc Tân ngữ (sau Động từ).", "Chủ ngữ: I, You, We, They, He, She, It <br> Tân ngữ: me, you, us, them, him, her, it", "he, them, us", "<b>She</b> sent the report to <b>him</b>.<br><i>(Cô ấy đã gửi báo cáo cho anh ta)</i>")}
+                    ${renderBox("Tính từ & Đại từ Sở hữu", "Chỉ sự sở hữu.", "Tính từ sở hữu + NOUN: my, your, our, their, his, her, its <br> Đại từ sở hữu (Đứng 1 mình): mine, yours, ours, theirs, his, hers", "my car, theirs", "Please submit <b>your</b> <u>report</u>. The blue car is <b>mine</b>.<br><i>(Vui lòng nộp báo cáo CỦA BẠN. Chiếc xe xanh là CỦA TÔI)</i>")}
+                    ${renderBox("Đại từ Phản thân", "Nhấn mạnh chủ thể TỰ làm việc gì đó, thường đứng cuối câu hoặc sau giới từ BY.", "-self (số ít) / -selves (số nhiều)", "myself, themselves, himself", "The manager <b>himself</b> wrote the email.<br><i>(ĐÍCH THÂN người quản lý đã viết email này)</i>")}
+                `;
+            }
+
+            // Ghi đè vào khung nội dung bên phải
+            let targetDiv = document.getElementById('grammar-content-area');
+            targetDiv.innerHTML = \`
+                <h2 style="color:#003366; text-align:center; border-bottom:4px solid #5ba4e5; padding-bottom:15px; margin-top:0; font-size:24px;">\${title}</h2>
+                <div style="padding-bottom:50px; line-height: 1.7; font-size: 16px;">\${content}</div>
+            \`;
+            targetDiv.scrollTop = 0;
+        }
     </script>
 </body>
 </html>
