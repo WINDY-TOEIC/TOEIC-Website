@@ -740,6 +740,13 @@
                 <button onclick="closeLookupModal()" style="background: transparent; border: none; font-size: 28px; color: #dc3545; cursor: pointer; font-weight: bold; line-height: 1; transition: 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">×</button>
             </div>
             <div style="background: #fdf2e9; border-radius: 8px; padding: 20px; margin-top: 15px;">
+                <!-- Thanh tìm kiếm từ loại -->
+                <div style="margin-bottom: 20px; display: flex; gap: 10px; align-items: center; background: white; padding: 10px 15px; border-radius: 6px; border: 1px solid #ccc; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                    <span style="font-size: 20px;">🔍</span>
+                    <input type="text" id="lookup-search-input" placeholder="Nhập từ cần phân tích (VD: friendly, beautiful, because...)" style="flex: 1; border: none; outline: none; font-size: 16px; background: transparent; padding: 5px;" onkeypress="if(event.key === 'Enter') searchWordType()">
+                    <button onclick="searchWordType()" id="lookup-search-btn" style="background: #e67e22; color: white; border: none; padding: 8px 20px; border-radius: 4px; font-weight: bold; cursor: pointer; transition: 0.2s;">Phân tích</button>
+                    <span id="lookup-search-result" style="font-weight: bold; color: #0037f4; margin-left: 10px;"></span>
+                </div>
                 <div style="display: flex; gap: 20px; align-items: flex-start;">
                     <!-- Cột 1 -->
                     <div style="flex: 1; background: white; padding: 15px; border-radius: 6px; border: 1px solid #ccc; box-shadow: 0 2px 4px rgba(0,0,0,0.05); min-height: 320px;">
@@ -1827,6 +1834,93 @@
                 else if(val === 'vo') html = formatRes(['Động từ khiếm khuyết (can, will, should, must...)', 'Từ "to" (want to, need to, in order to...)', 'Let / Make / Help / Have']);
             }
             resBox.innerHTML = html;
+        }
+
+        async function searchWordType() {
+            let inputEl = document.getElementById('lookup-search-input');
+            let btn = document.getElementById('lookup-search-btn');
+            let resText = document.getElementById('lookup-search-result');
+            let word = inputEl.value.trim().toLowerCase();
+            
+            if(!word) return;
+
+            btn.innerHTML = "⏳ Đang... ";
+            btn.disabled = true;
+            resText.innerHTML = "";
+
+            try {
+                // Sử dụng API Google Translate với dt=bd để lấy từ điển (phân loại từ)
+                let res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=vi&dt=t&dt=bd&q=${encodeURIComponent(word)}`);
+                let data = await res.json();
+                
+                let partOfSpeech = "";
+                let vietnameseMeaning = "";
+
+                // Lấy nghĩa tiếng Việt
+                if (data[0] && data[0][0] && data[0][0][0]) {
+                    vietnameseMeaning = data[0][0][0];
+                }
+
+                // Lấy từ loại (Nằm ở cục data[1])
+                if (data[1] && data[1][0] && data[1][0][0]) {
+                    partOfSpeech = data[1][0][0].toLowerCase();
+                } else {
+                    partOfSpeech = "unknown";
+                }
+
+                // Chuyển đổi từ loại của Google thành value trong thẻ Select của bạn
+                let selectVal = "";
+                let displayPOS = "";
+
+                if (partOfSpeech.includes('adjective')) { selectVal = "adj"; displayPOS = "Tính từ (Adj)"; }
+                else if (partOfSpeech.includes('adverb')) { selectVal = "adv"; displayPOS = "Trạng từ (Adv)"; }
+                else if (partOfSpeech.includes('noun')) { selectVal = "noun"; displayPOS = "Danh từ (N)"; }
+                else if (partOfSpeech.includes('verb')) { selectVal = "v_normal"; displayPOS = "Động từ (V)"; }
+                else if (partOfSpeech.includes('preposition')) { selectVal = "prep"; displayPOS = "Giới từ (Prep)"; }
+                else if (partOfSpeech.includes('conjunction')) { selectVal = "clause"; displayPOS = "Liên từ (Conjunction)"; }
+                else if (partOfSpeech.includes('pronoun')) { selectVal = "noun"; displayPOS = "Đại từ (Pronoun)"; }
+                else if (partOfSpeech.includes('article') || ["a", "an", "the"].includes(word)) { selectVal = "article"; displayPOS = "Mạo từ (Article)"; }
+                else if (partOfSpeech === "unknown") {
+                    // Phòng hờ nếu Google không trả về dictionary
+                    if (["because", "although", "if", "when", "while", "since"].includes(word)) { selectVal = "clause"; displayPOS = "Liên từ"; }
+                    else if (["in", "on", "at", "about", "for", "with", "without", "by"].includes(word)) { selectVal = "prep"; displayPOS = "Giới từ"; }
+                    else if (["and", "or", "but"].includes(word)) { selectVal = "and_or"; displayPOS = "Liên từ (and/or)"; }
+                    else if (["many", "much", "some", "all", "few", "little"].includes(word)) { selectVal = "quantifier"; displayPOS = "Lượng từ"; }
+                    else displayPOS = "Không rõ từ loại";
+                }
+
+                if (displayPOS === "Không rõ từ loại") {
+                    resText.innerHTML = `Nghĩa: ${vietnameseMeaning} (Không thể xác định từ loại)`;
+                } else {
+                    resText.innerHTML = `➔ ${displayPOS} : ${vietnameseMeaning}`;
+                    
+                    // TỰ ĐỘNG CHỌN OPTION CHO BẢNG "TRƯỚC... CÓ:"
+                    let selBefore = document.getElementById('lookup-before');
+                    if (Array.from(selBefore.options).some(opt => opt.value === selectVal)) {
+                        selBefore.value = selectVal;
+                        lookupGrammar('before'); // Tự động load kết quả luôn
+                    } else {
+                        selBefore.value = "";
+                        document.getElementById('res-before').innerHTML = "";
+                    }
+
+                    // TỰ ĐỘNG CHỌN OPTION CHO BẢNG "SAU... CÓ:"
+                    let selAfter = document.getElementById('lookup-after');
+                    if (Array.from(selAfter.options).some(opt => opt.value === selectVal)) {
+                        selAfter.value = selectVal;
+                        lookupGrammar('after'); // Tự động load kết quả luôn
+                    } else {
+                        selAfter.value = "";
+                        document.getElementById('res-after').innerHTML = "";
+                    }
+                }
+
+            } catch (error) {
+                resText.innerHTML = "❌ Lỗi kết nối Google Translate!";
+            }
+
+            btn.innerHTML = "Phân tích";
+            btn.disabled = false;
         }
 
         window.grammarUnits = [];
