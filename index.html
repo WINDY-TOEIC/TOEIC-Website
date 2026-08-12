@@ -434,20 +434,26 @@
             .btn-lookup-corner { position: absolute; left: -40px; top: 50%; transform: translateY(-50%); background: transparent; border: none; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-size: 26px; cursor: pointer; transition: 0.2s; padding: 0; box-shadow: none; color: #333; }
             .btn-lookup-corner:hover { transform: translateY(-50%) scale(1.2); }
 
-            /* NÚT MẸO TOEIC Ở GÓC TRÁI DƯỚI BANNER */
-            .btn-tips-corner { position: absolute; bottom: 15px; left: 40px; background: linear-gradient(45deg, #00ced1, #0037f4); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: bold; font-size: 15px; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.3); text-transform: uppercase; z-index: 100; display: flex; align-items: center; gap: 8px;}
-            .btn-tips-corner:hover { transform: scale(1.05); }
+            /* NÚT HƯỚNG DẪN & MẸO TOEIC Ở GÓC TRÁI DƯỚI BANNER */
+            .left-corner-buttons { position: absolute; bottom: 15px; left: 40px; display: flex; flex-direction: column; gap: 10px; z-index: 100; }
+            .btn-tips-corner { background: linear-gradient(45deg, #00ced1, #0037f4); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: bold; font-size: 15px; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.3); text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; box-sizing: border-box;}
+            .btn-guide-corner { background: linear-gradient(45deg, #f39c12, #d35400); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: bold; font-size: 15px; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.3); text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; box-sizing: border-box;}
+            .btn-tips-corner:hover, .btn-guide-corner:hover { transform: scale(1.05); }
             
             @media (max-width: 768px) { 
                 .right-corner-buttons { bottom: 10px; right: 10px; width: 170px; gap: 8px; }
                 .btn-grammar-corner, .btn-chal-corner { font-size: 11px; padding: 8px 0; }
                 .btn-lookup-corner { left: -26px; font-size: 18px; width: 26px; height: 26px; }
-                .btn-tips-corner { bottom: 10px; left: 10px; width: 125px; font-size: 11px; padding: 8px 0; justify-content: center; }
+                .left-corner-buttons { bottom: 10px; left: 10px; width: 135px; gap: 8px; }
+                .btn-tips-corner, .btn-guide-corner { font-size: 11px; padding: 8px 0; }
             }
         </style>
         
-        <!-- Nút Mẹo TOEIC -->
-        <button class="btn-tips-corner" onclick="openTipsModal()">💡 Mẹo TOEIC</button>
+        <!-- Cụm nút Hướng dẫn & Mẹo TOEIC -->
+        <div class="left-corner-buttons">
+            <button class="btn-guide-corner" onclick="openGuideModal()">📖 Hướng dẫn SD</button>
+            <button class="btn-tips-corner" onclick="openTipsModal()">💡 Mẹo TOEIC</button>
+        </div>
 
         <div class="right-corner-buttons">
             <div style="position: relative; width: 100%;">
@@ -1013,7 +1019,69 @@
         </div>
     </div>
 
-<!-- MODAL SỔ TAY TỪ VỰNG -->
+<!-- MODAL HƯỚNG DẪN SỬ DỤNG TẤT TẦN TẬT -->
+    <div id="guide-modal-overlay" class="modal-overlay" onclick="if(event.target === this) closeGuideModal()">
+        <div class="vocab-modal" style="width: 900px; max-width: 95vw; height: 85vh; display: flex; flex-direction: column;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e67e22; padding-bottom: 15px; flex-shrink: 0;">
+                <h2 style="margin: 0; color: #d35400; font-size: 22px;">📖 HƯỚNG DẪN SỬ DỤNG TOÀN DIỆN WINDY TOEIC</h2>
+                <button onclick="closeGuideModal()" style="background: transparent; border: none; font-size: 28px; color: #dc3545; cursor: pointer; font-weight: bold; line-height: 1; transition: 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">×</button>
+            </div>
+            
+            <div style="overflow-y: auto; padding: 15px 5px; flex: 1; font-size: 15px; line-height: 1.6; color: #333;">
+                
+                <h3 style="color: #003366; border-left: 4px solid #f39c12; padding-left: 10px; background: #fdf2e9; padding: 8px 10px;">1. ⏳ LƯU BÀI DỞ & XEM LẠI KẾT QUẢ CŨ</h3>
+                <ul style="margin-top: 5px;">
+                    <li><b>Đang làm dở bài thì lưu ở đâu?</b><br>Hệ thống có tính năng <b>Auto-save (Lưu tự động mỗi giây)</b>. Dù bạn có lỡ tắt tab, rớt mạng hay cúp điện, bài làm vẫn được giữ nguyên. Để làm tiếp, bạn ra màn hình chính, nhìn lên thanh Menu trên cùng sẽ thấy nút <b><span style="color:#dc3545; font-weight:bold;">⏳ LÀM TIẾP</span></b>. Rê chuột vào sẽ hiện ra danh sách các bài đang làm dở (đang dừng ở câu mấy).</li>
+                    <li><b>Kết quả thi xong lưu ở đâu?</b><br>Sau khi bạn nộp bài, điểm số sẽ được lưu vào máy. Bấm vào nút <b>"Xem Lịch Sử"</b> ở góc trên bên trái màn hình. Bấm <i>"Xem lại bài làm chi tiết"</i> để hệ thống mở lại bài làm của bạn kèm đáp án đúng/sai và thống kê từng Part.</li>
+                </ul>
+
+                <h3 style="color: #003366; border-left: 4px solid #f39c12; padding-left: 10px; background: #fdf2e9; padding: 8px 10px; margin-top: 25px;">2. 🛠️ CÔNG CỤ ĐỈNH CAO TRONG PHÒNG THI</h3>
+                <ul style="margin-top: 5px;">
+                    <li><b>Thanh Công Cụ Nổi (Khi bôi đen chữ):</b> Khi bạn bôi đen bất kỳ cụm từ nào trong đề thi, một thanh công cụ sẽ hiện ra gồm:
+                        <br>&nbsp;&nbsp;+ <b>Bôi màu & Gạch bỏ:</b> 🟨 Bôi vàng, <span style="text-decoration:line-through;">abc</span> Gạch ngang loại trừ, <span style="text-decoration:underline; color:red;">__</span> Gạch dưới.
+                        <br>&nbsp;&nbsp;+ <b>Dịch & Phát âm:</b> 🔍 Dịch từ vựng (Google Translate), <b>IPA</b> Tra phiên âm chuẩn, 🔊 Phát âm từ đó.
+                        <br>&nbsp;&nbsp;+ <b>Thêm ghi chú:</b> 📝 Cho phép gõ ghi chú văn bản ngay cạnh từ vựng.
+                        <br>&nbsp;&nbsp;+ <b>Lưu Sổ Tay:</b> ⭐ Lưu nhanh từ vựng + nghĩa + IPA vào Sổ tay để học lại sau.
+                    </li>
+                    <li><b>Vẽ & Viết trực tiếp lên đề:</b> Góc phải trên cùng có biểu tượng 🖍️ (Vẽ tự do) và <b>A</b> (Gõ chữ lên màn hình). Bạn có thể nháp thẳng lên đề như thi giấy.</li>
+                    <li><b>Zoom ảnh:</b> Các ảnh trong đề thi (Ví dụ Part 1) đều có thể <b>Click chuột vào để phóng to</b> sắc nét.</li>
+                    <li><b>Phím tắt:</b> Bấm phím <code>Cách (Space)</code> để nghe lại Audio. Bấm phím mũi tên <code>←</code> <code>→</code> để chuyển câu. Bấm phím <code>1</code> để bôi gạch chân đỏ nhanh.</li>
+                </ul>
+
+                <h3 style="color: #003366; border-left: 4px solid #f39c12; padding-left: 10px; background: #fdf2e9; padding: 8px 10px; margin-top: 25px;">3. 📚 CÔNG CỤ HỌC TẬP NGOÀI MÀN HÌNH CHÍNH</h3>
+                <ul style="margin-top: 5px;">
+                    <li><b>🔍 Kính lúp Tra Cứu (Part 5&6):</b> Nằm ngay trên nút Ôn Ngữ pháp. Nhập từ bất kỳ vào (VD: <i>friendly</i>), AI sẽ tự nhận diện từ loại và bung ra cách làm bài liên quan đến từ đó. Có thể chọn thủ công <i>"Trước... có", "Sau... có"</i> để xem mẹo điền từ.</li>
+                    <li><b>📚 Ôn Tập Ngữ Pháp:</b> Chứa lý thuyết trọng tâm TOEIC. Đặc biệt có khung <b>Cẩm nang tra cứu nhanh</b> xổ xuống chứa 10 chuyên đề cốt lõi nhất.</li>
+                    <li><b>📖 Sổ Tay Từ Vựng:</b> Nằm trên thanh Menu. Mở ra để ôn lại những từ bạn đã bấm ⭐ trong lúc giải đề. Có nút cái loa để nghe lại phát âm.</li>
+                    <li><b>💬 Chat với AI:</b> Góc phải dưới cùng. Nhập API Groq (miễn phí) để trò chuyện, hỏi đáp kiến thức TOEIC với AI thông minh như ChatGPT.</li>
+                </ul>
+
+                <h3 style="color: #003366; border-left: 4px solid #f39c12; padding-left: 10px; background: #fdf2e9; padding: 8px 10px; margin-top: 25px;">4. 🏆 TÍNH NĂNG ĐUA TOP & BẢNG VÀNG</h3>
+                <ul style="margin-top: 5px;">
+                    <li><b>⚡ Thử Thách Part 5:</b> Hệ thống trộn ngẫu nhiên tất cả các câu Part 5 của mọi đề thi. Có chế độ thi Đua Top 1 phút (Tính điểm lên Bảng Xếp Hạng) và chế độ Không giới hạn (Làm từ từ, có giải thích đáp án).</li>
+                    <li><b>🏆 Luật lên Bảng Vàng (Leaderboard):</b>
+                        <br>1. Phải đăng nhập Tên & Mã Lớp ở góc phải trên cùng.
+                        <br>2. Chọn chế độ <b>Giao diện Thi Thật</b>.
+                        <br>3. Thi <b>toàn bộ 7 Part</b>.
+                        <br>4. Thời gian set đúng <b>120 phút</b>.
+                        <br>5. <b>Cảnh báo:</b> TUYỆT ĐỐI KHÔNG CHUYỂN TAB hay mở app khác khi thi. Nếu hệ thống phát hiện bạn rời khỏi trang thi, kết quả sẽ bị hủy không đưa lên bảng xếp hạng!
+                    </li>
+                </ul>
+
+                <h3 style="color: #003366; border-left: 4px solid #f39c12; padding-left: 10px; background: #fdf2e9; padding: 8px 10px; margin-top: 25px;">5. 🎙️ SPEAKING & WRITING (CÓ AI CHẤM ĐIỂM)</h3>
+                <ul style="margin-top: 5px;">
+                    <li>Vào mục <i>"Luyện thi TOEIC Speaking & Writing"</i> ở cột trái.</li>
+                    <li>Web sẽ mô phỏng giao diện thi thật 100%. Có thanh đếm ngược thời gian chuẩn bị và thời gian làm bài.</li>
+                    <li><b>Speaking:</b> Ghi âm trực tiếp qua Micro. Có nút <i>"✨ Chấm Điểm"</i>: AI sẽ tự động nghe, bóc băng thành chữ (Transcript) và chấm điểm thô, phân tích lỗi sai ngữ pháp, đồng thời đưa ra <b>Câu trả lời mẫu (Suggested Answer)</b> cực chuẩn (Có kèm nút phát âm câu trả lời mẫu).</li>
+                    <li><b>Writing:</b> Gõ trực tiếp lên web. AI cũng sẽ chấm điểm và phân tích lập luận của bạn.</li>
+                    <li>(Yêu cầu nhập API Key của Groq - Miễn phí hoàn toàn - Có hướng dẫn chi tiết ngay khi mở bài thi).</li>
+                </ul>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL SỔ TAY TỪ VỰNG -->
 
     <style>
         .vocab-modal { background: white; padding: 20px 25px; border-radius: 8px; width: 650px; max-width: 95%; box-shadow: 0 10px 30px rgba(0,0,0,0.3); transform: translateY(-30px); transition: 0.3s; max-height: 70vh; display: flex; flex-direction: column;}
@@ -1837,6 +1905,14 @@
 
         function closeTipsModal() {
             document.getElementById('tips-modal-overlay').classList.remove('active');
+        }
+
+        function openGuideModal() {
+            document.getElementById('guide-modal-overlay').classList.add('active');
+        }
+
+        function closeGuideModal() {
+            document.getElementById('guide-modal-overlay').classList.remove('active');
         }
 
         function lookupGrammar(type) {
