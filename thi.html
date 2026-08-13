@@ -2509,10 +2509,12 @@
                 if (text.endsWith('ing')) {
                     candidates.push(text.slice(0, -3)); // VD: playing -> play
                     candidates.push(text.slice(0, -3) + 'e'); // VD: making -> make
+                    candidates.push(text.slice(0, -4)); // VD: running -> run (Xử lý gấp đôi phụ âm)
                 }
                 if (text.endsWith('ed')) {
                     candidates.push(text.slice(0, -2)); // VD: played -> play
                     candidates.push(text.slice(0, -1)); // VD: baked -> bake
+                    candidates.push(text.slice(0, -3)); // VD: shredded -> shred (Xử lý gấp đôi phụ âm)
                 }
 
                 // Chạy vòng lặp thử từng từ (Lấy luôn cái đầu tiên có kết quả)
