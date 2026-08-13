@@ -2446,9 +2446,9 @@
                           .replace(/ɛ/g, 'e');     // Đổi ɛ thành e
             };
 
-            // 2. Hàm gọi Free Dictionary (Tự động Retry 20 lần nếu mạng lỗi/server quá tải)
+            // 2. Hàm gọi Free Dictionary (Tự động Retry nếu mạng lỗi/server quá tải)
             const fetchFreeDict = async (word) => {
-                let retries = 20;
+                let retries = 50;
                 for (let i = 0; i < retries; i++) {
                     try {
                         let res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`);
@@ -2482,7 +2482,7 @@
                             let matches = textData.match(/\/[^\/]+\//g);
                             if (matches) {
                                 for (let m of matches) {
-                                    if (!m.includes("creativecommons")) {
+                                    if (!m.includes("creativecommons") && !m.includes("by-sa") && !m.includes("licenses") && !m.includes("api.dictionaryapi") && !m.includes("wiktionary") && !m.includes("http")) {
                                         txt = m;
                                         break;
                                     }
