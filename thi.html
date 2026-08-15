@@ -389,7 +389,7 @@
                     <button class="btn-grid" id="btn-marker" onclick="toggleDrawing('marker')" title="Bút lông dạ">🖌️</button>
                     
                     <div id="draw-tools-options" style="display: none; align-items: center; gap: 5px;">
-                        <input type="color" id="draw-color-picker" value="#e74c3c" title="Chọn màu vẽ" style="width: 30px; height: 30px; padding: 0; border: none; background: transparent; cursor: pointer; border-radius: 4px;">
+                        <input type="color" id="draw-color-picker" value="#e74c3c" title="Chọn màu vẽ" oninput="isRainbowMode = false; document.getElementById('btn-rainbow').style.border = 'none'; document.getElementById('btn-rainbow').style.transform = 'none';" onchange="isRainbowMode = false; document.getElementById('btn-rainbow').style.border = 'none'; document.getElementById('btn-rainbow').style.transform = 'none';" onclick="isRainbowMode = false; document.getElementById('btn-rainbow').style.border = 'none'; document.getElementById('btn-rainbow').style.transform = 'none';" style="width: 30px; height: 30px; padding: 0; border: none; background: transparent; cursor: pointer; border-radius: 4px;">
                         <button class="btn-grid" id="btn-rainbow" onclick="toggleRainbowMode()" title="Màu cầu vồng" style="background: linear-gradient(45deg, red, orange, yellow, green, blue, indigo, violet); width: 30px; height: 30px; padding: 0; border-radius: 4px; box-shadow: inset 0 0 4px rgba(0,0,0,0.5);"></button>
                     </div>
                     
@@ -530,7 +530,7 @@
         let g_selectedParts = []; // Biến lưu trữ danh sách Part đang làm dở
 
         // CÔNG TẮC BẬT/TẮT NÚT HIỆN CHỮ
-        // Chỉnh thành "true" nếu bạn muốn nó hiện lại, hiện tại đang "false" (tắt)
+        // Chỉnh thành "true" nếu muốn nó hiện lại, hiện tại đang "false" (tắt)
         const ENABLE_TRANSCRIPT = false; 
 
         // HÀM ZOOM ẢNH TOÀN CỤC (Để luôn hoạt động ổn định)
@@ -2841,13 +2841,17 @@
         function getMousePos(e) {
             const rect = canvas.getBoundingClientRect();
             
-            // CHỈ CỘNG OFFSET ĐỂ ĐẨY NÉT VẼ XUỐNG DƯỚI VÀ SANG PHẢI 1 CHÚT CHO KHỚP MŨI BÚT
-            let offsetX = 10; 
-            let offsetY = 25; 
+            // Sử dụng tỷ lệ Scale gốc để tính toán chuẩn xác khi màn hình bị Zoom 1.25
+            let scaleX = canvas.width / rect.width;
+            let scaleY = canvas.height / rect.height;
+            
+            // Đã trả offset về 0 để không bị văng xuống dưới nữa. 
+            let offsetX = 0; 
+            let offsetY = 0; 
             
             return { 
-                x: e.clientX - rect.left + offsetX, 
-                y: e.clientY - rect.top + offsetY 
+                x: (e.clientX - rect.left) * scaleX + offsetX, 
+                y: (e.clientY - rect.top) * scaleY + offsetY 
             };
         }
 
