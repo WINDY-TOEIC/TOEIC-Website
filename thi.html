@@ -383,14 +383,21 @@
                 <!-- KHU VỰC CÔNG CỤ (Sẽ bị ẩn khi chọn Thi thật) -->
                 <div id="practice-tools" style="display: flex; gap: 15px; align-items: center;">
                     <div class="shortcut-tooltip">?</div>
-                    <!-- NÚT VẼ -->
-                    <button class="btn-grid" id="btn-draw" onclick="toggleDrawing()" title="Vẽ">🖍️</button>
+                    <!-- NÚT VẼ VÀ BÚT LÔNG -->
+                    <button class="btn-grid" id="btn-draw" onclick="toggleDrawing('pen')" title="Bút thường">🖍️</button>
+                    <button class="btn-grid" id="btn-marker" onclick="toggleDrawing('marker')" title="Bút lông dạ">🖌️</button>
+                    
+                    <div id="draw-tools-options" style="display: none; align-items: center; gap: 5px;">
+                        <input type="color" id="draw-color-picker" value="#e74c3c" title="Chọn màu vẽ" style="width: 30px; height: 30px; padding: 0; border: none; background: transparent; cursor: pointer; border-radius: 4px;">
+                        <button class="btn-grid" id="btn-rainbow" onclick="toggleRainbowMode()" title="Màu cầu vồng" style="background: linear-gradient(45deg, red, orange, yellow, green, blue, indigo, violet); width: 30px; height: 30px; padding: 0; border-radius: 4px; box-shadow: inset 0 0 4px rgba(0,0,0,0.5);"></button>
+                    </div>
                     
                     <!-- NÚT VIẾT CHỮ VÀ CHỌN MÀU -->
                     <button class="btn-grid" id="btn-text" onclick="toggleTextMode()" title="Viết chữ (A)" style="font-weight: bold; font-family: serif;">A</button>
                     <input type="color" id="text-color-picker" value="#e74c3c" title="Chọn màu chữ" style="width: 35px; height: 35px; padding: 0; border: none; background: transparent; cursor: pointer; display: none; border-radius: 4px;">
 
                     <button class="btn-grid" onclick="clearCanvas()" title="Xóa toàn bộ nét vẽ và chữ">🧽</button>
+
                 </div>
                 
                 <button class="btn-exit" onclick="saveAndExit()">Thoát & Lưu</button>
@@ -1848,7 +1855,7 @@
             
             // 1. ƯU TIÊN SỐ 1: BẮT PHÍM ESC TRƯỚC (Cho phép ấn Esc kể cả khi đang ở trong ô gõ chữ)
             if (event.key === 'Escape') {
-                if (isDrawingMode) toggleDrawing();
+                if (isDrawingMode) toggleDrawing(currentDrawType);
                 if (typeof isTextMode !== 'undefined' && isTextMode) toggleTextMode();
                 let txtInput = document.getElementById('canvas-text-input');
                 if (txtInput) { txtInput.style.display = 'none'; txtInput.value = ''; }
@@ -2724,6 +2731,10 @@
         let isDrawing = false;
         let isTextMode = false;
         let textPos = { x: 0, y: 0 };
+        
+        let currentDrawType = 'pen';
+        let isRainbowMode = false;
+        let hue = 0;
 
         function resizeCanvas() {
             canvas.width = window.innerWidth;
@@ -2732,18 +2743,46 @@
         window.addEventListener('resize', resizeCanvas);
         resizeCanvas();
 
-        function toggleDrawing() {
-            isDrawingMode = !isDrawingMode;
+        function toggleDrawing(type = 'pen') {
+            // Nếu bấm lại đúng cây bút đang vẽ thì TẮT
+            if (isDrawingMode && currentDrawType === type) {
+                isDrawingMode = false;
+            } else {
+                isDrawingMode = true;
+                currentDrawType = type;
+            }
+
             let btnDraw = document.getElementById('btn-draw');
+            let btnMarker = document.getElementById('btn-marker');
+            let drawOptions = document.getElementById('draw-tools-options');
             
             if (isDrawingMode) {
                 if (isTextMode) toggleTextMode(); // Tắt Viết chữ nếu đang bật
                 canvas.classList.add('canvas-active');
-                btnDraw.style.background = "#27ae60";
-                canvas.style.cursor = "url('data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"24\" height=\"24\" style=\"font-size: 20px;\"><text y=\"20\">🖍️</text></svg>') 0 24, crosshair";
+                
+                btnDraw.style.background = (type === 'pen') ? "#27ae60" : "rgba(255,255,255,0.2)";
+                btnMarker.style.background = (type === 'marker') ? "#27ae60" : "rgba(255,255,255,0.2)";
+                drawOptions.style.display = "flex";
+
+                let cursorIcon = type === 'pen' ? '🖍️' : '🖌️';
+                canvas.style.cursor = `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" style="font-size: 20px;"><text y="20">${cursorIcon}</text></svg>') 0 24, crosshair`;
             } else {
                 canvas.classList.remove('canvas-active');
                 btnDraw.style.background = "rgba(255,255,255,0.2)"; 
+                btnMarker.style.background = "rgba(255,255,255,0.2)";
+                drawOptions.style.display = "none";
+            }
+        }
+
+        function toggleRainbowMode() {
+            isRainbowMode = !isRainbowMode;
+            let btnRainbow = document.getElementById('btn-rainbow');
+            if(isRainbowMode) {
+                btnRainbow.style.border = "2px solid white";
+                btnRainbow.style.transform = "scale(1.1)";
+            } else {
+                btnRainbow.style.border = "none";
+                btnRainbow.style.transform = "none";
             }
         }
 
@@ -2753,7 +2792,7 @@
             let colorPicker = document.getElementById('text-color-picker');
 
             if (isTextMode) {
-                if (isDrawingMode) toggleDrawing(); // Tắt Vẽ nếu đang bật
+                if (isDrawingMode) toggleDrawing(currentDrawType); // Tắt Vẽ nếu đang bật
                 canvas.classList.add('canvas-active');
                 btnText.style.background = "#27ae60";
                 colorPicker.style.display = "inline-block";
@@ -2769,6 +2808,7 @@
         function stampTextToCanvas() {
             let txtInput = document.getElementById('canvas-text-input');
             if (txtInput.style.display === 'block' && txtInput.value.trim() !== '') {
+                ctx.globalAlpha = 1.0; // Đảm bảo chữ luôn nét, không bị mờ
                 ctx.font = "bold 25px Arial";
                 ctx.fillStyle = document.getElementById('text-color-picker').value;
                 
@@ -2792,14 +2832,21 @@
             saveActionState(); // Lưu Undo khi xóa sạch nét vẽ
         }
 
-        ctx.strokeStyle = '#e74c3c'; 
-        ctx.lineWidth = 2;
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
 
         function getMousePos(e) {
             const rect = canvas.getBoundingClientRect();
-            return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+            
+            // CHỈ CỘNG OFFSET ĐỂ ĐẨY NÉT VẼ XUỐNG DƯỚI VÀ SANG PHẢI 1 CHÚT CHO KHỚP MŨI BÚT
+            // Bạn có thể tự thay đổi 2 số này để mũi bút ăn khớp 100% theo ý bạn nhé
+            let offsetX = 10; 
+            let offsetY = 25; 
+            
+            return { 
+                x: e.clientX - rect.left + offsetX, 
+                y: e.clientY - rect.top + offsetY 
+            };
         }
 
         canvas.addEventListener('mousedown', (e) => {
@@ -2808,7 +2855,6 @@
                 textPos = getMousePos(e);
                 let txtInput = document.getElementById('canvas-text-input');
                 
-                // Chia tọa độ cho 1.25 để bù trừ lại CSS Zoom, ép hộp chữ nằm đúng chỗ click
                 let zoomLevel = 1.25;
                 txtInput.style.left = (e.clientX / zoomLevel) + 'px';
                 txtInput.style.top = ((e.clientY - 12) / zoomLevel) + 'px';
@@ -2821,6 +2867,16 @@
 
             isDrawing = true;
             const pos = getMousePos(e);
+            
+            // SET STYLE CHO TỪNG LOẠI BÚT
+            if (currentDrawType === 'marker') {
+                ctx.lineWidth = 20;
+                ctx.globalAlpha = 0.3; // Làm mờ để giống bút dạ highlight
+            } else {
+                ctx.lineWidth = 2;
+                ctx.globalAlpha = 1.0;
+            }
+            
             ctx.beginPath();
             ctx.moveTo(pos.x, pos.y);
         });
@@ -2828,8 +2884,22 @@
         canvas.addEventListener('mousemove', (e) => {
             if (!isDrawing || isTextMode) return;
             const pos = getMousePos(e);
+            
+            // XỬ LÝ MÀU VẼ (Bao gồm Cầu Vồng)
+            if (isRainbowMode) {
+                ctx.strokeStyle = `hsl(${hue}, 100%, 50%)`;
+                hue += 3; // Tốc độ đổi màu cầu vồng
+                if (hue >= 360) hue = 0;
+            } else {
+                ctx.strokeStyle = document.getElementById('draw-color-picker').value;
+            }
+
             ctx.lineTo(pos.x, pos.y);
             ctx.stroke();
+            
+            // BẮT ĐẦU PATH MỚI ĐỂ ĐỔI MÀU CẦU VỒNG MƯỢT MÀ VÀ KHÔNG BỊ KÉO LÊ NÉT CŨ
+            ctx.beginPath();
+            ctx.moveTo(pos.x, pos.y);
         });
 
         canvas.addEventListener('mouseup', () => {
