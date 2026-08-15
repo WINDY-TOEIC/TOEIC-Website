@@ -2904,9 +2904,10 @@
             const pos = getMousePos(e);
             
             if (isRainbowMode) {
-                // VỚI CẦU VỒNG: Bắt buộc vẽ từng khúc nối tiếp để đổi màu
+                ctx.globalAlpha = 1.0;
+                ctx.lineWidth = (currentDrawType === 'marker') ? 10 : 2;
                 ctx.strokeStyle = `hsl(${hue}, 100%, 50%)`;
-                hue += 3; // Tốc độ đổi màu cầu vồng
+                hue += 3;
                 if (hue >= 360) hue = 0;
 
                 ctx.lineTo(pos.x, pos.y);
@@ -2914,7 +2915,7 @@
                 
                 ctx.beginPath();
                 ctx.moveTo(pos.x, pos.y);
-            } else {
+            }
                 // VỚI BÚT THƯỜNG / BÚT LÔNG: Khôi phục ảnh nền cũ và vẽ bằng 1 nét liền mạch duy nhất
                 // => Ngăn chặn hoàn toàn hiện tượng vón cục ở các điểm nối
                 ctx.putImageData(snapshot, 0, 0);
