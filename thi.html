@@ -2915,7 +2915,7 @@
                 
                 ctx.beginPath();
                 ctx.moveTo(pos.x, pos.y);
-            }
+            } else {
                 // VỚI BÚT THƯỜNG / BÚT LÔNG: Khôi phục ảnh nền cũ và vẽ bằng 1 nét liền mạch duy nhất
                 // => Ngăn chặn hoàn toàn hiện tượng vón cục ở các điểm nối
                 ctx.putImageData(snapshot, 0, 0);
