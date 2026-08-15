@@ -2836,11 +2836,12 @@
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
 
+        let snapshot; // Thêm biến snapshot để lưu trạng thái
+
         function getMousePos(e) {
             const rect = canvas.getBoundingClientRect();
             
             // CHỈ CỘNG OFFSET ĐỂ ĐẨY NÉT VẼ XUỐNG DƯỚI VÀ SANG PHẢI 1 CHÚT CHO KHỚP MŨI BÚT
-            // Bạn có thể tự thay đổi 2 số này để mũi bút ăn khớp 100% theo ý bạn nhé
             let offsetX = 10; 
             let offsetY = 25; 
             
@@ -2869,6 +2870,9 @@
             isDrawing = true;
             const pos = getMousePos(e);
             
+            // LƯU LẠI TOÀN BỘ ẢNH BẢN VẼ TRƯỚC ĐÓ ĐỂ CHỐNG VÓN CỤC VÀ ĐẬM NÉT
+            snapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            
             // SET STYLE CHO TỪNG LOẠI BÚT
             if (currentDrawType === 'marker') {
                 ctx.lineWidth = 20;
@@ -2884,23 +2888,36 @@
 
         canvas.addEventListener('mousemove', (e) => {
             if (!isDrawing || isTextMode) return;
+            
+            // KIỂM TRA NẾU CHUỘT KHÔNG CÒN ĐƯỢC BẤM NỮA THÌ DỪNG LẠI NGAY LẬP TỨC 
+            // (Chống lỗi kéo lê một vệt dài khi thả chuột ở ngoài rồi lia vào lại)
+            if (e.buttons !== 1) { 
+                isDrawing = false; 
+                saveActionState(); // Lưu lại nét này vào Undo
+                return; 
+            }
+            
             const pos = getMousePos(e);
             
-            // XỬ LÝ MÀU VẼ (Bao gồm Cầu Vồng)
             if (isRainbowMode) {
+                // VỚI CẦU VỒNG: Bắt buộc vẽ từng khúc nối tiếp để đổi màu
                 ctx.strokeStyle = `hsl(${hue}, 100%, 50%)`;
                 hue += 3; // Tốc độ đổi màu cầu vồng
                 if (hue >= 360) hue = 0;
-            } else {
-                ctx.strokeStyle = document.getElementById('draw-color-picker').value;
-            }
 
-            ctx.lineTo(pos.x, pos.y);
-            ctx.stroke();
-            
-            // BẮT ĐẦU PATH MỚI ĐỂ ĐỔI MÀU CẦU VỒNG MƯỢT MÀ VÀ KHÔNG BỊ KÉO LÊ NÉT CŨ
-            ctx.beginPath();
-            ctx.moveTo(pos.x, pos.y);
+                ctx.lineTo(pos.x, pos.y);
+                ctx.stroke();
+                
+                ctx.beginPath();
+                ctx.moveTo(pos.x, pos.y);
+            } else {
+                // VỚI BÚT THƯỜNG / BÚT LÔNG: Khôi phục ảnh nền cũ và vẽ bằng 1 nét liền mạch duy nhất
+                // => Ngăn chặn hoàn toàn hiện tượng vón cục ở các điểm nối
+                ctx.putImageData(snapshot, 0, 0);
+                ctx.strokeStyle = document.getElementById('draw-color-picker').value;
+                ctx.lineTo(pos.x, pos.y);
+                ctx.stroke();
+            }
         });
 
         canvas.addEventListener('mouseup', () => {
