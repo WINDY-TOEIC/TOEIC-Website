@@ -56,7 +56,7 @@
         .btn-grid { background: rgba(255,255,255,0.2); border: none; color: white; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-size: 18px; }
         
         .shortcut-tooltip { background: rgba(255,255,255,0.1); border: none; color: white; border-radius: 50%; width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; font-size: 16px; font-weight: bold; cursor: help; position: relative; margin-right: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);}
-        .shortcut-tooltip::after { content: "[Phím Cách]: Nghe lại Audio \A [←]: Câu trước \A [→]: Câu tiếp \A [↑]: Hiện chữ"; position: absolute; top: 40px; right: 0; background: #333; color: #fff; padding: 12px; border-radius: 4px; white-space: pre; font-size: 14px; opacity: 0; visibility: hidden; transition: 0.2s; pointer-events: none; z-index: 1001; text-align: left; line-height: 1.6; font-weight: normal; box-shadow: 0 4px 6px rgba(0,0,0,0.3);}
+        .shortcut-tooltip::after { content: "[Ctrl + S]: Lưu bài làm \A [Phím Cách]: Nghe lại Audio \A [←]: Câu trước \A [→]: Câu tiếp \A [↑]: Hiện chữ"; position: absolute; top: 40px; right: 0; background: #333; color: #fff; padding: 12px; border-radius: 4px; white-space: pre; font-size: 14px; opacity: 0; visibility: hidden; transition: 0.2s; pointer-events: none; z-index: 1001; text-align: left; line-height: 1.6; font-weight: normal; box-shadow: 0 4px 6px rgba(0,0,0,0.3);}
         .shortcut-tooltip:hover::after { opacity: 1; visibility: visible; }
 
         /* Nút đổi màu Banner */
@@ -401,6 +401,7 @@
 
                 </div>
                 
+                <button class="btn-exit" style="background-color: #f39c12;" onclick="manualSave(true)">💾 Lưu Bài</button>
                 <button class="btn-exit" onclick="saveAndExit()">Thoát & Lưu</button>
                 <button class="btn-submit" id="btn-submit" onclick="submitTest()">Nộp Bài</button>
                 <div class="timer-box" id="timer-display">00:00:00</div>
@@ -1801,6 +1802,44 @@
             }, 1000);
         }
 
+        function manualSave(showToast = false) {
+            if (isSubmitted || !flatQuestions || flatQuestions.length === 0) return;
+            let qNumMatch = flatQuestions[currentQIndex].sq.title.match(/\d+/);
+            let actualQNum = qNumMatch ? qNumMatch[0] : (currentQIndex + 1);
+            let progressData = {
+                userAnswers: userAnswers,
+                markedQuestions: markedQuestions,
+                currentQIndex: currentQIndex,
+                currentQNumber: actualQNum,
+                answeredQuestions: answeredQuestions,
+                globalTimeInSeconds: globalTimeInSeconds,
+                isCountDown: isCountDown,
+                currentMode: currentMode,
+                selectedParts: g_selectedParts,
+                lastUpdated: Date.now()
+            };
+            localStorage.setItem(window.progressKey, JSON.stringify(progressData));
+
+            if (showToast) {
+                let toast = document.getElementById('save-toast');
+                if (!toast) {
+                    toast = document.createElement('div');
+                    toast.id = 'save-toast';
+                    toast.style.cssText = 'position:fixed; top:-50px; left:50%; transform:translateX(-50%); background:#28a745; color:white; padding:12px 25px; border-radius:50px; font-weight:bold; font-size:15px; box-shadow:0 4px 15px rgba(0,0,0,0.3); z-index:99999; opacity:0; transition:all 0.4s ease; pointer-events:none;';
+                    document.body.appendChild(toast);
+                }
+                toast.innerText = "✔ Đã lưu bài làm thành công!";
+                setTimeout(() => {
+                    toast.style.opacity = '1';
+                    toast.style.top = '20px';
+                }, 50);
+                setTimeout(() => {
+                    toast.style.opacity = '0';
+                    toast.style.top = '-50px';
+                }, 2500);
+            }
+        }
+
         function saveAndExit() {
             if (!isSubmitted) {
                 let qNumMatch = flatQuestions[currentQIndex].sq.title.match(/\d+/);
@@ -1851,9 +1890,16 @@
             }
         });
 
-        // Lắng nghe phím tắt (Thêm Ctrl Z, Ctrl Y, Esc)
+        // Lắng nghe phím tắt (Thêm Ctrl Z, Ctrl Y, Esc, Ctrl S)
         document.addEventListener('keydown', function(event) {
             
+            // 0. BẮT PHÍM CTRL + S ĐỂ LƯU BÀI LẬP TỨC
+            if (event.ctrlKey && (event.key === 's' || event.key === 'S')) {
+                event.preventDefault();
+                manualSave(true);
+                return;
+            }
+
             // 1. ƯU TIÊN SỐ 1: BẮT PHÍM ESC TRƯỚC (Cho phép ấn Esc kể cả khi đang ở trong ô gõ chữ)
             if (event.key === 'Escape') {
                 if (isDrawingMode) toggleDrawing(currentDrawType);
