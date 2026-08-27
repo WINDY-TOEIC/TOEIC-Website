@@ -2358,9 +2358,11 @@
         function showToolbar(x, y, isDeleteMode) {
             // Chia cho 1.25 để bù trừ lại CSS body { zoom: 1.25; }
             let zoomLevel = 1.25; 
-            toolbar.style.left = ((x / zoomLevel) - 100) + 'px'; 
+            // Nếu chỉ hiện mỗi Thùng Rác (isDeleteMode) thì chỉ lùi 20px để ở gần chuột, nếu full menu thì lùi 100px
+            toolbar.style.left = ((x / zoomLevel) - (isDeleteMode ? 20 : 100)) + 'px'; 
             toolbar.style.top = ((y / zoomLevel) - 60) + 'px'; 
             toolbar.classList.add('active');
+
             
             // Reset giao diện về lúc ban đầu (hiện nút công cụ, ẩn ô nhập)
             document.getElementById('tb-buttons-wrap').style.display = 'flex';
