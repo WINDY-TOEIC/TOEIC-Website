@@ -1861,8 +1861,14 @@
             window.location.href = "index.html";
         }
 
-        // GIÁM SÁT CHỐNG GIAN LẬN CHUYỂN TAB (Cho Bảng Xếp Hạng)
+        // GIÁM SÁT CHỐNG GIAN LẬN CHUYỂN TAB VÀ TỰ ĐỘNG LƯU BÀI CHO ĐIỆN THOẠI
         document.addEventListener('visibilitychange', function() {
+            // 1. Tự động lưu bài ngay lập tức khi người dùng chuyển tab, tắt màn hình hoặc đi ngủ
+            if (document.hidden && !isSubmitted) {
+                manualSave(false); // Lưu ngầm, không hiện thông báo
+            }
+
+            // 2. Xử lý tước quyền Bảng xếp hạng (Giữ nguyên logic cũ 100%)
             if (document.hidden && !isSubmitted && isValidForLeaderboard) {
                 isValidForLeaderboard = false; // Tước quyền lên bảng vàng
                 
@@ -1887,6 +1893,13 @@
                     toast.style.opacity = '0';
                     toast.style.top = '-50px';
                 }, 4000);
+            }
+        });
+
+        // 3. Bổ sung sự kiện 'pagehide' đặc trị cho Safari/iPhone/iPad khi ứng dụng bị đóng băng
+        window.addEventListener('pagehide', function() {
+            if (!isSubmitted) {
+                manualSave(false);
             }
         });
 
