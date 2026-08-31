@@ -906,7 +906,7 @@
             totalQuestions = flatQuestions.length;
             if(totalQuestions === 0) return;
 
-            // --- CẬP NHẬT URL ĐỂ COPY CHIA SẺ ---
+            // --- CẬP NHẬT URL ĐỂ COPY CHIA SẺ VÀ BẢO VỆ KHI TẢI LẠI TRANG ---
             let timeVal = document.getElementById('time-select').value;
             let currentParams = new URLSearchParams(window.location.search);
             currentParams.set('mode', currentMode);
@@ -916,6 +916,11 @@
             } else {
                 currentParams.set('parts', 'all');
             }
+            
+            // Gắn thêm cờ Resume vào URL để lỡ học viên F5 tải lại trang, hệ thống sẽ tự động khôi phục bài
+            currentParams.set('resume', '1');
+            currentParams.set('partsSuffix', g_selectedParts.join('-'));
+
             window.history.replaceState(null, '', window.location.pathname + '?' + currentParams.toString());
             // ------------------------------------
 
