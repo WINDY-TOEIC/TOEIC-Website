@@ -1457,6 +1457,9 @@
                 markText.innerText = markedQuestions[idx] ? "Bỏ Cờ" : "Gắn Cờ";
                 markBtn.style.background = markedQuestions[idx] ? "#ffc107" : "#fff3cd";
             }
+            
+            // Ép lưu ngay lập tức vào ổ cứng khi học viên đánh dấu cờ
+            manualSave(false);
         }
 
         function selectAnswer(idx, choice) {
@@ -1471,6 +1474,9 @@
                 document.getElementById(`grid-btn-${idx}`).classList.add('answered');
             }
             userAnswers[idx] = choice;
+            
+            // Ép lưu ngay lập tức vào ổ cứng khoảnh khắc ngón tay vừa chạm vào đáp án
+            manualSave(false);
         }
 
         function navigateQuestion(step) {
