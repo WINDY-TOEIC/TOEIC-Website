@@ -1786,24 +1786,8 @@
                 let s = globalTimeInSeconds % 60;
                 timerDisplay.innerText = (h > 0 ? (h < 10 ? "0" + h + ":" : h + ":") : "") + (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s);
 
-                // TÍNH NĂNG AUTO-SAVE: Âm thầm lưu dữ liệu mỗi giây (Chống cúp điện, tắt tab ngang)
-                if (!isSubmitted) {
-                    let qNumMatch = flatQuestions[currentQIndex].sq.title.match(/\d+/);
-                    let actualQNum = qNumMatch ? qNumMatch[0] : (currentQIndex + 1);
-                    let progressData = {
-                        userAnswers: userAnswers,
-                        markedQuestions: markedQuestions,
-                        currentQIndex: currentQIndex,
-                        currentQNumber: actualQNum, 
-                        answeredQuestions: answeredQuestions,
-                        globalTimeInSeconds: globalTimeInSeconds,
-                        isCountDown: isCountDown,
-                        currentMode: currentMode,
-                        selectedParts: g_selectedParts,
-                        lastUpdated: Date.now() // Gắn dấu thời gian để đưa lên đầu danh sách
-                    };
-                    localStorage.setItem(window.progressKey, JSON.stringify(progressData));
-                }
+                // (Đã xóa bộ đếm lưu 1 giây để tối ưu RAM theo Extreme Optimization)
+
 
                 if (isCountDown && globalTimeInSeconds <= 0) {
                     clearInterval(timerInterval);
@@ -2231,30 +2215,16 @@
         // ==========================================
         // KHU VỰC 1: XỬ LÝ MENU F & TEXT HIGHLIGHT
         // ==========================================
-        let actionHistory = [];
-        let historyStep = -1;
-
         function initHistoryState() {
-            actionHistory = [];
-            historyStep = -1;
-            saveActionState();
+            // Không làm gì cả - Đã tối ưu RAM
         }
 
         function saveActionState() {
             let qContent = document.getElementById('question-content');
             let mContent = document.getElementById('media-content');
             if(!qContent) return;
-            if(historyStep < actionHistory.length - 1) actionHistory = actionHistory.slice(0, historyStep + 1);
             
-            // Lưu trạng thái của cả bên trái (Transcript) và bên phải (Câu hỏi)
-            actionHistory.push({ 
-                canvas: canvas.toDataURL(), 
-                dom: qContent.innerHTML,
-                mediaDom: mContent ? mContent.innerHTML : ""
-            });
-            historyStep++;
-            
-            // --- TỰ ĐỘNG LƯU GHI CHÚ NGAY LẬP TỨC (Tránh mất khi F5) ---
+            // HƯỚNG B: Chỉ lưu đè 1 bản duy nhất của câu hiện tại, không tạo mảng nhồi RAM
             if (currentGroupId !== -1 && mContent) {
                 savedNotes[currentGroupId] = {
                     left: mContent.innerHTML,
@@ -2262,95 +2232,26 @@
                 };
                 let noteKey = window.progressKey ? window.progressKey.replace('win_progress_', 'win_notes_') : `win_notes_${fileName}`;
                 
-                // Bọc Try-Catch chặn đứng lỗi Tràn bộ nhớ (QuotaExceededError) gây sập chức năng
                 try {
                     localStorage.setItem(noteKey, JSON.stringify(savedNotes));
                 } catch (e) {
-                    console.log("Bộ nhớ tạm đã đầy, không thể tự động lưu thêm ghi chú.");
+                    console.log("Đã bỏ qua lưu ghi chú vì thiết bị đầy bộ nhớ.");
                 }
             }
         }
 
-        function restoreState(state) {
-            let img = new Image();
-            img.onload = function() {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                ctx.drawImage(img, 0, 0);
-            };
-            img.src = state.canvas;
-            
-            document.getElementById('question-content').innerHTML = state.dom;
-
-            // Đưa khối này lên trên để Cột Trái (Transcript/Audio) được đắp HTML ra màn hình TRƯỚC
-            // Khôi phục lại trạng thái bôi vàng bên trái (Transcript) mà không làm Audio bị ngắt/reset về 0
-            if (state.mediaDom !== undefined) {
-                let mContent = document.getElementById('media-content');
-                let oldAudio = document.getElementById('q-audio');
-                
-                // Ghi nhớ trạng thái Audio trước khi Ctrl Z
-                let wasPlaying = oldAudio && !oldAudio.paused;
-                let currentTime = oldAudio ? oldAudio.currentTime : 0;
-                let currentSpeed = oldAudio ? oldAudio.playbackRate : 1;
-                
-                mContent.innerHTML = state.mediaDom;
-                
-                let newAudio = document.getElementById('q-audio');
-                if (newAudio && oldAudio) {
-                    newAudio.currentTime = currentTime;
-                    newAudio.playbackRate = currentSpeed;
-                    if (wasPlaying) {
-                        let playPromise = newAudio.play();
-                        if (playPromise !== undefined) playPromise.catch(e => {});
-                    }
-                }
-            }
-            
-            // --- ĐỒNG BỘ LẠI CÁC NÚT BẤM SAU KHI CTRL+Z (Bảo vệ nút Giải Thích, Gắn Cờ, Đáp Án) ---
-            // Để khối này chạy SAU CÙNG. Khi HTML của cả cột trái và phải đều đã nằm trên màn hình,
-            // vòng lặp sẽ quét trúng và áp đặt trạng thái Thu gọn/Giải thích lên 100% văn bản.
-            
-            let isTeacherActive = (classCode === "1" && studentName.toLowerCase() === "admin" && currentMode === 'practice' && !isSubmitted);
-            
-            // 1. Phục hồi đúng trạng thái Thu gọn / Giải thích hiện tại (BỎ QUA NẾU LÀ TEACHER MODE)
-            if (typeof isExpCollapsed !== 'undefined' && !isTeacherActive) {
-                document.querySelectorAll('.explanation:not(.always-show)').forEach(el => {
-                    if (isExpCollapsed) el.classList.add('hidden');
-                    else el.classList.remove('hidden');
-                });
-                document.querySelectorAll('.btn-exp-toggle').forEach(btn => {
-                    btn.innerText = isExpCollapsed ? 'Giải thích' : 'Thu gọn';
-                });
-            }
-
-            // 2. Phục hồi đúng Radio Button & Nút Gắn Cờ (Tránh việc Undo làm mất tick chọn)
-            for (let i = 0; i < flatQuestions.length; i++) {
-                if (flatQuestions[i].groupId === currentGroupId) {
-                    document.querySelectorAll(`input[name="q-${i}"]`).forEach(input => {
-                        input.checked = (input.value === userAnswers[i]);
-                    });
-                    let markBtn = document.getElementById(`btn-mark-${i}`);
-                    let markText = document.getElementById(`mark-text-${i}`);
-                    if (markBtn && markText) {
-                        markText.innerText = markedQuestions[i] ? "Bỏ Cờ" : "Gắn Cờ";
-                        markBtn.style.background = markedQuestions[i] ? "#ffc107" : "#fff3cd";
-                    }
-                }
-            }
-            
-            // BỔ SUNG: Ép đồng bộ lại giao diện Teacher Mode sau khi Undo (Chặn hiện Lời dịch)
-            if (typeof handleTeacherHotkeys === 'function' && classCode === "1" && studentName.toLowerCase() === "admin" && currentMode === 'practice' && !isSubmitted) {
-                handleTeacherHotkeys('sync');
-            }
-            // ---------------------------------------------------------------------------------
-        }
 
         function undoAction() {
-            if(historyStep > 0) { historyStep--; restoreState(actionHistory[historyStep]); }
+            // Xóa sạch nét vẽ trên màn hình khi bấm Ctrl + Z
+            if (typeof clearCanvas === 'function') {
+                clearCanvas();
+            }
         }
 
         function redoAction() {
-            if(historyStep < actionHistory.length - 1) { historyStep++; restoreState(actionHistory[historyStep]); }
+            // Không làm gì cả
         }
+
 
         let currentSelectionRange = null;
         let currentEditingNode = null; 
@@ -3005,13 +2906,8 @@
         });
 
         // ==========================================
-        // KHU VỰC 3: XỬ LÝ LƯU NÉT VẼ
+        // KHU VỰC 3: XỬ LÝ LƯU NÉT VẼ (ĐÃ TỐI ƯU BỎ LƯU NGẦM)
         // ==========================================
-        setInterval(() => {
-            if (!isSubmitted && fileName) {
-                localStorage.setItem(`win_draw_${fileName}`, canvas.toDataURL());
-            }
-        }, 5000);
 
         window.addEventListener('load', () => {
             setTimeout(() => {
