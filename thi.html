@@ -1019,10 +1019,18 @@
                             left: oldMContent.innerHTML,
                             right: oldQContent.innerHTML
                         };
+
+                        // BỘ LỌC ÉP CÂN: Chỉ cho phép nhớ tối đa 3 nhóm câu gần nhất. Quá 3 thì xóa cái cũ nhất!
+                        let noteKeys = Object.keys(savedNotes);
+                        if (noteKeys.length > 3) {
+                            delete savedNotes[noteKeys[0]]; 
+                        }
+
                         let noteKey = window.progressKey ? window.progressKey.replace('win_progress_', 'win_notes_') : `win_notes_${fileName}`;
-                        localStorage.setItem(noteKey, JSON.stringify(savedNotes));
+                        try { localStorage.setItem(noteKey, JSON.stringify(savedNotes)); } catch(e) {}
                     }
                 }
+
 
                 // --- NGẮT AUDIO CŨ TRƯỚC KHI CHUYỂN SANG CÂU MỚI ---
                 let oldAudio = document.getElementById('q-audio');
@@ -2230,6 +2238,13 @@
                     left: mContent.innerHTML,
                     right: qContent.innerHTML
                 };
+
+                // BỘ LỌC ÉP CÂN: Chỉ cho phép nhớ tối đa 3 nhóm câu gần nhất
+                let noteKeys = Object.keys(savedNotes);
+                if (noteKeys.length > 3) {
+                    delete savedNotes[noteKeys[0]]; 
+                }
+
                 let noteKey = window.progressKey ? window.progressKey.replace('win_progress_', 'win_notes_') : `win_notes_${fileName}`;
                 
                 try {
@@ -2239,6 +2254,7 @@
                 }
             }
         }
+
 
 
         function undoAction() {
