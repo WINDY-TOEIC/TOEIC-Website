@@ -167,7 +167,7 @@
         .resume-floating-btn:hover { background: #c82333; transform: scale(1.05); }
         @keyframes pulseRed { 0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); } 100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); } }
         .resume-tooltip { position: absolute; top: 100%; left: 0; margin-top: 10px; background: #333; color: #fff; padding: 8px 15px; border-radius: 6px; font-size: 13px; white-space: nowrap; opacity: 0; visibility: hidden; transition: 0.3s; font-weight: normal; pointer-events: auto; text-align: left; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-        @media (max-width: 768px) { .resume-tooltip { left: auto; right: 0; } } /* Tránh tràn viền trên điện thoại */
+        @media (max-width: 1180px) { .resume-tooltip { left: auto; right: 0; } } /* Tránh tràn viền trên điện thoại */
         .resume-floating-btn:hover .resume-tooltip { opacity: 1; visibility: visible; }
         .resume-item-link { display: block; color: #fff; text-decoration: none; padding: 8px 0; border-bottom: 1px dashed #555; transition: 0.2s; }
         .resume-item-link:last-child { border-bottom: none; }
@@ -284,7 +284,7 @@
         body.dark-mode .chat-input { background: #333; color: #fff; border-color: #555; }
         body.dark-mode .chat-input:disabled { background: #222; }
         
-        @media (max-width: 768px) {
+        @media (max-width: 1180px) {
             .chat-panel { width: 90vw; right: -10px; height: 60vh; }
         }
 
@@ -322,7 +322,7 @@
         body.dark-mode .c-review-exp * { color: #e0e0e0 !important; font-size: 16px !important; }
 
         /* --- GIAO DIỆN ĐIỆN THOẠI  (MOBILE RESPONSIVE) --- */
-        @media (max-width: 768px) {
+        @media (max-width: 1180px) {
             body { zoom: 1 !important; transform: none !important; overflow-x: hidden; }
             
             /* Tăng độ cao Banner (padding trên/dưới) để các nút không bao giờ đè lên Logo và Text */
@@ -363,17 +363,24 @@
         }
     </style>
     <script>
-        // Nhận diện học sinh đang dùng trình duyệt ngầm (Classroom, Zalo, Messenger...) trên iPad/iPhone
         var ua = window.navigator.userAgent.toLowerCase();
+        
+        // 1. Bắt Android WebView
+        var isAndroidWebView = (ua.indexOf('wv') > -1 && ua.indexOf('android') > -1);
+        
+        // 2. Bắt iOS WebView (WKWebView / UIWebView)
         var isIOS = /iphone|ipod|ipad/.test(ua);
         var isSafari = /safari/.test(ua);
-        // Trình duyệt ngầm của iOS thường không có chữ 'safari' trong thông số máy
-        var isWKWebView = isIOS && !isSafari && !window.navigator.standalone;
+        var isIOSWebView = isIOS && !isSafari && !window.navigator.standalone;
         
-        if (isWKWebView) {
+        // 3. Bắt các App Mạng Xã Hội
+        var isSocialApp = /fban|fbav|instagram|zalo|line|messenger/.test(ua);
+
+        if (isAndroidWebView || isIOSWebView || isSocialApp) {
             alert("⚠️ CẢNH BÁO MẤT BÀI ⚠️\n\nBạn đang mở đề thi bên trong ứng dụng (Google Classroom).\nHệ thống sẽ KHÔNG THỂ LƯU BÀI nếu bạn thoát.\n\nVui lòng copy link -> mở trong Safari hoặc ứng dụng web để làm bài an toàn!");
         }
     </script>
+
 </head>
 <body>
 
@@ -451,7 +458,7 @@
             .btn-guide-corner { background: linear-gradient(45deg, #f39c12, #d35400); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: bold; font-size: 15px; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.3); text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; box-sizing: border-box;}
             .btn-tips-corner:hover, .btn-guide-corner:hover { transform: scale(1.05); }
             
-            @media (max-width: 768px) { 
+            @media (max-width: 1180px) { 
                 .right-corner-buttons { bottom: 10px; right: 10px; width: 170px; gap: 8px; }
                 .btn-grammar-corner, .btn-chal-corner { font-size: 11px; padding: 8px 0; }
                 .btn-lookup-corner { left: -26px; font-size: 18px; width: 26px; height: 26px; }
