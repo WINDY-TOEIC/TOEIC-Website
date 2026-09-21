@@ -292,6 +292,18 @@
         body.dark-mode .floating-focus-btn { background: #5ba4e5; color: #111; }
         body.dark-mode .focus-hint { background: #1e1e1e; color: #555; border-color: #333; }
     </style>
+    <script>
+        // Nhận diện học sinh đang dùng trình duyệt ngầm (Classroom, Zalo, Messenger...) trên iPad/iPhone
+        var ua = window.navigator.userAgent.toLowerCase();
+        var isIOS = /iphone|ipod|ipad/.test(ua);
+        var isSafari = /safari/.test(ua);
+        // Trình duyệt ngầm của iOS thường không có chữ 'safari' trong thông số máy
+        var isWKWebView = isIOS && !isSafari && !window.navigator.standalone;
+        
+        if (isWKWebView) {
+            alert("⚠️ CẢNH BÁO MẤT BÀI ⚠️\n\nBạn đang mở đề thi bên trong ứng dụng (Google Classroom).\nHệ thống sẽ KHÔNG THỂ LƯU BÀI nếu bạn thoát.\n\nVui lòng copy link -> mở trong Safari hoặc ứng dụng web để làm bài an toàn!");
+        }
+    </script>
 </head>
 <body>
 
