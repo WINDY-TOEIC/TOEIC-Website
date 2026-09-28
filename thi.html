@@ -410,7 +410,7 @@
                     <button class="btn-grid" id="btn-text" onclick="toggleTextMode()" title="Viết chữ (A)" style="font-weight: bold; font-family: serif;">A</button>
                     <input type="color" id="text-color-picker" value="#e74c3c" title="Chọn màu chữ" style="width: 35px; height: 35px; padding: 0; border: none; background: transparent; cursor: pointer; display: none; border-radius: 4px;">
 
-                    <button class="btn-grid" onclick="clearCanvas()" title="Xóa toàn bộ nét vẽ và chữ">🧽</button>
+                    <button class="btn-grid" onclick="clearCanvas()" title="Xóa toàn bộ nét vẽ và ghi chú">🧽</button>
 
                 </div>
                 
@@ -958,8 +958,10 @@
                 answeredQuestions = resumeData.answeredQuestions || 0;
                 globalTimeInSeconds = resumeData.globalTimeInSeconds || 0;
                 isCountDown = resumeData.isCountDown || false;
+                window.practiceEvaluated = resumeData.practiceEvaluated || {};
 
                 // Tô lại màu các câu đã trả lời và đánh dấu
+
                 for (let idx in userAnswers) {
                     let btn = document.getElementById(`grid-btn-${idx}`);
                     if (btn) btn.classList.add('answered');
@@ -1150,6 +1152,11 @@
                     let markBtnBg = isMarked ? "#ffc107" : "#fff3cd";
                     let markBtnDisplay = (isSubmitted || (currentMode === 'exam' && isListeningQ)) ? "display:none;" : "";
                     
+                    let isLocked = (window.practiceEvaluated && window.practiceEvaluated[qIdx]);
+                    let pracEvalDisplay = (currentMode === 'practice' && !isSubmitted && userAnswers[qIdx] && !isLocked) ? "inline-block" : "none";
+                    let practiceEvalBtn = (currentMode === 'practice' && !isSubmitted) 
+                        ? `<button id="btn-prac-eval-${qIdx}" class="btn-transcript" style="background:#28a745; color:white; border-color:#218838; font-weight:bold; display:${pracEvalDisplay};" onclick="evalPracticeAnswer(${qIdx}, ${gSq.index})">Đáp án</button>` : '';
+
                     rightHtml += `
                         <div class="q-block" id="q-block-${qIdx}" style="padding-bottom: 6px; margin-bottom: 8px; border-bottom: 1px dashed #ccc;">
                             <div class="q-title-wrap">
@@ -1159,21 +1166,24 @@
                                     ${transcriptBtn}
                                     ${expToggleBtn}
                                     ${teacherBtn}
+                                    ${practiceEvalBtn}
                                 </div>
                             </div>
+
                             <div class="options">
                     `;
                     
                     gSq.choices.forEach(c => {
                         let isCorrect = c.choice_right_answer ? "true" : "false";
                         let isChecked = userAnswers[qIdx] === c.choice ? 'checked' : '';
-                        let isDisabled = isSubmitted ? 'disabled' : '';
+                        let isDisabled = (isSubmitted || isLocked) ? 'disabled' : '';
 
                         let labelClass = "option-label";
-                        if (isSubmitted) {
+                        if (isSubmitted || isLocked) {
                             if (isCorrect === "true") labelClass += " correct";
                             else if (userAnswers[qIdx] === c.choice) labelClass += " wrong";
                         }
+
 
                         rightHtml += `
                         <label class="${labelClass}" onclick="selectAnswer(${qIdx}, '${c.choice}')">
@@ -1184,10 +1194,11 @@
                     
                     rightHtml += `</div>`;
                     
-                    // Nếu đã nộp bài: Bỏ class hidden (auto hiện), bỏ class ép màu đen (trả lại màu/bold gốc)
-                    let expClass = isSubmitted ? ((typeof isExpCollapsed !== 'undefined' && isExpCollapsed) ? "hidden" : "") : "hidden";
-                    let contentStyle = isSubmitted ? "" : "pre-submit-text";
-                    let headerTitle = isSubmitted ? "Nội dung & Dịch nghĩa / Đáp án:" : "Transcript:";
+                    // Nếu đã nộp bài hoặc đã khóa (Practice): Bỏ class hidden (auto hiện), bỏ class ép màu đen (trả lại màu/bold gốc)
+                    let expClass = (isSubmitted || isLocked) ? ((typeof isExpCollapsed !== 'undefined' && isExpCollapsed) ? "hidden" : "") : "hidden";
+                    let contentStyle = (isSubmitted || isLocked) ? "" : "pre-submit-text";
+                    let headerTitle = (isSubmitted || isLocked) ? "Nội dung & Dịch nghĩa / Đáp án:" : "Transcript:";
+
                     
                     let finalExplanation = gSq.explanation;
                         let extractedTranscript = "";
@@ -1286,9 +1297,10 @@
                             let splitTransIdx = transMatch.index;
                             let engPart = extractedTranscript.substring(0, splitTransIdx).trim();
                             let viPart = extractedTranscript.substring(splitTransIdx).trim();
-                            let engClass = isSubmitted ? "always-show" : "always-show hidden"; // Ép ẩn nếu chưa nộp bài
+                            let engClass = (isSubmitted || isLocked) ? "always-show" : "always-show hidden"; // Ép ẩn nếu chưa nộp bài
 
                             rightHtml += `<div id="temp-transcript" style="display:none;">
+
                                             <div class="explanation ${engClass}" id="left-transcript-eng" style="margin-bottom:10px;">
                                                 ${zoomBtns}
                                                 <h4 style="margin-top:0; color:#003366;">Transcript:</h4>
@@ -1490,6 +1502,8 @@
 
         function selectAnswer(idx, choice) {
             if (isSubmitted) return;
+            if (window.practiceEvaluated && window.practiceEvaluated[idx]) return; // Khóa nếu đã xem đáp án
+
             if (document.activeElement) document.activeElement.blur(); // Gỡ kẹt phím mũi tên
             document.querySelectorAll(`input[name="q-${idx}"]`).forEach(input => {
                 input.checked = (input.value === choice);
@@ -1501,9 +1515,75 @@
             }
             userAnswers[idx] = choice;
             
+            if (currentMode === 'practice') {
+                let btn = document.getElementById(`btn-prac-eval-${idx}`);
+                if (btn) btn.style.display = "inline-block";
+            }
+            
             // Ép lưu ngay lập tức vào ổ cứng khoảnh khắc ngón tay vừa chạm vào đáp án
             manualSave(false);
         }
+
+        function evalPracticeAnswer(qIdx, sqIndex) {
+            if (currentMode !== 'practice') return;
+            if (!userAnswers[qIdx]) return; 
+
+            window.practiceEvaluated = window.practiceEvaluated || {};
+            window.practiceEvaluated[qIdx] = true;
+
+            document.querySelectorAll(`input[name="q-${qIdx}"]`).forEach(input => {
+                input.disabled = true;
+                input.style.pointerEvents = "none";
+            });
+
+            let correctObj = flatQuestions[qIdx].sq.choices.find(c => c.choice_right_answer);
+            let correctChoice = correctObj ? correctObj.choice : null;
+
+            document.querySelectorAll(`input[name="q-${qIdx}"]`).forEach(input => {
+                let label = input.parentElement;
+                if (input.value === correctChoice) {
+                    label.classList.add('correct');
+                } else if (input.value === userAnswers[qIdx]) {
+                    label.classList.add('wrong');
+                }
+            });
+
+            let expBox = document.getElementById(`exp-${sqIndex}`);
+            if (expBox) {
+                expBox.classList.remove('hidden');
+                expBox.querySelectorAll('.pre-submit-text').forEach(e => e.classList.remove('pre-submit-text'));
+                let viTrans = expBox.querySelector('.vi-translation');
+                if (viTrans) viTrans.style.display = 'block';
+                expBox.querySelectorAll('b, strong').forEach(el => { el.style.fontWeight = 'bold'; });
+            }
+
+            let btn = document.getElementById(`btn-prac-eval-${qIdx}`);
+            if (btn) btn.style.display = 'none';
+
+            let leftT = document.getElementById('left-transcript');
+            if (leftT) { leftT.classList.remove('hidden'); leftT.style.display = 'block'; leftT.querySelectorAll('.pre-submit-text').forEach(e => e.classList.remove('pre-submit-text')); }
+            
+            let leftTContainer = document.getElementById('left-transcript-container');
+            if (leftTContainer) {
+                leftTContainer.classList.remove('hidden');
+                leftTContainer.style.display = 'block';
+                let engPart = document.getElementById('left-transcript-eng');
+                if (engPart) { 
+                    engPart.classList.remove('hidden'); 
+                    engPart.querySelectorAll('.hidden').forEach(e => e.classList.remove('hidden')); 
+                    engPart.querySelectorAll('.pre-submit-text').forEach(e => e.classList.remove('pre-submit-text')); 
+                }
+                let viPart = document.getElementById('left-transcript-vi');
+                if (viPart) {
+                    viPart.classList.remove('hidden');
+                    viPart.querySelectorAll('.hidden').forEach(e => e.classList.remove('hidden')); 
+                    viPart.querySelectorAll('.pre-submit-text').forEach(e => e.classList.remove('pre-submit-text')); 
+                }
+            }
+
+            manualSave(false);
+        }
+
 
         function navigateQuestion(step) {
             let currentGroup = flatQuestions[currentQIndex].groupId;
@@ -1832,8 +1912,10 @@
                 isCountDown: isCountDown,
                 currentMode: currentMode,
                 selectedParts: g_selectedParts,
-                lastUpdated: Date.now()
+                lastUpdated: Date.now(),
+                practiceEvaluated: window.practiceEvaluated || {}
             };
+
             localStorage.setItem(window.progressKey, JSON.stringify(progressData));
 
             if (showToast) {
@@ -1870,8 +1952,10 @@
                         isCountDown: isCountDown,
                         currentMode: currentMode,
                         selectedParts: g_selectedParts,
-                        lastUpdated: Date.now() // Gắn dấu thời gian để đưa lên đầu danh sách
+                        lastUpdated: Date.now(), // Gắn dấu thời gian để đưa lên đầu danh sách
+                        practiceEvaluated: window.practiceEvaluated || {}
                     };
+
                     localStorage.setItem(window.progressKey, JSON.stringify(progressData));
             }
             window.location.href = "index.html";
@@ -2832,8 +2916,26 @@
 
         function clearCanvas() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Xóa sạch ghi chú, highlight, dịch nghĩa của nhóm câu hỏi hiện tại
+            if (currentGroupId !== -1) {
+                delete savedNotes[currentGroupId];
+                let noteKey = window.progressKey ? window.progressKey.replace('win_progress_', 'win_notes_') : `win_notes_${fileName}`;
+                try { localStorage.setItem(noteKey, JSON.stringify(savedNotes)); } catch(e) {}
+            }
+            
+            document.querySelectorAll('.hl-note-text').forEach(el => el.remove());
+            document.querySelectorAll('.hl-yellow, .hl-strike, .hl-underline, .hl-word-blue, .hl-word-purple').forEach(el => {
+                let parent = el.parentNode;
+                while (el.firstChild) {
+                    parent.insertBefore(el.firstChild, el);
+                }
+                parent.removeChild(el);
+            });
+
             saveActionState(); // Lưu Undo khi xóa sạch nét vẽ
         }
+
 
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
