@@ -1171,11 +1171,16 @@
                     let practiceEvalBtn = '';
                     if (currentMode === 'practice' && !isSubmitted && !isTeacherAcc) {
                         if (isLocked && isPart34) {
-                            practiceEvalBtn = `<button id="btn-prac-eval-${qIdx}" class="btn-transcript" style="background:#6c757d; color:white; border-color:#5a6268; font-weight:bold; display:inline-block;" onclick="togglePracTranscriptPart34(${qIdx})">Ẩn Chữ</button>`;
+                            window.pracTextHidden = window.pracTextHidden || false;
+                            let btnTxt = window.pracTextHidden ? "Hiện Chữ" : "Ẩn Chữ";
+                            let btnBg = window.pracTextHidden ? "#17a2b8" : "#6c757d";
+                            let btnBd = window.pracTextHidden ? "#138496" : "#5a6268";
+                            practiceEvalBtn = `<button id="btn-prac-eval-${qIdx}" class="btn-transcript" style="background:${btnBg}; color:white; border-color:${btnBd}; font-weight:bold; display:inline-block;" onclick="togglePracTranscriptPart34(${qIdx})">${btnTxt}</button>`;
                         } else if (!isLocked) {
                             practiceEvalBtn = `<button id="btn-prac-eval-${qIdx}" class="btn-transcript" style="background:#28a745; color:white; border-color:#218838; font-weight:bold; display:${pracEvalDisplay};" onclick="evalPracticeAnswer(${qIdx}, ${gSq.index})">Đáp án</button>`;
                         }
                     }
+
 
 
 
@@ -1216,10 +1221,15 @@
                     
                     rightHtml += `</div>`;
                     
-                    // Nếu đã nộp bài hoặc đã khóa (Practice): Bỏ class hidden (auto hiện), bỏ class ép màu đen (trả lại màu/bold gốc)
-                    let expClass = (isSubmitted || isLocked) ? ((typeof isExpCollapsed !== 'undefined' && isExpCollapsed) ? "hidden" : "") : "hidden";
-                    let contentStyle = (isSubmitted || isLocked) ? "" : "pre-submit-text";
-                    let headerTitle = (isSubmitted || isLocked) ? "Nội dung & Dịch nghĩa / Đáp án:" : "Transcript:";
+                    window.pracTextHidden = window.pracTextHidden || false;
+                        let isP34 = currentPartName.includes("PART 3") || currentPartName.includes("PART 4");
+                        let hideState = (currentMode === 'practice' && isP34 && isLocked) ? window.pracTextHidden : (typeof isExpCollapsed !== 'undefined' && isExpCollapsed);
+                        
+                        // Nếu đã nộp bài hoặc đã khóa (Practice): Bỏ class hidden (auto hiện), bỏ class ép màu đen (trả lại màu/bold gốc)
+                        let expClass = (isSubmitted || isLocked) ? (hideState ? "hidden" : "") : "hidden";
+                        let contentStyle = (isSubmitted || isLocked) ? "" : "pre-submit-text";
+                        let headerTitle = (isSubmitted || isLocked) ? "Nội dung & Dịch nghĩa / Đáp án:" : "Transcript:";
+
 
                     
                     let finalExplanation = gSq.explanation;
@@ -1319,9 +1329,10 @@
                             let splitTransIdx = transMatch.index;
                             let engPart = extractedTranscript.substring(0, splitTransIdx).trim();
                             let viPart = extractedTranscript.substring(splitTransIdx).trim();
-                            let engClass = (isSubmitted || isLocked) ? "always-show" : "always-show hidden"; // Ép ẩn nếu chưa nộp bài
+                            let engClass = (isSubmitted || isLocked) ? (hideState ? "always-show hidden" : "always-show") : "always-show hidden"; // Ép ẩn nếu chưa nộp bài
 
                             rightHtml += `<div id="temp-transcript" style="display:none;">
+
 
                                             <div class="explanation ${engClass}" id="left-transcript-eng" style="margin-bottom:10px;">
                                                 ${zoomBtns}
@@ -1607,9 +1618,10 @@
                     }
                 });
 
+                window.pracTextHidden = window.pracTextHidden || false;
                 let expBox = document.getElementById(`exp-${flatQuestions[idx].sq.index}`);
                 if (expBox) {
-                    expBox.classList.remove('hidden');
+                    if (!isPart34 || !window.pracTextHidden) expBox.classList.remove('hidden');
                     expBox.querySelectorAll('.pre-submit-text').forEach(e => e.classList.remove('pre-submit-text'));
                     let viTrans = expBox.querySelector('.vi-translation');
                     if (viTrans) viTrans.style.display = 'block';
@@ -1619,9 +1631,9 @@
                 let btn = document.getElementById(`btn-prac-eval-${idx}`);
                 if (btn) {
                     if (isPart34) {
-                        btn.innerText = "Ẩn Chữ";
-                        btn.style.background = "#6c757d"; 
-                        btn.style.borderColor = "#5a6268";
+                        btn.innerText = window.pracTextHidden ? "Hiện Chữ" : "Ẩn Chữ";
+                        btn.style.background = window.pracTextHidden ? "#17a2b8" : "#6c757d"; 
+                        btn.style.borderColor = window.pracTextHidden ? "#138496" : "#5a6268";
                         btn.setAttribute('onclick', `togglePracTranscriptPart34(${idx})`);
                     } else {
                         btn.style.display = 'none';
@@ -1631,22 +1643,22 @@
 
             // Bật toàn bộ Transcript bên trái khi chấm
             let leftT = document.getElementById('left-transcript');
-            if (leftT) { leftT.classList.remove('hidden'); leftT.style.display = 'block'; leftT.querySelectorAll('.pre-submit-text').forEach(e => e.classList.remove('pre-submit-text')); }
+            if (leftT) { 
+                if (!window.pracTextHidden) { leftT.classList.remove('hidden'); leftT.style.display = 'block'; }
+                leftT.querySelectorAll('.pre-submit-text').forEach(e => e.classList.remove('pre-submit-text')); 
+            }
             
             let leftTContainer = document.getElementById('left-transcript-container');
             if (leftTContainer) {
-                leftTContainer.classList.remove('hidden');
-                leftTContainer.style.display = 'block';
+                if (!window.pracTextHidden) { leftTContainer.classList.remove('hidden'); leftTContainer.style.display = 'block'; }
                 let engPart = document.getElementById('left-transcript-eng');
                 if (engPart) { 
-                    engPart.classList.remove('hidden'); 
-                    engPart.querySelectorAll('.hidden').forEach(e => e.classList.remove('hidden')); 
+                    if (!window.pracTextHidden) { engPart.classList.remove('hidden'); }
                     engPart.querySelectorAll('.pre-submit-text').forEach(e => e.classList.remove('pre-submit-text')); 
                 }
                 let viPart = document.getElementById('left-transcript-vi');
                 if (viPart) {
-                    viPart.classList.remove('hidden');
-                    viPart.querySelectorAll('.hidden').forEach(e => e.classList.remove('hidden')); 
+                    if (!window.pracTextHidden) { viPart.classList.remove('hidden'); }
                     viPart.querySelectorAll('.pre-submit-text').forEach(e => e.classList.remove('pre-submit-text')); 
                 }
             }
@@ -1655,35 +1667,51 @@
         }
 
         function togglePracTranscriptPart34(qIdx) {
-            let btn = document.getElementById(`btn-prac-eval-${qIdx}`);
-            if (!btn) return;
-            let isHidden = (btn.innerText === "Hiện Chữ");
+            window.pracTextHidden = !window.pracTextHidden; // CẬP NHẬT TRẠNG THÁI GLOBAL
 
             let leftT = document.getElementById('left-transcript');
-            if(leftT) leftT.classList.toggle('hidden');
+            if (leftT) {
+                if (window.pracTextHidden) { leftT.classList.add('hidden'); leftT.style.display = 'none'; }
+                else { leftT.classList.remove('hidden'); leftT.style.display = 'block'; }
+            }
+
+            let leftTContainer = document.getElementById('left-transcript-container');
+            if (leftTContainer) {
+                if (window.pracTextHidden) { leftTContainer.classList.add('hidden'); leftTContainer.style.display = 'none'; }
+                else { leftTContainer.classList.remove('hidden'); leftTContainer.style.display = 'block'; }
+            }
 
             let leftTEng = document.getElementById('left-transcript-eng');
-            if(leftTEng) leftTEng.classList.toggle('hidden');
+            if (leftTEng) {
+                if (window.pracTextHidden) leftTEng.classList.add('hidden');
+                else leftTEng.classList.remove('hidden');
+            }
 
             let leftTVi = document.getElementById('left-transcript-vi');
-            if(leftTVi) leftTVi.classList.toggle('hidden');
+            if (leftTVi) {
+                if (window.pracTextHidden) leftTVi.classList.add('hidden');
+                else leftTVi.classList.remove('hidden');
+            }
 
             let groupId = flatQuestions[qIdx].groupId;
             for(let i=0; i<flatQuestions.length; i++) {
                 if(flatQuestions[i].groupId === groupId) {
                     let expBox = document.getElementById(`exp-${flatQuestions[i].sq.index}`);
-                    if (expBox) expBox.classList.toggle('hidden');
+                    if (expBox) {
+                        if (window.pracTextHidden) expBox.classList.add('hidden');
+                        else expBox.classList.remove('hidden');
+                    }
                     
                     let groupBtn = document.getElementById(`btn-prac-eval-${i}`);
                     if (groupBtn) {
-                        if (isHidden) {
-                            groupBtn.innerText = "Ẩn Chữ";
-                            groupBtn.style.background = "#6c757d"; 
-                            groupBtn.style.borderColor = "#5a6268";
-                        } else {
+                        if (window.pracTextHidden) {
                             groupBtn.innerText = "Hiện Chữ";
                             groupBtn.style.background = "#17a2b8"; 
                             groupBtn.style.borderColor = "#138496";
+                        } else {
+                            groupBtn.innerText = "Ẩn Chữ";
+                            groupBtn.style.background = "#6c757d"; 
+                            groupBtn.style.borderColor = "#5a6268";
                         }
                     }
                 }
