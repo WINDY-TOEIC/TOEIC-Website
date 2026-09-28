@@ -1154,9 +1154,29 @@
                     
                     let isLocked = (window.practiceEvaluated && window.practiceEvaluated[qIdx]);
                     let isTeacherAcc = (classCode === "1" && studentName.toLowerCase() === "admin");
-                    let pracEvalDisplay = (currentMode === 'practice' && !isSubmitted && userAnswers[qIdx] && !isLocked) ? "inline-block" : "none";
-                    let practiceEvalBtn = (currentMode === 'practice' && !isSubmitted && !isTeacherAcc) 
-                        ? `<button id="btn-prac-eval-${qIdx}" class="btn-transcript" style="background:#28a745; color:white; border-color:#218838; font-weight:bold; display:${pracEvalDisplay};" onclick="evalPracticeAnswer(${qIdx}, ${gSq.index})">Đáp án</button>` : '';
+                    
+                    let isPart34 = currentPartName.includes("PART 3") || currentPartName.includes("PART 4");
+                    let pracEvalDisplay = "none";
+                    
+                    if (currentMode === 'practice' && !isSubmitted && !isLocked) {
+                        if (isPart34) {
+                            // Part 3 & 4: Chỉ hiện khi TẤT CẢ các câu trong cụm này đều đã được chọn đáp án
+                            let groupAllAnswered = groupItems.every(gi => userAnswers[gi.idx]);
+                            if (groupAllAnswered) pracEvalDisplay = "inline-block";
+                        } else {
+                            if (userAnswers[qIdx]) pracEvalDisplay = "inline-block";
+                        }
+                    }
+
+                    let practiceEvalBtn = '';
+                    if (currentMode === 'practice' && !isSubmitted && !isTeacherAcc) {
+                        if (isLocked && isPart34) {
+                            practiceEvalBtn = `<button id="btn-prac-eval-${qIdx}" class="btn-transcript" style="background:#6c757d; color:white; border-color:#5a6268; font-weight:bold; display:inline-block;" onclick="togglePracTranscriptPart34(${qIdx})">Ẩn Chữ</button>`;
+                        } else if (!isLocked) {
+                            practiceEvalBtn = `<button id="btn-prac-eval-${qIdx}" class="btn-transcript" style="background:#28a745; color:white; border-color:#218838; font-weight:bold; display:${pracEvalDisplay};" onclick="evalPracticeAnswer(${qIdx}, ${gSq.index})">Đáp án</button>`;
+                        }
+                    }
+
 
 
                     rightHtml += `
@@ -1518,50 +1538,98 @@
             userAnswers[idx] = choice;
             
             if (currentMode === 'practice') {
-                let btn = document.getElementById(`btn-prac-eval-${idx}`);
-                if (btn) btn.style.display = "inline-block";
+                let sq = flatQuestions[idx].sq;
+                let partName = (sq.term_name || "").toUpperCase();
+                let isPart34 = partName.includes("PART 3") || partName.includes("PART 4");
+
+                if (isPart34) {
+                    let groupId = flatQuestions[idx].groupId;
+                    let groupQIndices = [];
+                    for (let i = 0; i < flatQuestions.length; i++) {
+                        if (flatQuestions[i].groupId === groupId) groupQIndices.push(i);
+                    }
+                    let allAnswered = groupQIndices.every(qI => userAnswers[qI]);
+                    if (allAnswered) {
+                        groupQIndices.forEach(qI => {
+                            let btn = document.getElementById(`btn-prac-eval-${qI}`);
+                            if (btn && (!window.practiceEvaluated || !window.practiceEvaluated[qI])) {
+                                btn.style.display = "inline-block";
+                            }
+                        });
+                    }
+                } else {
+                    let btn = document.getElementById(`btn-prac-eval-${idx}`);
+                    if (btn) btn.style.display = "inline-block";
+                }
             }
             
             // Ép lưu ngay lập tức vào ổ cứng khoảnh khắc ngón tay vừa chạm vào đáp án
             manualSave(false);
         }
 
-        function evalPracticeAnswer(qIdx, sqIndex) {
+
+        function evalPracticeAnswer(qIdx) {
             if (currentMode !== 'practice') return;
             if (!userAnswers[qIdx]) return; 
 
             window.practiceEvaluated = window.practiceEvaluated || {};
-            window.practiceEvaluated[qIdx] = true;
 
-            document.querySelectorAll(`input[name="q-${qIdx}"]`).forEach(input => {
-                input.disabled = true;
-                input.style.pointerEvents = "none";
-            });
+            let partName = (flatQuestions[qIdx].sq.term_name || "").toUpperCase();
+            let isPart34 = partName.includes("PART 3") || partName.includes("PART 4");
 
-            let correctObj = flatQuestions[qIdx].sq.choices.find(c => c.choice_right_answer);
-            let correctChoice = correctObj ? correctObj.choice : null;
+            let indicesToEval = [];
+            if (isPart34) {
+                let groupId = flatQuestions[qIdx].groupId;
+                for (let i = 0; i < flatQuestions.length; i++) {
+                    if (flatQuestions[i].groupId === groupId) indicesToEval.push(i);
+                }
+            } else {
+                indicesToEval.push(qIdx);
+            }
 
-            document.querySelectorAll(`input[name="q-${qIdx}"]`).forEach(input => {
-                let label = input.parentElement;
-                if (input.value === correctChoice) {
-                    label.classList.add('correct');
-                } else if (input.value === userAnswers[qIdx]) {
-                    label.classList.add('wrong');
+            indicesToEval.forEach(idx => {
+                window.practiceEvaluated[idx] = true;
+
+                document.querySelectorAll(`input[name="q-${idx}"]`).forEach(input => {
+                    input.disabled = true;
+                    input.style.pointerEvents = "none";
+                });
+
+                let correctObj = flatQuestions[idx].sq.choices.find(c => c.choice_right_answer);
+                let correctChoice = correctObj ? correctObj.choice : null;
+
+                document.querySelectorAll(`input[name="q-${idx}"]`).forEach(input => {
+                    let label = input.parentElement;
+                    if (input.value === correctChoice) {
+                        label.classList.add('correct');
+                    } else if (input.value === userAnswers[idx]) {
+                        label.classList.add('wrong');
+                    }
+                });
+
+                let expBox = document.getElementById(`exp-${flatQuestions[idx].sq.index}`);
+                if (expBox) {
+                    expBox.classList.remove('hidden');
+                    expBox.querySelectorAll('.pre-submit-text').forEach(e => e.classList.remove('pre-submit-text'));
+                    let viTrans = expBox.querySelector('.vi-translation');
+                    if (viTrans) viTrans.style.display = 'block';
+                    expBox.querySelectorAll('b, strong').forEach(el => { el.style.fontWeight = 'bold'; });
+                }
+
+                let btn = document.getElementById(`btn-prac-eval-${idx}`);
+                if (btn) {
+                    if (isPart34) {
+                        btn.innerText = "Ẩn Chữ";
+                        btn.style.background = "#6c757d"; 
+                        btn.style.borderColor = "#5a6268";
+                        btn.setAttribute('onclick', `togglePracTranscriptPart34(${idx})`);
+                    } else {
+                        btn.style.display = 'none';
+                    }
                 }
             });
 
-            let expBox = document.getElementById(`exp-${sqIndex}`);
-            if (expBox) {
-                expBox.classList.remove('hidden');
-                expBox.querySelectorAll('.pre-submit-text').forEach(e => e.classList.remove('pre-submit-text'));
-                let viTrans = expBox.querySelector('.vi-translation');
-                if (viTrans) viTrans.style.display = 'block';
-                expBox.querySelectorAll('b, strong').forEach(el => { el.style.fontWeight = 'bold'; });
-            }
-
-            let btn = document.getElementById(`btn-prac-eval-${qIdx}`);
-            if (btn) btn.style.display = 'none';
-
+            // Bật toàn bộ Transcript bên trái khi chấm
             let leftT = document.getElementById('left-transcript');
             if (leftT) { leftT.classList.remove('hidden'); leftT.style.display = 'block'; leftT.querySelectorAll('.pre-submit-text').forEach(e => e.classList.remove('pre-submit-text')); }
             
@@ -1585,6 +1653,43 @@
 
             manualSave(false);
         }
+
+        function togglePracTranscriptPart34(qIdx) {
+            let btn = document.getElementById(`btn-prac-eval-${qIdx}`);
+            if (!btn) return;
+            let isHidden = (btn.innerText === "Hiện Chữ");
+
+            let leftT = document.getElementById('left-transcript');
+            if(leftT) leftT.classList.toggle('hidden');
+
+            let leftTEng = document.getElementById('left-transcript-eng');
+            if(leftTEng) leftTEng.classList.toggle('hidden');
+
+            let leftTVi = document.getElementById('left-transcript-vi');
+            if(leftTVi) leftTVi.classList.toggle('hidden');
+
+            let groupId = flatQuestions[qIdx].groupId;
+            for(let i=0; i<flatQuestions.length; i++) {
+                if(flatQuestions[i].groupId === groupId) {
+                    let expBox = document.getElementById(`exp-${flatQuestions[i].sq.index}`);
+                    if (expBox) expBox.classList.toggle('hidden');
+                    
+                    let groupBtn = document.getElementById(`btn-prac-eval-${i}`);
+                    if (groupBtn) {
+                        if (isHidden) {
+                            groupBtn.innerText = "Ẩn Chữ";
+                            groupBtn.style.background = "#6c757d"; 
+                            groupBtn.style.borderColor = "#5a6268";
+                        } else {
+                            groupBtn.innerText = "Hiện Chữ";
+                            groupBtn.style.background = "#17a2b8"; 
+                            groupBtn.style.borderColor = "#138496";
+                        }
+                    }
+                }
+            }
+        }
+
 
 
         function navigateQuestion(step) {
