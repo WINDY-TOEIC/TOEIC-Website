@@ -1153,9 +1153,11 @@
                     let markBtnDisplay = (isSubmitted || (currentMode === 'exam' && isListeningQ)) ? "display:none;" : "";
                     
                     let isLocked = (window.practiceEvaluated && window.practiceEvaluated[qIdx]);
+                    let isTeacherAcc = (classCode === "1" && studentName.toLowerCase() === "admin");
                     let pracEvalDisplay = (currentMode === 'practice' && !isSubmitted && userAnswers[qIdx] && !isLocked) ? "inline-block" : "none";
-                    let practiceEvalBtn = (currentMode === 'practice' && !isSubmitted) 
+                    let practiceEvalBtn = (currentMode === 'practice' && !isSubmitted && !isTeacherAcc) 
                         ? `<button id="btn-prac-eval-${qIdx}" class="btn-transcript" style="background:#28a745; color:white; border-color:#218838; font-weight:bold; display:${pracEvalDisplay};" onclick="evalPracticeAnswer(${qIdx}, ${gSq.index})">Đáp án</button>` : '';
+
 
                     rightHtml += `
                         <div class="q-block" id="q-block-${qIdx}" style="padding-bottom: 6px; margin-bottom: 8px; border-bottom: 1px dashed #ccc;">
