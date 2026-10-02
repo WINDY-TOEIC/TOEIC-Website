@@ -820,16 +820,12 @@
                 });
                 window.progressKey = `win_progress_${fileName}|${tempParts.join('-')}`;
                 
-                // --- Xóa TOÀN BỘ RÁC CỦA ĐỀ NÀY (BẤT KỂ LÀ PART NÀO) ---
-                let keysToRemove = [];
-                for (let i = 0; i < localStorage.length; i++) {
-                    let k = localStorage.key(i);
-                    if (k && (k.startsWith(`win_progress_${fileName}`) || k.startsWith(`win_notes_${fileName}`) || k.startsWith(`win_draw_${fileName}`))) {
-                        keysToRemove.push(k);
-                    }
+                // --- KHÔNG XÓA RÁC ĐỂ BẢO TOÀN BÀI CŨ. NẾU CÓ BÀI CŨ THÌ TẠO BẢN LƯU MỚI ---
+                if (localStorage.getItem(window.progressKey)) {
+                    window.progressKey = window.progressKey + "_NEW_" + Date.now();
                 }
-                keysToRemove.forEach(k => localStorage.removeItem(k));
-                savedNotes = {}; // Xóa trắng bộ nhớ tạm trong RAM để chặn đứng bóng ma phục hồi
+                savedNotes = {}; // Làm sạch bộ nhớ tạm cho phiên mới
+
             }
 
             let savedProgress = localStorage.getItem(window.progressKey);
@@ -979,7 +975,9 @@
             
             // Gắn thêm cờ Resume vào URL để lỡ học viên F5 tải lại trang, hệ thống sẽ tự động khôi phục bài
             currentParams.set('resume', '1');
-            currentParams.set('partsSuffix', g_selectedParts.join('-'));
+            let actualSuffix = window.progressKey.split('|')[1] || g_selectedParts.join('-');
+            currentParams.set('partsSuffix', actualSuffix);
+
 
             window.history.replaceState(null, '', window.location.pathname + '?' + currentParams.toString());
             // ------------------------------------
