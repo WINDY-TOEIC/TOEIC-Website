@@ -547,8 +547,42 @@
         // Chỉnh thành "true" nếu muốn nó hiện lại, hiện tại đang "false" (tắt)
         const ENABLE_TRANSCRIPT = false; 
 
-        // HÀM ZOOM ẢNH TOÀN CỤC (Để luôn hoạt động ổn định)
-        window.handleZoom = function(event, imgElement) {
+                window.handleZoom = function(event, imgElement) {
+            
+            // --- THÊM DẤU CHỈ ĐIỂM (ĐỎ NHẤP NHÁY) KHI BẤM VÀO ẢNH (TRỪ THI THẬT) ---
+            if (typeof currentMode !== 'undefined' && currentMode !== 'exam') {
+                let mediaContent = document.getElementById('media-content');
+                if (mediaContent) {
+                    if (window.getComputedStyle(mediaContent).position === 'static') {
+                        mediaContent.style.position = 'relative';
+                    }
+                    
+                    let marker = document.getElementById('class-pointer-marker');
+                    if (!marker) {
+                        marker = document.createElement('div');
+                        marker.id = 'class-pointer-marker';
+                        // CSS cho dấu đỏ nhấp nháy
+                        marker.style.cssText = 'position: absolute; width: 22px; height: 22px; background: rgba(220, 53, 69, 0.9); border: 2.5px solid white; border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none; z-index: 99999; box-shadow: 0 0 10px rgba(0,0,0,0.5);';
+                        mediaContent.appendChild(marker);
+                        
+                        let style = document.createElement('style');
+                        style.innerHTML = `@keyframes pointerPulse { 0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(220, 53, 69, 0); } 100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); } } .pointer-pulse-anim { animation: pointerPulse 1.5s infinite; }`;
+                        document.head.appendChild(style);
+                        marker.classList.add('pointer-pulse-anim');
+                    }
+                    
+                    // Lấy chính xác tọa độ con trỏ chuột dán vào thẻ chứa hình
+                    let rect = mediaContent.getBoundingClientRect();
+                    let x = event.clientX - rect.left;
+                    let y = event.clientY - rect.top;
+
+                    marker.style.left = x + 'px';
+                    marker.style.top = y + 'px';
+                    marker.style.display = 'block';
+                }
+            }
+            // --- KẾT THÚC LOGIC DẤU CHỈ ĐIỂM ---
+
             if (imgElement.classList.contains('zoomed')) {
                 // Click lần 2: Trả về ban đầu
                 imgElement.classList.remove('zoomed');
@@ -562,6 +596,7 @@
                 imgElement.classList.add('zoomed');
             }
         };
+
 
         // --- XỬ LÝ ĐỔI MÀU NỀN VÀ DARK MODE ---
         window.addEventListener('DOMContentLoaded', function() {
