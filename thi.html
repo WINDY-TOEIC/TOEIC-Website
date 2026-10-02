@@ -902,10 +902,16 @@
                 if(group.sub_questions && group.sub_questions.length > 0) {
                     let partName = group.sub_questions[0].term_name.trim().toUpperCase();
                     if(!isCustom || selectedParts.includes(partName)) {
+                        // Tự động ép link Github thành link jsDelivr
+                        let finalAudioUrl = group.audio_url;
+                        if (finalAudioUrl && finalAudioUrl.includes("raw.githubusercontent.com")) {
+                            finalAudioUrl = finalAudioUrl.replace(/raw\.githubusercontent\.com\/([^\/]+)\/([^\/]+)\/([^\/]+)/, "cdn.jsdelivr.net/gh/$1/$2@$3");
+                        }
+                        
                         group.sub_questions.forEach(sq => {
                             flatQuestions.push({
                                 groupId: fullData.indexOf(group),
-                                audio_url: group.audio_url,
+                                audio_url: finalAudioUrl,
                                 content: group.content,
                                 images: group.images, 
                                 image: group.image || group.image_url, 
@@ -915,6 +921,7 @@
                     }
                 }
             });
+
 
             totalQuestions = flatQuestions.length;
             if(totalQuestions === 0) return;
@@ -1508,7 +1515,29 @@
             
             // Xóa lịch sử Undo/Redo khi qua nhóm câu hỏi mới
             initHistoryState();
+
+            // --- BẮT ĐẦU: TẢI NGẦM AUDIO KẾ TIẾP ---
+            let currentAudio = flatQuestions[index].audio_url;
+            if (currentAudio && currentAudio !== "false" && currentAudio !== "") {
+                let nextAudio = null;
+                // Quét tìm audio tiếp theo KHÁC VỚI audio hiện tại
+                for (let i = index + 1; i < totalQuestions; i++) {
+                    if (flatQuestions[i].audio_url && flatQuestions[i].audio_url !== "false" && flatQuestions[i].audio_url !== "" && flatQuestions[i].audio_url !== currentAudio) {
+                        nextAudio = flatQuestions[i].audio_url;
+                        break;
+                    }
+                }
+                // Nếu tìm thấy và chưa từng tải ngầm trước đó thì ép trình duyệt tải vào Cache
+                if (nextAudio && window.lastPreloadedAudio !== nextAudio) {
+                    window.lastPreloadedAudio = nextAudio;
+                    let preloadAudio = new Audio();
+                    preloadAudio.preload = "auto";
+                    preloadAudio.src = nextAudio;
+                }
+            }
+            // --- KẾT THÚC: TẢI NGẦM AUDIO KẾ TIẾP ---
         }
+
 
         // --- CÁC HÀM XỬ LÝ CHUYÊN SÂU ---
         function toggleMark(idx) {
