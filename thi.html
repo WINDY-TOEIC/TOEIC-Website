@@ -164,8 +164,9 @@
         .grid-btn.marked { background: #ffc107 !important; color: #111 !important; box-shadow: 0 0 0 2px #fff, 0 0 0 4px #ffc107 !important; }
         
         /* --- CÔNG CỤ TƯƠNG TÁC (HIGHLIGHT & DRAW) --- */
-        #drawing-canvas { position: fixed; top: 75px; left: 0; width: 100%; height: calc(100% - 75px); pointer-events: none; z-index: 900; }
+        .draw-layer { position: absolute; top: 0; left: 0; pointer-events: none; z-index: 900; }
         .canvas-active { pointer-events: auto !important; cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" style="font-size: 20px;"><text y="20">🖍️</text></svg>') 0 24, crosshair; }
+
         
         .selection-toolbar { position: absolute; background: #555; border-radius: 6px; padding: 6px 10px; display: flex; gap: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 9999; opacity: 0; visibility: hidden; transition: opacity 0.2s; }
         .selection-toolbar.active { opacity: 1; visibility: visible; }
@@ -278,7 +279,6 @@
         body.focus-active .sub-header { display: none !important; }
         body.focus-active .test-body { padding-top: 15px !important; max-height: 100vh !important; }
         body.focus-active .left-panel, body.focus-active .right-panel { max-height: calc(100vh - 30px) !important; }
-        body.focus-active #drawing-canvas { top: 0 !important; height: 100% !important; }
         body.focus-active #nav-modal { top: 0 !important; height: 100vh !important; }
         
         .floating-focus-btn { position: fixed; bottom: 20px; right: 20px; background: #043b5c; color: white; border: none; border-radius: 50%; width: 50px; height: 50px; font-size: 20px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 10000; display: flex; align-items: center; justify-content: center; transition: 0.3s; }
@@ -434,16 +434,19 @@
 
         <div class="test-body">
             <!-- Cột trái (Hình & Âm thanh) -->
-            <div class="left-panel" id="left-panel">
+            <div class="left-panel" id="left-panel" style="position: relative;">
+                <canvas id="canvas-left" class="draw-layer"></canvas>
                 <div id="media-content"></div>
             </div>
             
             <!-- Cột phải (Câu hỏi) -->
-            <div class="right-panel" id="right-panel">
+            <div class="right-panel" id="right-panel" style="position: relative;">
+                <canvas id="canvas-right" class="draw-layer"></canvas>
                 <div id="final-score-box" class="hidden"></div>
                 <div id="question-content"></div>
             </div>
         </div>
+
 
         <div id="nav-modal">
             <div class="nav-modal-header">
@@ -500,9 +503,9 @@
             </div>
         </div>
 
-        <!-- KHUNG ĐỂ VẼ BÚT ĐỎ VÀ NHẬP CHỮ -->
-        <canvas id="drawing-canvas"></canvas>
+        <!-- KHUNG ĐỂ NHẬP CHỮ TRÊN CANVAS -->
         <input type="text" id="canvas-text-input" placeholder="Gõ chữ rồi ấn Enter..." style="position: fixed; display: none; z-index: 1000; background: rgba(255,255,255,0.9); border: 2px dashed #333; outline: none; font-size: 20px; font-weight: bold; font-family: Arial, sans-serif; padding: 2px 5px; border-radius: 4px;">
+
 
         <!-- Nút Focus Mode -->
         <button class="floating-focus-btn" onclick="toggleFocusMode()">👀<div class="tooltip">Chế độ tập trung</div></button>
@@ -3019,27 +3022,53 @@
             toolbar.classList.remove('active');
         };
 
-        // CANVAS (VẼ VÀ VIẾT CHỮ)
-        const canvas = document.getElementById('drawing-canvas');
-        const ctx = canvas.getContext('2d');
+        // CANVAS (VẼ VÀ VIẾT CHỮ) - NÂNG CẤP CUỘN THEO VĂN BẢN
+        const canvasLeft = document.getElementById('canvas-left');
+        const ctxLeft = canvasLeft.getContext('2d');
+        const canvasRight = document.getElementById('canvas-right');
+        const ctxRight = canvasRight.getContext('2d');
+        
         let isDrawingMode = false;
         let isDrawing = false;
         let isTextMode = false;
         let textPos = { x: 0, y: 0 };
+        let currentCanvas = null;
+        let currentCtx = null;
+        let snapshotLeft, snapshotRight;
         
         let currentDrawType = 'pen';
         let isRainbowMode = false;
         let hue = 0;
 
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight - 75; 
+        function resizeCanvases() {
+            const leftPanel = document.getElementById('left-panel');
+            const rightPanel = document.getElementById('right-panel');
+            
+            // Lưu lại nét vẽ cũ trước khi resize (vì đổi width/height sẽ làm mất nét)
+            let tempLeft = null, tempRight = null;
+            if(canvasLeft.width > 0 && canvasLeft.height > 0) tempLeft = ctxLeft.getImageData(0, 0, canvasLeft.width, canvasLeft.height);
+            if(canvasRight.width > 0 && canvasRight.height > 0) tempRight = ctxRight.getImageData(0, 0, canvasRight.width, canvasRight.height);
+
+            // Gán chiều cao/rộng bằng đúng chiều dài nội dung cuộn bên trong
+            canvasLeft.width = leftPanel.scrollWidth;
+            canvasLeft.height = leftPanel.scrollHeight;
+            canvasRight.width = rightPanel.scrollWidth;
+            canvasRight.height = rightPanel.scrollHeight;
+
+            if(tempLeft) ctxLeft.putImageData(tempLeft, 0, 0);
+            if(tempRight) ctxRight.putImageData(tempRight, 0, 0);
+            
+            ctxLeft.lineCap = 'round'; ctxLeft.lineJoin = 'round';
+            ctxRight.lineCap = 'round'; ctxRight.lineJoin = 'round';
         }
-        window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
+        
+        // Theo dõi sự thay đổi chiều cao của 2 cột để tự động kéo dãn Canvas
+        const resizeObserver = new ResizeObserver(() => { resizeCanvases(); });
+        resizeObserver.observe(document.getElementById('left-panel'));
+        resizeObserver.observe(document.getElementById('right-panel'));
+        window.addEventListener('resize', resizeCanvases);
 
         function toggleDrawing(type = 'pen') {
-            // Nếu bấm lại đúng cây bút đang vẽ thì TẮT
             if (isDrawingMode && currentDrawType === type) {
                 isDrawingMode = false;
             } else {
@@ -3052,17 +3081,19 @@
             let drawOptions = document.getElementById('draw-tools-options');
             
             if (isDrawingMode) {
-                if (isTextMode) toggleTextMode(); // Tắt Viết chữ nếu đang bật
-                canvas.classList.add('canvas-active');
+                if (isTextMode) toggleTextMode(); 
+                document.querySelectorAll('.draw-layer').forEach(c => c.classList.add('canvas-active'));
                 
                 btnDraw.style.background = (type === 'pen') ? "#27ae60" : "rgba(255,255,255,0.2)";
                 btnMarker.style.background = (type === 'marker') ? "#27ae60" : "rgba(255,255,255,0.2)";
                 drawOptions.style.display = "flex";
 
                 let cursorIcon = type === 'pen' ? '🖍️' : '🖌️';
-                canvas.style.cursor = `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" style="font-size: 20px;"><text y="20">${cursorIcon}</text></svg>') 0 24, crosshair`;
+                let cursorStyle = `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" style="font-size: 20px;"><text y="20">${cursorIcon}</text></svg>') 0 24, crosshair`;
+                canvasLeft.style.cursor = cursorStyle;
+                canvasRight.style.cursor = cursorStyle;
             } else {
-                canvas.classList.remove('canvas-active');
+                document.querySelectorAll('.draw-layer').forEach(c => c.classList.remove('canvas-active'));
                 btnDraw.style.background = "rgba(255,255,255,0.2)"; 
                 btnMarker.style.background = "rgba(255,255,255,0.2)";
                 drawOptions.style.display = "none";
@@ -3087,13 +3118,15 @@
             let colorPicker = document.getElementById('text-color-picker');
 
             if (isTextMode) {
-                if (isDrawingMode) toggleDrawing(currentDrawType); // Tắt Vẽ nếu đang bật
-                canvas.classList.add('canvas-active');
+                if (isDrawingMode) toggleDrawing(currentDrawType);
+                document.querySelectorAll('.draw-layer').forEach(c => {
+                    c.classList.add('canvas-active');
+                    c.style.cursor = "text";
+                });
                 btnText.style.background = "#27ae60";
                 colorPicker.style.display = "inline-block";
-                canvas.style.cursor = "text"; // Biến con trỏ thành hình dấu |
             } else {
-                canvas.classList.remove('canvas-active');
+                document.querySelectorAll('.draw-layer').forEach(c => c.classList.remove('canvas-active'));
                 btnText.style.background = "rgba(255,255,255,0.2)";
                 colorPicker.style.display = "none";
                 document.getElementById('canvas-text-input').style.display = 'none';
@@ -3102,30 +3135,25 @@
 
         function stampTextToCanvas() {
             let txtInput = document.getElementById('canvas-text-input');
-            if (txtInput.style.display === 'block' && txtInput.value.trim() !== '') {
-                ctx.globalAlpha = 1.0; // Đảm bảo chữ luôn nét, không bị mờ
-                ctx.font = "bold 25px Arial";
-                ctx.fillStyle = document.getElementById('text-color-picker').value;
-                
-                // Cộng thêm 6px để đẩy chữ sang phải (bù cho viền hộp)
-                // Cộng thêm 32px để đẩy chữ xuống dưới cho khớp nét
-                ctx.fillText(txtInput.value, textPos.x + 6, textPos.y + 32);
-                
+            if (txtInput.style.display === 'block' && txtInput.value.trim() !== '' && currentCtx) {
+                currentCtx.globalAlpha = 1.0; 
+                currentCtx.font = "bold 25px Arial";
+                currentCtx.fillStyle = document.getElementById('text-color-picker').value;
+                currentCtx.fillText(txtInput.value, textPos.x + 6, textPos.y + 32);
                 saveActionState(); 
             }
             txtInput.style.display = 'none';
             txtInput.value = '';
         }
 
-        // Lắng nghe sự kiện Enter để đóng mộc chữ xuống canvas
         document.getElementById('canvas-text-input').addEventListener('keydown', function(e) {
             if (e.key === 'Enter') stampTextToCanvas();
         });
 
         function clearCanvas() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctxLeft.clearRect(0, 0, canvasLeft.width, canvasLeft.height);
+            ctxRight.clearRect(0, 0, canvasRight.width, canvasRight.height);
             
-            // Xóa sạch ghi chú, highlight, dịch nghĩa của nhóm câu hỏi hiện tại
             if (currentGroupId !== -1) {
                 delete savedNotes[currentGroupId];
                 let noteKey = window.progressKey ? window.progressKey.replace('win_progress_', 'win_notes_') : `win_notes_${fileName}`;
@@ -3140,126 +3168,97 @@
                 }
                 parent.removeChild(el);
             });
-
-            saveActionState(); // Lưu Undo khi xóa sạch nét vẽ
+            saveActionState(); 
         }
 
-
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
-
-        let snapshot; // Thêm biến snapshot để lưu trạng thái
-
-        function getMousePos(e) {
-            const rect = canvas.getBoundingClientRect();
-            
-            // Sử dụng tỷ lệ Scale gốc để tính toán chuẩn xác khi màn hình bị Zoom 1.25
-            let scaleX = canvas.width / rect.width;
-            let scaleY = canvas.height / rect.height;
-            
-            // Đã trả offset về 0 để không bị văng xuống dưới nữa. 
-            let offsetX = 0; 
-            let offsetY = 0; 
-            
+        function getMousePos(e, targetCanvas) {
+            const rect = targetCanvas.getBoundingClientRect();
+            let currentZoom = parseFloat(window.getComputedStyle(document.body).zoom) || 1;
+            // Tự động tính toán luôn phần đã cuộn bên trong panel
             return { 
-                x: (e.clientX - rect.left) * scaleX + offsetX, 
-                y: (e.clientY - rect.top) * scaleY + offsetY 
+                x: (e.clientX - rect.left) / currentZoom, 
+                y: (e.clientY - rect.top) / currentZoom 
             };
         }
 
-        canvas.addEventListener('mousedown', (e) => {
-            if (isTextMode) {
-                stampTextToCanvas(); // Chốt chữ cũ nếu đang gõ dở mà bấm chỗ khác
-                textPos = getMousePos(e);
-                let txtInput = document.getElementById('canvas-text-input');
-                
-                let zoomLevel = 1.25;
-                txtInput.style.left = (e.clientX / zoomLevel) + 'px';
-                txtInput.style.top = ((e.clientY - 12) / zoomLevel) + 'px';
-                
-                txtInput.style.color = document.getElementById('text-color-picker').value;
-                txtInput.style.display = 'block';
-                setTimeout(() => txtInput.focus(), 10);
-                return;
-            }
+        [canvasLeft, canvasRight].forEach(c => {
+            c.addEventListener('mousedown', (e) => {
+                currentCanvas = c;
+                currentCtx = c === canvasLeft ? ctxLeft : ctxRight;
 
-            isDrawing = true;
-            const pos = getMousePos(e);
-            
-            // LƯU LẠI TOÀN BỘ ẢNH BẢN VẼ TRƯỚC ĐÓ ĐỂ CHỐNG VÓN CỤC VÀ ĐẬM NÉT
-            snapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            
-            // SET STYLE CHO TỪNG LOẠI BÚT
-            if (currentDrawType === 'marker') {
-                ctx.lineWidth = 20;
-                ctx.globalAlpha = 0.3; // Làm mờ để giống bút dạ highlight
-            } else {
-                ctx.lineWidth = 2;
-                ctx.globalAlpha = 1.0;
-            }
-            
-            ctx.beginPath();
-            ctx.moveTo(pos.x, pos.y);
-        });
-
-        canvas.addEventListener('mousemove', (e) => {
-            if (!isDrawing || isTextMode) return;
-            
-            // KIỂM TRA NẾU CHUỘT KHÔNG CÒN ĐƯỢC BẤM NỮA THÌ DỪNG LẠI NGAY LẬP TỨC 
-            // (Chống lỗi kéo lê một vệt dài khi thả chuột ở ngoài rồi lia vào lại)
-            if (e.buttons !== 1) { 
-                isDrawing = false; 
-                saveActionState(); // Lưu lại nét này vào Undo
-                return; 
-            }
-            
-            const pos = getMousePos(e);
-            
-            if (isRainbowMode) {
-                ctx.globalAlpha = 1.0;
-                ctx.lineWidth = (currentDrawType === 'marker') ? 10 : 2;
-                ctx.strokeStyle = `hsl(${hue}, 100%, 50%)`;
-                hue += 3;
-                if (hue >= 360) hue = 0;
-
-                ctx.lineTo(pos.x, pos.y);
-                ctx.stroke();
-                
-                ctx.beginPath();
-                ctx.moveTo(pos.x, pos.y);
-            } else {
-                // VỚI BÚT THƯỜNG / BÚT LÔNG: Khôi phục ảnh nền cũ và vẽ bằng 1 nét liền mạch duy nhất
-                // => Ngăn chặn hoàn toàn hiện tượng vón cục ở các điểm nối
-                ctx.putImageData(snapshot, 0, 0);
-                ctx.strokeStyle = document.getElementById('draw-color-picker').value;
-                ctx.lineTo(pos.x, pos.y);
-                ctx.stroke();
-            }
-        });
-
-        canvas.addEventListener('mouseup', () => {
-            if(isDrawing) { isDrawing = false; saveActionState(); }
-        });
-        canvas.addEventListener('mouseout', () => {
-            if(isDrawing) { isDrawing = false; saveActionState(); }
-        });
-
-        // ==========================================
-        // KHU VỰC 3: XỬ LÝ LƯU NÉT VẼ (ĐÃ TỐI ƯU BỎ LƯU NGẦM)
-        // ==========================================
-
-        window.addEventListener('load', () => {
-            setTimeout(() => {
-                let savedDraw = localStorage.getItem(`win_draw_${fileName}`);
-                if (savedDraw) {
-                    let img = new Image();
-                    img.onload = function() {
-                        ctx.drawImage(img, 0, 0);
-                    };
-                    img.src = savedDraw;
+                if (isTextMode) {
+                    stampTextToCanvas(); 
+                    textPos = getMousePos(e, c);
+                    let txtInput = document.getElementById('canvas-text-input');
+                    let currentZoom = parseFloat(window.getComputedStyle(document.body).zoom) || 1;
+                    txtInput.style.left = (e.clientX / currentZoom) + 'px';
+                    txtInput.style.top = ((e.clientY - 12) / currentZoom) + 'px';
+                    txtInput.style.color = document.getElementById('text-color-picker').value;
+                    txtInput.style.display = 'block';
+                    setTimeout(() => txtInput.focus(), 10);
+                    return;
                 }
-            }, 1000); 
+
+                isDrawing = true;
+                const pos = getMousePos(e, c);
+                
+                if (c === canvasLeft) snapshotLeft = ctxLeft.getImageData(0, 0, canvasLeft.width, canvasLeft.height);
+                else snapshotRight = ctxRight.getImageData(0, 0, canvasRight.width, canvasRight.height);
+                
+                if (currentDrawType === 'marker') {
+                    currentCtx.lineWidth = 20;
+                    currentCtx.globalAlpha = 0.3; 
+                } else {
+                    currentCtx.lineWidth = 2;
+                    currentCtx.globalAlpha = 1.0;
+                }
+                
+                currentCtx.beginPath();
+                currentCtx.moveTo(pos.x, pos.y);
+            });
+
+            c.addEventListener('mousemove', (e) => {
+                if (!isDrawing || isTextMode || currentCanvas !== c) return;
+                
+                if (e.buttons !== 1) { 
+                    isDrawing = false; 
+                    saveActionState(); 
+                    return; 
+                }
+                
+                const pos = getMousePos(e, c);
+                
+                if (isRainbowMode) {
+                    currentCtx.globalAlpha = 1.0;
+                    currentCtx.lineWidth = (currentDrawType === 'marker') ? 10 : 2;
+                    currentCtx.strokeStyle = `hsl(${hue}, 100%, 50%)`;
+                    hue += 3;
+                    if (hue >= 360) hue = 0;
+
+                    currentCtx.lineTo(pos.x, pos.y);
+                    currentCtx.stroke();
+                    currentCtx.beginPath();
+                    currentCtx.moveTo(pos.x, pos.y);
+                } else {
+                    let snap = c === canvasLeft ? snapshotLeft : snapshotRight;
+                    if (snap) currentCtx.putImageData(snap, 0, 0);
+                    currentCtx.strokeStyle = document.getElementById('draw-color-picker').value;
+                    currentCtx.lineTo(pos.x, pos.y);
+                    currentCtx.stroke();
+                }
+            });
+
+            c.addEventListener('mouseup', () => {
+                if(isDrawing && currentCanvas === c) { isDrawing = false; saveActionState(); }
+            });
+            c.addEventListener('mouseout', () => {
+                if(isDrawing && currentCanvas === c) { isDrawing = false; saveActionState(); }
+            });
         });
+
+        // Bỏ lưu Canvas qua trang khác vì nét vẽ giờ dính liền với nội dung của từng câu hỏi
+        window.addEventListener('load', () => {});
+
 
         // HÀM CHẾ ĐỘ TẬP TRUNG
         function toggleFocusMode() {
