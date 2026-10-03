@@ -1673,13 +1673,26 @@
             try {
                 let ipaText = "";
                 try {
-                    let resDict = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(text)}`);
-                    if(resDict.ok) {
-                        let dataDict = await resDict.json();
-                        let txt = dataDict[0]?.phonetic || (dataDict[0]?.phonetics.find(p => p.text)?.text);
-                        if (txt) ipaText = txt.replace(/[\/\[\]]/g, '');
+                    // Thử Datamuse API cực kỳ ổn định trước
+                    let resMuse = await fetch(`https://api.datamuse.com/words?sp=${encodeURIComponent(text)}&md=r&ipa=1&max=1`);
+                    if (resMuse.ok) {
+                        let dataMuse = await resMuse.json();
+                        if (dataMuse.length > 0 && dataMuse[0].tags) {
+                            let ipaTag = dataMuse[0].tags.find(t => t.startsWith('ipa_pron:'));
+                            if (ipaTag) ipaText = ipaTag.split(':')[1];
+                        }
+                    }
+                    // Nếu Datamuse không có thì dự phòng bằng Free Dictionary
+                    if (!ipaText) {
+                        let resDict = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(text)}`);
+                        if(resDict.ok) {
+                            let dataDict = await resDict.json();
+                            let txt = dataDict[0]?.phonetic || (dataDict[0]?.phonetics.find(p => p.text)?.text);
+                            if (txt) ipaText = txt.replace(/[\/\[\]]/g, '');
+                        }
                     }
                 } catch(e) {}
+
 
                 let meaningText = "";
                 try {

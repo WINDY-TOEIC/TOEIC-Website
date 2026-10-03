@@ -2750,21 +2750,31 @@
                           .replace(/ɛ/g, 'e');     // Đổi ɛ thành e
             };
 
-            // 2. Hàm gọi Free Dictionary (Tự động Retry nếu mạng lỗi/server quá tải)
+            // 2. Hàm gọi API lấy phiên âm (Sử dụng song song Datamuse và FreeDictionary để chống sập server)
             const fetchFreeDict = async (word) => {
-                let retries = 50;
+                // Ưu tiên 1: Gọi Datamuse API (Cực kỳ ổn định, tốc độ phản hồi 20ms, không sập)
+                try {
+                    let resMuse = await fetch(`https://api.datamuse.com/words?sp=${encodeURIComponent(word)}&md=r&ipa=1&max=1`);
+                    if (resMuse.ok) {
+                        let dataMuse = await resMuse.json();
+                        if (dataMuse.length > 0 && dataMuse[0].tags) {
+                            let ipaTag = dataMuse[0].tags.find(t => t.startsWith('ipa_pron:'));
+                            if (ipaTag) {
+                                let txt = ipaTag.split(':')[1];
+                                return formatIPA(txt);
+                            }
+                        }
+                    }
+                } catch(e) {}
+
+                // Ưu tiên 2: API dự phòng Free Dictionary (Giảm số lần Retry xuống 2 để khỏi treo web)
+                let retries = 2; 
                 for (let i = 0; i < retries; i++) {
                     try {
                         let res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`);
                         if (!res.ok) {
-                            // Nếu 404 (Từ này chắc chắn không tồn tại) -> Bỏ qua luôn để cắt đuôi s/ed
                             if (res.status === 404) return null; 
-                            
-                            // Nếu server quá tải hoặc lỗi mạng -> Đợi 400ms rồi thử lại
-                            if (i < retries - 1) {
-                                await new Promise(r => setTimeout(r, 400));
-                                continue;
-                            }
+                            if (i < retries - 1) { await new Promise(r => setTimeout(r, 400)); continue; }
                             return null;
                         }
                         
@@ -2781,22 +2791,18 @@
                             if (textItem) txt = textItem.text;
                         }
                         
-                        // Fallback: Quét toàn bộ JSON tìm đoạn kẹp giữa 2 dấu / / (Bỏ qua link bản quyền)
                         if (!txt) {
                             let matches = textData.match(/\/[^\/]+\//g);
                             if (matches) {
                                 for (let m of matches) {
                                     if (!m.includes("creativecommons") && !m.includes("by-sa") && !m.includes("licenses") && !m.includes("api.dictionaryapi") && !m.includes("wiktionary") && !m.includes("http")) {
-                                        txt = m;
-                                        break;
+                                        txt = m; break;
                                     }
                                 }
                             }
                         }
-                        
                         return txt ? formatIPA(txt) : null;
                     } catch (err) {
-                        // Nếu rớt mạng hoàn toàn -> Đợi 400ms thử lại
                         if (i === retries - 1) return null;
                         await new Promise(r => setTimeout(r, 400));
                     }
@@ -2915,23 +2921,35 @@
             btnSave.innerHTML = "⏳";
 
             try {
-                // 1. Lấy IPA từ Free Dictionary (Y chang logic nút IPA)
+                // 1. Lấy IPA bằng Datamuse API (ổn định) + Free Dictionary (dự phòng)
                 let ipaText = "";
                 try {
-                    let resDict = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(text)}`);
-                    if(resDict.ok) {
-                        let dataDict = await resDict.json();
-                        let phonetics = dataDict[0]?.phonetics || [];
-                        let txt = dataDict[0]?.phonetic;
-                        let ukItem = phonetics.find(p => p.text && p.audio && p.audio.includes('-uk'));
-                        if (ukItem) txt = ukItem.text;
-                        else {
-                            let textItem = phonetics.find(p => p.text);
-                            if (textItem) txt = textItem.text;
+                    let resMuse = await fetch(`https://api.datamuse.com/words?sp=${encodeURIComponent(text)}&md=r&ipa=1&max=1`);
+                    if (resMuse.ok) {
+                        let dataMuse = await resMuse.json();
+                        if (dataMuse.length > 0 && dataMuse[0].tags) {
+                            let ipaTag = dataMuse[0].tags.find(t => t.startsWith('ipa_pron:'));
+                            if (ipaTag) ipaText = ipaTag.split(':')[1].replace(/ɹ/g, 'r').replace(/ɛ/g, 'e');
                         }
-                        if (txt) ipaText = txt.replace(/[\/\[\]]/g, '').replace(/ɹ/g, 'r').replace(/ɛ/g, 'e');
+                    }
+                    
+                    if (!ipaText) {
+                        let resDict = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(text)}`);
+                        if(resDict.ok) {
+                            let dataDict = await resDict.json();
+                            let phonetics = dataDict[0]?.phonetics || [];
+                            let txt = dataDict[0]?.phonetic;
+                            let ukItem = phonetics.find(p => p.text && p.audio && p.audio.includes('-uk'));
+                            if (ukItem) txt = ukItem.text;
+                            else {
+                                let textItem = phonetics.find(p => p.text);
+                                if (textItem) txt = textItem.text;
+                            }
+                            if (txt) ipaText = txt.replace(/[\/\[\]]/g, '').replace(/ɹ/g, 'r').replace(/ɛ/g, 'e');
+                        }
                     }
                 } catch(e) {}
+
 
                 // 2. Lấy Nghĩa từ Google Dịch (Y chang logic nút Dịch)
                 let meaningText = "";
