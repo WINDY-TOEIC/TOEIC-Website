@@ -599,6 +599,12 @@
                 marker.style.left = x + 'px';
                 marker.style.top = y + 'px';
                 marker.style.display = 'block';
+            } else {
+                // NẾU BẤM RA NGOÀI ẢNH THÌ ẨN CHẤM ĐỎ ĐI
+                let marker = document.getElementById('pointer-marker');
+                if (marker) {
+                    marker.style.display = 'none';
+                }
             }
         });
 
