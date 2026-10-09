@@ -749,7 +749,7 @@
                         {
                             "title": "20.",
                             "answer": "",
-                            "explanation": "<p>20. How was the color palette for the lobby chosen?<br />(A) Blue and orange.<br />(B) It was fine, thanks.<br /><span><strong>(C) It wasn’t involved.</strong></span></p><p>20. Bảng màu cho sảnh được chọn như thế nào ?<br />(A) Màu xanh và màu cam.<br />(B) Không sao đâu, cảm ơn.<br /><span><strong>(C) Nó không liên quan. </strong></span></p>",
+                            "explanation": "<p>20. How was the color palette for the lobby chosen?<br />(A) Blue and orange.<br />(B) It was fine, thanks.<br /><span><strong>(C) I wasn’t involved.</strong></span></p><p>20. Bảng màu cho sảnh được chọn như thế nào ?<br />(A) Màu xanh và màu cam.<br />(B) Không sao đâu, cảm ơn.<br /><span><strong>(C) Tôi không liên quan. </strong></span></p>",
                             "term_name": "Part 2",
                             "index": 20,
                             "question_id": 13,
