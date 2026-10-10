@@ -1002,11 +1002,21 @@
 
             // Load ghi chú cũ từ máy theo đúng Combo Part đang làm
             let noteKey = window.progressKey ? window.progressKey.replace('win_progress_', 'win_notes_') : `win_notes_${fileName}`;
-            let storedNotes = localStorage.getItem(noteKey);
-            if (storedNotes) savedNotes = JSON.parse(storedNotes);
+            let drawKey = window.progressKey ? window.progressKey.replace('win_progress_', 'win_draw_') : `win_draw_${fileName}`;
+            
+            if (resumeData) {
+                let storedNotes = localStorage.getItem(noteKey);
+                if (storedNotes) savedNotes = JSON.parse(storedNotes);
+            } else {
+                // LÀM MỚI: Xóa sạch note rác để HTML cũ không bị ám vào ca thi mới
+                savedNotes = {};
+                localStorage.removeItem(noteKey);
+                localStorage.removeItem(drawKey);
+            }
 
             // Phục hồi dữ liệu nếu chọn Làm Tiếp
             if (resumeData) {
+
                 userAnswers = resumeData.userAnswers || {};
                 markedQuestions = resumeData.markedQuestions || {};
                 answeredQuestions = resumeData.answeredQuestions || 0;
@@ -2325,6 +2335,13 @@
             localStorage.removeItem(window.progressKey); 
             localStorage.removeItem(`win_draw_${fileName}`); 
             localStorage.removeItem(`win_notes_${fileName}`);
+            
+            // Dọn sạch luôn cả key có chứa đuôi Part để tránh kẹt rác bộ nhớ
+            let noteKey = window.progressKey ? window.progressKey.replace('win_progress_', 'win_notes_') : `win_notes_${fileName}`;
+            let drawKey = window.progressKey ? window.progressKey.replace('win_progress_', 'win_draw_') : `win_draw_${fileName}`;
+            localStorage.removeItem(noteKey);
+            localStorage.removeItem(drawKey);
+
 
             let audioEl = document.getElementById('q-audio');
             if(audioEl) audioEl.pause();
