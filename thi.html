@@ -3022,18 +3022,26 @@
                 let noteSpan = document.createElement('span');
                 noteSpan.className = 'hl-note-text';
                 noteSpan.style.fontSize = '1em';
-                noteSpan.innerHTML = `${note} <span class="del-note" onclick="this.parentElement.remove(); saveActionState();">❌</span>`;
+                noteSpan.innerHTML = `${note} <span class="del-note" onclick="let p = this.parentElement; let prev = p.previousSibling; if(prev && prev.classList && prev.classList.contains('hl-yellow')) { while(prev.firstChild) p.parentNode.insertBefore(prev.firstChild, prev); prev.remove(); } p.remove(); saveActionState();">❌</span>`;
                 
-                // KHÔNG BÔI VÀNG - CHỈ CHÈN VÀO ĐẰNG SAU TỪ ĐÓ
                 let range = currentSelectionRange;
-                range.collapse(false);
-                range.insertNode(noteSpan);
+                try {
+                    let wrapSpan = document.createElement('span');
+                    wrapSpan.className = 'hl-yellow';
+                    range.surroundContents(wrapSpan);
+                    wrapSpan.insertAdjacentElement('afterend', noteSpan);
+                } catch(e) {
+                    // Nếu bôi chéo thẻ HTML bị lỗi, thì chỉ chèn note
+                    range.collapse(false);
+                    range.insertNode(noteSpan);
+                }
 
                 saveActionState(); 
             }
             window.getSelection().removeAllRanges();
             toolbar.classList.remove('active');
         }
+
 
         document.getElementById('tb-note-save').onclick = saveNote;
         
