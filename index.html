@@ -363,41 +363,40 @@
         }
     </style>
     <script>
-        var ua = window.navigator.userAgent || window.opera;
-        var uaStr = ua.toLowerCase();
-        var isIOS = /iphone|ipad|ipod/i.test(ua);
-        var isAndroid = /android/i.test(ua);
-        
-        // Nhận diện Android Webview chuẩn
-        var isAndroidWebView = isAndroid && /wv/i.test(ua);
-        // Nhận diện iOS Webview mạnh tay hơn: Thiếu chữ safari HOẶC thiếu chữ version/
-        var isIOSWebView = isIOS && (!/safari/i.test(ua) || !/version\//i.test(ua));
-        // Đích danh tên các app hay mở trình duyệt ngầm
-        var isApp = /fbav|fban|messenger|instagram|zalo|line|gsa|googleapp|classroom/i.test(uaStr);
+        var ua = window.navigator.userAgent.toLowerCase();
+        // Nhận diện TẤT CẢ các thiết bị di động: Điện thoại, iPad, Máy tính bảng (Bỏ qua hoàn toàn PC/Laptop)
+        var isMobileOrTablet = /iphone|ipad|ipod|android|blackberry|iemobile|opera mini|mobile/i.test(ua);
 
-        if (isAndroidWebView || isIOSWebView || isApp) {
-            var forceShowAlert = function() {
-                if (document.getElementById('webview-warning')) return;
-                var div = document.createElement('div');
-                div.id = 'webview-warning';
-                div.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999999; display: flex; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; backdrop-filter: blur(5px);';
-                div.innerHTML = `<div style="background: white; padding: 25px; border-radius: 12px; text-align: center; max-width: 400px; width: 100%; box-shadow: 0 10px 30px rgba(0,0,0,0.5); font-family: Arial, sans-serif;"><h2 style="color: #dc3545; margin-top: 0; font-size: 22px; font-weight: bold;">⚠️ CẢNH BÁO MẤT BÀI</h2><p style="font-size: 16px; color: #333; line-height: 1.6; margin-bottom: 20px; text-align: left;">Bạn đang mở hệ thống bên trong trình duyệt ngầm của ứng dụng.<br><br><b style="color: #dc3545;">Hệ thống sẽ KHÔNG THỂ LƯU BÀI nếu bạn tắt màn hình.</b><br><br>Vui lòng nhấn vào biểu tượng <b>La bàn / Safari / Chrome</b> ở góc màn hình, hoặc copy link dán ra trình duyệt web để làm bài an toàn!</p><button onclick="document.getElementById('webview-warning').remove()" style="background: #0037f4; color: white; border: none; padding: 12px 20px; border-radius: 6px; font-weight: bold; font-size: 16px; cursor: pointer; width: 100%;">Đã hiểu, tôi sẽ copy link</button></div>`;
-                
-                // Nếu DOM chưa sẵn sàng, nhét thẳng vào documentElement luôn
-                if (document.body) {
-                    document.body.appendChild(div);
-                } else {
-                    document.documentElement.appendChild(div);
-                }
-            };
+        if (isMobileOrTablet) {
+            // Dùng sessionStorage để học sinh chỉ phải bấm "Tôi hiểu" đúng 1 lần duy nhất
+            if (!sessionStorage.getItem('hide_webview_warning')) {
+                var forceShowAlert = function() {
+                    if (document.getElementById('webview-warning')) return;
+                    
+                    var div = document.createElement('div');
+                    div.id = 'webview-warning';
+                    div.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999999; display: flex; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; backdrop-filter: blur(5px);';
+                    div.innerHTML = `
+                    <div style="background: white; padding: 25px; border-radius: 12px; text-align: center; max-width: 400px; width: 100%; box-shadow: 0 10px 30px rgba(0,0,0,0.5); font-family: Arial, sans-serif;">
+                        <h2 style="color: #dc3545; margin-top: 0; font-size: 22px; font-weight: bold;">⚠️ CẢNH BÁO MẤT BÀI</h2>
+                        <p style="font-size: 16px; color: #333; line-height: 1.6; margin-bottom: 20px; text-align: left;">
+                            Nếu bạn dùng điện thoại hoặc Ipad, bạn phải <b>COPY LINK LÀM BÀI</b> ra trình duyệt web thì mới lưu bài được.
+                        </p>
+                        <button onclick="sessionStorage.setItem('hide_webview_warning', 'true'); document.getElementById('webview-warning').remove();" style="background: #0037f4; color: white; border: none; padding: 12px 20px; border-radius: 6px; font-weight: bold; font-size: 16px; cursor: pointer; width: 100%;">Tôi hiểu</button>
+                    </div>`;
+                    
+                    if (document.body) {
+                        document.body.appendChild(div);
+                    } else {
+                        document.documentElement.appendChild(div);
+                    }
+                };
 
-            // Ép chạy bằng mọi giá: load xong chạy, nửa giây sau chạy tiếp, 2 giây sau chạy tiếp để chống trượt
-            window.addEventListener('load', forceShowAlert);
-            setTimeout(forceShowAlert, 500);
-            setTimeout(forceShowAlert, 2000);
+                window.addEventListener('load', forceShowAlert);
+                setTimeout(forceShowAlert, 500);
+            }
         }
     </script>
-
 
 
 
