@@ -372,8 +372,8 @@
         var isMobileOrTablet = /iphone|ipad|ipod|android|blackberry|iemobile|opera mini|mobile/i.test(ua);
 
         if (isMobileOrTablet) {
-            // Dùng sessionStorage để học sinh chỉ phải bấm "Tôi hiểu" đúng 1 lần duy nhất
-            if (!sessionStorage.getItem('hide_webview_warning')) {
+            // DÙNG LOCALSTORAGE ĐỂ LƯU VĨNH VIỄN - BẤM 1 LẦN LÀ NHỚ MÃI MÃI
+            if (!localStorage.getItem('hide_webview_warning')) {
                 var forceShowAlert = function() {
                     if (document.getElementById('webview-warning')) return;
                     
@@ -386,7 +386,7 @@
                         <p style="font-size: 16px; color: #333; line-height: 1.6; margin-bottom: 20px; text-align: left;">
                             Nếu bạn dùng điện thoại hoặc Ipad, bạn phải <b>COPY LINK LÀM BÀI</b> ra trình duyệt web thì mới lưu bài được.
                         </p>
-                        <button onclick="sessionStorage.setItem('hide_webview_warning', 'true'); document.getElementById('webview-warning').remove();" style="background: #0037f4; color: white; border: none; padding: 12px 20px; border-radius: 6px; font-weight: bold; font-size: 16px; cursor: pointer; width: 100%;">Tôi hiểu</button>
+                        <button onclick="localStorage.setItem('hide_webview_warning', 'true'); document.getElementById('webview-warning').remove();" style="background: #0037f4; color: white; border: none; padding: 12px 20px; border-radius: 6px; font-weight: bold; font-size: 16px; cursor: pointer; width: 100%;">Tôi hiểu</button>
                     </div>`;
                     
                     if (document.body) {
