@@ -302,9 +302,24 @@
         var isSocialApp = /fban|fbav|instagram|zalo|line|messenger/.test(ua);
 
         if (isAndroidWebView || isIOSWebView || isSocialApp) {
-            alert("⚠️ CẢNH BÁO QUAN TRỌNG ⚠️\n\nBạn đang mở bài thi bằng trình duyệt ngầm của ứng dụng (Google Classroom, Zalo...).\nHệ thống sẽ bị mất kết nối và KHÔNG THỂ LƯU BÀI nếu bạn tắt màn hình.\n\nBẠN CẦN PHẢI COPY LINK VÀO TRÌNH DUYỆT WEB (Safari / Chrome) ĐỂ LÀM BÀI!");
+            document.addEventListener("DOMContentLoaded", function() {
+                var warningHtml = `
+                <div id="webview-warning" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999999; display: flex; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; backdrop-filter: blur(5px);">
+                    <div style="background: white; padding: 25px; border-radius: 12px; text-align: center; max-width: 400px; width: 100%; box-shadow: 0 10px 30px rgba(0,0,0,0.5); font-family: Arial, sans-serif;">
+                        <h2 style="color: #dc3545; margin-top: 0; font-size: 22px; font-weight: bold;">⚠️ CẢNH BÁO MẤT BÀI</h2>
+                        <p style="font-size: 16px; color: #333; line-height: 1.6; margin-bottom: 20px; text-align: left;">
+                            Bạn đang mở đề thi bên trong trình duyệt ngầm của ứng dụng (Classroom, Zalo...).<br><br>
+                            <b style="color: #dc3545;">Hệ thống sẽ KHÔNG THỂ LƯU BÀI nếu bạn tắt màn hình hoặc chuyển app.</b><br><br>
+                            Vui lòng nhấn vào biểu tượng <b>Mở trong Safari / Chrome</b> ở góc màn hình, hoặc copy link dán ra trình duyệt web để làm bài an toàn!
+                        </p>
+                        <button onclick="document.getElementById('webview-warning').remove()" style="background: #0037f4; color: white; border: none; padding: 12px 20px; border-radius: 6px; font-weight: bold; font-size: 16px; cursor: pointer; width: 100%;">Đã hiểu, tôi sẽ copy link</button>
+                    </div>
+                </div>`;
+                document.body.insertAdjacentHTML('beforeend', warningHtml);
+            });
         }
     </script>
+
 
 </head>
 <body>
