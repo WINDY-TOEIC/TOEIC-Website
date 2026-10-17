@@ -1417,7 +1417,8 @@ ${suggestionFormat}`;
                 details: detailData 
             }); 
             
-            if (historyData.length > 100) historyData.pop();
+            if (historyData.length > 20) historyData.pop();
+
             localStorage.setItem('win_history', JSON.stringify(historyData));
             
             // Thoát về Landing Page
