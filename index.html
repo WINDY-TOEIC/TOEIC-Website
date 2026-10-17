@@ -430,8 +430,12 @@
             <div id="history-dropdown" class="history-dropdown">
                 <h3 style="margin-top: 0; margin-bottom: 15px; font-size: 16px; color: #003366; border-bottom: 1px solid #eee; padding-bottom: 10px; display: flex; align-items: center; gap: 8px;">
     LỊCH SỬ GẦN ĐÂY
-    <span title="Chỉ lưu 20 bài gần nhất" style="background: #6c757d; color: white; border-radius: 50%; width: 16px; height: 16px; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; cursor: help;">?</span>
+    <span style="position: relative; display: inline-flex; align-items: center; cursor: help;" onmouseenter="this.children[1].style.opacity='1'; this.children[1].style.visibility='visible';" onmouseleave="this.children[1].style.opacity='0'; this.children[1].style.visibility='hidden';">
+        <span style="background: #6c757d; color: white; border-radius: 50%; width: 16px; height: 16px; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold;">?</span>
+        <span style="position: absolute; top: 22px; left: 0; background: #333; color: #fff; padding: 4px 8px; border-radius: 4px; white-space: nowrap; font-size: 12px; opacity: 0; visibility: hidden; transition: opacity 0.1s ease; pointer-events: none; z-index: 1000; font-weight: normal; box-shadow: 0 2px 6px rgba(0,0,0,0.25);">Chỉ lưu 20 bài gần nhất</span>
+    </span>
 </h3>
+
 
                 <div id="history-container" class="history-list">
                     <!-- Lịch sử sẽ tự động chèn vào đây -->
